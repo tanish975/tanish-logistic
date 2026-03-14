@@ -81,6 +81,9 @@
     "export": "next build && next export",
     "test": "jest"
   },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "browserslist": {
     "production": [
       ">0.2%",
