@@ -28,7 +28,7 @@ import ReviewsView from '@/components/admin/ReviewsView';
 import DriversView from '@/components/admin/DriversView';
 import VehiclesView from '@/components/admin/VehiclesView';
 import RoutesView from '@/components/admin/RoutesView';
-import SettingsPage from './settings'; // Import the new SettingsPage
+import SettingsPage from './settings';
 
 const AccessDenied = ({ onLogout }) => (
   <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
@@ -40,18 +40,25 @@ const AccessDenied = ({ onLogout }) => (
   </div>
 );
 
-// Define valid statuses based on your Prisma enum
 const VALID_BOOKING_STATUSES = ['PENDING', 'CONFIRMED', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'];
+
+// Sample bookings data (without database)
+const sampleBookings = [
+  { id: 1, bookingId: 'BK001', clientName: 'ABC Corporation', pickup: 'Mumbai', drop: 'Delhi', date: '2025-03-10', status: 'DELIVERED', price: 25000 },
+  { id: 2, bookingId: 'BK002', clientName: 'XYZ Industries', pickup: 'Bangalore', drop: 'Chennai', date: '2025-03-12', status: 'IN_TRANSIT', price: 18000 },
+  { id: 3, bookingId: 'BK003', clientName: 'PQR Logistics', pickup: 'Ahmedabad', drop: 'Surat', date: '2025-03-14', status: 'PENDING', price: 8000 },
+  { id: 4, bookingId: 'BK004', clientName: 'Global Trade Co', pickup: 'Hyderabad', drop: 'Pune', date: '2025-03-15', status: 'CONFIRMED', price: 22000 },
+  { id: 5, bookingId: 'BK005', clientName: 'Sunrise Exports', pickup: 'Vadodara', drop: 'Mumbai', date: '2025-03-16', status: 'PENDING', price: 15000 },
+];
 
 const AdminPage = () => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [bookings, setBookings] = useState([]);
-  const [reviews, setReviews] = useState([]); // Assuming reviews still come from a file for now
+  const [reviews, setReviews] = useState([]);
   const [filteredBookings, setFilteredBookings] = useState([]);
   const [currentSection, setCurrentSection] = useState('dashboard');
 
-  // Filters
   const [searchInput, setSearchInput] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -60,17 +67,16 @@ const AdminPage = () => {
       try {
         const response = await fetch('/api/user');
         const data = await response.json();
-        if (data.isLoggedIn && data.user.role === 'ADMIN') { // Ensure role check matches Prisma enum
+        if (data.isLoggedIn && data.user?.role === 'ADMIN') {
           setUser(data.user);
           loadBookings();
-          loadReviews(); // Load reviews if still needed
+          loadReviews();
         } else {
           setUser(null);
         }
       } catch (error) {
         console.error('Session check failed', error);
         setUser(null);
-        toast.error('Session check failed');
       }
       setIsLoading(false);
     };
@@ -81,8 +87,8 @@ const AdminPage = () => {
     let filtered = bookings;
     if (searchInput) {
       filtered = filtered.filter(b => 
-        b.clientName.toLowerCase().includes(searchInput.toLowerCase()) || // Use clientName from Prisma model
-        b.bookingId.toLowerCase().includes(searchInput.toLowerCase()) // Use bookingId from Prisma model
+        b.clientName.toLowerCase().includes(searchInput.toLowerCase()) ||
+        b.bookingId.toLowerCase().includes(searchInput.toLowerCase())
       );
     }
     if (statusFilter !== 'all') {
@@ -92,34 +98,24 @@ const AdminPage = () => {
   }, [bookings, searchInput, statusFilter]);
 
   const loadBookings = async () => {
-    try {
-      const response = await fetch('/api/get-bookings');
-      if (!response.ok) throw new Error('Failed to fetch bookings');
-      const data = await response.json();
-      setBookings(data);
-      toast.success('Bookings loaded successfully');
-    } catch (error) {
-      console.error("Could not load bookings:", error);
-      toast.error('Could not load bookings.');
-    }
+    setBookings(sampleBookings);
+    toast.success('Bookings loaded successfully');
   };
 
   const loadReviews = async () => {
     try {
-      // Load reviews from API
-      const response = await fetch('/api/reviews');
+      const response = await fetch('/data/reviews.json');
       if (!response.ok) throw new Error('Failed to fetch reviews');
       const data = await response.json();
       setReviews(data);
     } catch (error) {
       console.error("Could not load reviews:", error);
-      toast.error('Could not load reviews.');
     }
   };
 
   const handleLoginSuccess = (loggedInUser) => {
     setUser(loggedInUser);
-    if (loggedInUser.role === 'ADMIN') { // Ensure role matches Prisma enum
+    if (loggedInUser.role === 'ADMIN') {
       loadBookings();
       loadReviews();
     }
@@ -127,41 +123,19 @@ const AdminPage = () => {
 
   const handleLogout = async () => {
     if (confirm('Are you sure you want to logout?')) {
-      await fetch('/api/logout');
+      await fetch('/api/logout', { method: 'POST' });
       setUser(null);
       toast.info('You have been logged out.');
     }
   };
 
   const handleUpdateBookingStatus = async (bookingId, newStatus) => {
-    try {
-      const response = await fetch('/api/update-booking-status', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ bookingId, newStatus }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update booking status');
-      }
-
-      const updatedBookingResponse = await response.json();
-      const updatedBooking = updatedBookingResponse.booking;
-
-      // Update the local state to reflect the change
-      setBookings(prevBookings =>
-        prevBookings.map(b =>
-          b.bookingId === updatedBooking.bookingId ? updatedBooking : b
-        )
-      );
-      toast.success(`Booking ${updatedBooking.bookingId} status updated to ${updatedBooking.status}`);
-    } catch (error) {
-      console.error('Error updating booking status:', error);
-      toast.error(error.message || 'Error updating booking status.');
-    }
+    setBookings(prevBookings =>
+      prevBookings.map(b =>
+        b.bookingId === bookingId ? { ...b, status: newStatus } : b
+      )
+    );
+    toast.success(`Booking ${bookingId} status updated to ${newStatus}`);
   };
 
   const getStatusVariant = (status) => {
@@ -169,7 +143,7 @@ const AdminPage = () => {
       case 'DELIVERED': return 'success';
       case 'IN_TRANSIT': return 'secondary';
       case 'CANCELLED': return 'destructive';
-      case 'CONFIRMED': return 'default'; // A new variant for CONFIRMED
+      case 'CONFIRMED': return 'default';
       case 'PENDING':
       default: return 'outline';
     }
@@ -183,7 +157,7 @@ const AdminPage = () => {
     return <LoginForm onLoginSuccess={handleLoginSuccess} />;
   }
 
-  if (user.role !== 'ADMIN') { // Ensure role matches Prisma enum
+  if (user.role !== 'ADMIN') {
     return <AccessDenied onLogout={handleLogout} />;
   }
 
@@ -216,31 +190,6 @@ const AdminPage = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    {/* Week filter might need adjustment if b.date is ISO string or Date object */}
-                    {/* <Select onValueChange={(value) => {
-                      const now = new Date();
-                      let from;
-                      if (value === 'this-week') {
-                        from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-                      } else if (value === 'last-week') {
-                        from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() - 7);
-                      }
-                      const filtered = bookings.filter(b => {
-                        if (!from) return true;
-                        const bookingDate = new Date(b.date);
-                        return bookingDate >= from;
-                      });
-                      setFilteredBookings(filtered);
-                    }}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Filter by week" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all-time">All Time</SelectItem>
-                        <SelectItem value="this-week">This Week</SelectItem>
-                        <SelectItem value="last-week">Last Week</SelectItem>
-                      </SelectContent>
-                    </Select> */}
                     <Button onClick={loadBookings}>Refresh</Button>
                   </div>
                   <Card className="shadow-lg">
@@ -251,6 +200,7 @@ const AdminPage = () => {
                           <TableHead>Client</TableHead>
                           <TableHead>Route</TableHead>
                           <TableHead>Date</TableHead>
+                          <TableHead>Price</TableHead>
                           <TableHead>Status</TableHead>
                           <TableHead>Actions</TableHead>
                         </TableRow>
@@ -262,9 +212,10 @@ const AdminPage = () => {
                             <TableCell>{booking.clientName}</TableCell>
                             <TableCell>{booking.pickup} → {booking.drop}</TableCell>
                             <TableCell>{new Date(booking.date).toLocaleDateString()}</TableCell>
+                            <TableCell>₹{booking.price?.toLocaleString()}</TableCell>
                             <TableCell>
                                 <Select value={booking.status} onValueChange={(newStatus) => handleUpdateBookingStatus(booking.bookingId, newStatus)}>
-                                    <SelectTrigger className="w-[120px] bg-background border-input">
+                                    <SelectTrigger className="w-[120px] bg-background">
                                         <SelectValue placeholder="Update Status" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -276,9 +227,7 @@ const AdminPage = () => {
                                     </SelectContent>
                                 </Select>
                             </TableCell>
-                            <TableCell>
-                                {/* Future action buttons could go here */}
-                            </TableCell>
+                            <TableCell></TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -297,7 +246,7 @@ const AdminPage = () => {
             case 'reviews':
               return <ReviewsView reviews={reviews} onRefresh={loadReviews} />;
             case 'settings':
-              return <SettingsPage />; {/* Render the new SettingsPage */}
+              return <SettingsPage />;
             default:
               return null;
           }
