@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tanish Logistic – Admin Control Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .sidebar { 
+            transition: transform 0.3s ease; 
+            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+        }
+        .mobile-cards { display: none; }
+        .desktop-table { display: block; }
+        @media (max-width: 768px) { 
+            .desktop-table { display: none; } 
+            .mobile-cards { display: block; 
+        }
+        .status-pending { @apply bg-yellow-100 text-yellow-800 border border-yellow-200; }
+        .status-transit { @apply bg-blue-100 text-blue-800 border border-blue-200; }
+        .status-delivered { @apply bg-green-100 text-green-800 border border-green-200; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .btn-primary { @apply bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105; }
+        .btn-secondary { @apply bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200; }
+        .btn-success { @apply bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200; }
+        .btn-danger { @apply bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200; }
+        .input-field { @apply w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200; }
+        .modal { @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50; }
+        .modal-content { @apply bg-white p-8 rounded-xl shadow-2xl w-full max-w-md mx-4; }
+        .notification { @apply fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transform transition-all duration-300; }
+        .notification-success { @apply bg-green-500 text-white; }
+        .notification-error { @apply bg-red-500 text-white; }
+        .notification-info { @apply bg-blue-500 text-white; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Firebase Config -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "your-api-key-here",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="fixed inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-truck text-white text-2xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Tanish Logistic</h2>
+                <p class="text-gray-600">Admin Control Center</p>
+            </div>
+            
+            <form onsubmit="login(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Username/Email</label>
+                    <input id="email" type="email" placeholder="admin@tanishlogistic.com" required 
+                           class="input-field">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input id="password" type="password" placeholder="••••••••" required 
+                           class="input-field">
+                </div>
+                <button type="submit" class="btn-primary w-full">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Login
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <button onclick="googleLogin()" class="w-full bg-white border-2 border-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg hover:bg-gray-50 transition-all duration-200">
+                    <i class="fab fa-google mr-2"></i>Login with Google
+                </button>
+            </div>
+            
+            <div class="mt-4 text-center text-sm text-gray-500">
+                <p>Default Admin: admin@tanishlogistic.com</p>
+                <p>Password: admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="main-dashboard" class="hidden">
+        <!-- Top Navigation -->
+        <nav class="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-40">
+            <div class="px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-truck text-white"></i>
+                        </div>
+                        <h1 class="text-xl font-bold text-gray-800">Tanish Logistic Admin</h1>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <button onclick="toggleDarkMode()" class="p-2 text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-moon" id="dark-mode-icon"></i>
+                        </button>
+                        <div class="flex items-center space-x-2 text-sm text-gray-600">
+                            <i class="fas fa-user-circle"></i>
+                            <span id="user-email">Admin</span>
+                        </div>
+                        <button onclick="logout()" class="btn-danger text-sm">
+                            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                        </button>
+                        <button onclick="toggleSidebar()" class="md:hidden p-2 text-gray-500">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="flex">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="sidebar w-64 min-h-screen p-6 hidden md:block">
+                <nav class="space-y-2">
+                    <a onclick="showSection('dashboard')" class="nav-item flex items-center py-3 px-4 text-white rounded-lg hover:bg-white hover:bg-opacity-20 cursor-pointer transition-all duration-200">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        <span class="font-medium">Dashboard</span>
+                    </a>
+                    <a onclick="showSection('bookings')" class="nav-item flex items-center py-3 px-4 text-white rounded-lg hover:bg-white hover:bg-opacity-20 cursor-pointer transition-all duration-200">
+                        <i class="fas fa-boxes mr-3"></i>
+                        <span class="font-medium">Bookings</span>
+                    </a>
+                    <a onclick="showSection('records')" class="nav-item flex items-center py-3 px-4 text-white rounded-lg hover:bg-white hover:bg-opacity-20 cursor-pointer transition-all duration-200">
+                        <i class="fas fa-chart-line mr-3"></i>
+                        <span class="font-medium">Records & Reports</span>
+                    </a>
+                    <a onclick="showSection('settings')" class="nav-item flex items-center py-3 px-4 text-white rounded-lg hover:bg-white hover:bg-opacity-20 cursor-pointer transition-all duration-200">
+                        <i class="fas fa-cog mr-3"></i>
+                        <span class="font-medium">Settings</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-6">
+                <!-- Dashboard Section -->
+                <section id="dashboard-section">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Dashboard Overview</h2>
+                        <p class="text-gray-600">Monitor your logistics operations in real-time</p>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Total Bookings</p>
+                                    <p class="text-3xl font-bold text-gray-900" id="total-bookings">0</p>
+                                </div>
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-boxes text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">In Transit</p>
+                                    <p class="text-3xl font-bold text-blue-600" id="transit-count">0</p>
+                                </div>
+                                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-truck text-yellow-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Delivered</p>
+                                    <p class="text-3xl font-bold text-green-600" id="delivered-count">0</p>
+                                </div>
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Pending</p>
+                                    <p class="text-3xl font-bold text-yellow-600" id="pending-count">0</p>
+                                </div>
+                                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-clock text-orange-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <button onclick="showAddBookingModal()" class="btn-primary text-center">
+                                <i class="fas fa-plus mr-2"></i>Add New Booking
+                            </button>
+                            <button onclick="exportData('csv')" class="btn-secondary text-center">
+                                <i class="fas fa-download mr-2"></i>Export CSV
+                            </button>
+                            <button onclick="syncWithSheets()" class="btn-success text-center">
+                                <i class="fas fa-sync mr-2"></i>Sync Google Sheets
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Map Placeholder -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Live Operations Map</h3>
+                        <div class="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
+                            <div class="text-center text-gray-500">
+                                <i class="fas fa-map-marked-alt text-4xl mb-2"></i>
+                                <p>Shipment status will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Bookings Section -->
+                <section id="bookings-section" class="hidden">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Booking Management</h2>
+                        <p class="text-gray-600">Manage all client bookings and shipment status</p>
+                    </div>
+
+                    <!-- Filters and Search -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <input type="text" placeholder="Search by ID, client, or company" id="search-input" 
+                                   class="input-field">
+                            <select id="status-filter" class="input-field">
+                                <option value="">All Status</option>
+                                <option value="Pending">⏳ Pending</option>
+                                <option value="In Transit">🚚 In Transit</option>
+                                <option value="Delivered">✅ Delivered</option>
+                            </select>
+                            <input type="date" id="date-filter" class="input-field">
+                            <button onclick="applyFilters()" class="btn-primary">
+                                <i class="fas fa-search mr-2"></i>Filter
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Table -->
+                    <div class="desktop-table bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client Details</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Route</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cargo</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bookings-table" class="bg-white divide-y divide-gray-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Cards -->
+                    <div class="mobile-cards space-y-4" id="bookings-cards"></div>
+                </section>
+
+                <!-- Records Section -->
+                <section id="records-section" class="hidden">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Records & Reports</h2>
+                        <p class="text-gray-600">Complete booking history and analytics</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <div class="mb-6">
+                            <div class="flex flex-wrap gap-4">
+                                <input type="text" placeholder="Search records..." id="records-search" 
+                                       class="input-field flex-1 min-w-64">
+                                <button onclick="searchRecords()" class="btn-primary">
+                                    <i class="fas fa-search mr-2"></i>Search
+                                </button>
+                                <button onclick="exportData('pdf')" class="btn-secondary">
+                                    <i class="fas fa-file-pdf mr-2"></i>Export PDF
+                                </button>
+                                <button onclick="exportData('excel')" class="btn-success">
+                                    <i class="fas fa-file-excel mr-2"></i>Export Excel
+                                </button>
+                            </div>
+                        </div>
+                        <div id="records-content" class="text-gray-600">
+                            <div class="text-center py-12">
+                                <i class="fas fa-chart-line text-6xl text-gray-300 mb-4"></i>
+                                <p class="text-xl">Records and analytics will be displayed here</p>
+                                <p class="text-sm mt-2">All booking data will be automatically synced</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings-section" class="hidden">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Settings</h2>
+                        <p class="text-gray-600">Configure your admin preferences</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Notification Settings</h3>
+                        <div class="space-y-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-3" checked>
+                                <span>WhatsApp notifications for new bookings</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-3" checked>
+                                <span>Email alerts for status updates</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="mr-3">
+                                <span>Push notifications (mobile)</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add Booking Modal -->
+    <div id="add-booking-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">Add New Booking</h3>
+                <button onclick="closeAddBookingModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form onsubmit="addBooking(event)" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Client Name</label>
+                        <input type="text" id="client-name" required class="input-field">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Company</label>
+                        <input type="text" id="client-company" class="input-field">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                        <input type="tel" id="client-phone" required class="input-field">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="client-email" class="input-field">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Pickup Location</label>
+                        <input type="text" id="pickup-location" required class="input-field">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Drop Location</label>
+                        <input type="text" id="drop-location" required class="input-field">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Cargo Details</label>
+                    <textarea id="cargo-details" rows="3" class="input-field" placeholder="Describe the cargo, weight, dimensions, etc."></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="closeAddBookingModal()" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <script>
+        // Global variables
+        let bookings = [];
+        let user = null;
+        let isDarkMode = false;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate authentication for demo
+            simulateLogin();
+            loadBookings();
+        });
+
+        // Authentication functions
+        function simulateLogin() {
+            // For demo purposes, simulate a logged-in state
+            user = { email: 'admin@tanishlogistic.com' };
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-dashboard').classList.remove('hidden');
+            document.getElementById('user-email').textContent = user.email;
+        }
+
+        function login(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple demo authentication
+            if (email === 'admin@tanishlogistic.com' && password === 'admin123') {
+                simulateLogin();
+                showNotification('Login successful!', 'success');
+            } else {
+                showNotification('Invalid credentials. Use admin@tanishlogistic.com / admin123', 'error');
+            }
+        }
+
+        function googleLogin() {
+            showNotification('Google login would be implemented here', 'info');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                user = null;
+                window.location.href = '/';
+            }
+        }
+
+        // Navigation functions
+        function showSection(section) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(section + '-section').classList.remove('hidden');
+            
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-white', 'bg-opacity-20');
+            });
+            event.target.closest('.nav-item').classList.add('bg-white', 'bg-opacity-20');
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        }
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            const icon = document.getElementById('dark-mode-icon');
+            if (isDarkMode) {
+                document.body.classList.add('dark');
+                icon.className = 'fas fa-sun';
+            } else {
+                document.body.classList.remove('dark');
+                icon.className = 'fas fa-moon';
+            }
+        }
+
+        // Booking management
+        function loadBookings() {
+            // Simulate data loading
+            bookings = [
+                { 
+                    id: 'TN001', 
+                    client: 'ABC Corporation', 
+                    company: 'ABC Corp',
+                    phone: '+91 9876543210', 
+                    email: 'contact@abccorp.com',
+                    pickup: 'Mumbai', 
+                    drop: 'Pune', 
+                    cargo: 'Electronics - 50kg',
+                    date: '2024-01-15', 
+                    status: 'Pending' 
+                },
+                { 
+                    id: 'TN002', 
+                    client: 'XYZ Limited', 
+                    company: 'XYZ Ltd',
+                    phone: '+91 8765432109', 
+                    email: 'info@xyzltd.com',
+                    pickup: 'Delhi', 
+                    drop: 'Bengaluru', 
+                    cargo: 'Textiles - 200kg',
+                    date: '2024-01-20', 
+                    status: 'In Transit' 
+                },
+                { 
+                    id: 'TN003', 
+                    client: 'DEF Private Ltd', 
+                    company: 'DEF Pvt',
+                    phone: '+91 7654321098', 
+                    email: 'orders@defpvt.com',
+                    pickup: 'Hyderabad', 
+                    drop: 'Chennai', 
+                    cargo: 'Machinery Parts - 500kg',
+                    date: '2024-01-25', 
+                    status: 'Delivered' 
+                },
+                { 
+                    id: 'TN004', 
+                    client: 'GHI Industries', 
+                    company: 'GHI Ind',
+                    phone: '+91 6543210987', 
+                    email: 'logistics@ghiind.com',
+                    pickup: 'Kolkata', 
+                    drop: 'Mumbai', 
+                    cargo: 'Steel Components - 1000kg',
+                    date: '2024-01-28', 
+                    status: 'Pending' 
+                }
+            ];
+            renderBookings();
+            updateDashboardStats();
+        }
+
+        function renderBookings() {
+            const table = document.getElementById('bookings-table');
+            const cards = document.getElementById('bookings-cards');
+            
+            table.innerHTML = '';
+            cards.innerHTML = '';
+
+            bookings.forEach(booking => {
+                // Desktop table row
+                const row = `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${booking.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${booking.client}</div>
+                            <div class="text-sm text-gray-500">${booking.company}</div>
+                            <div class="text-sm text-gray-500">${booking.phone}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div class="flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
+                                ${booking.pickup} → ${booking.drop}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${booking.cargo}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${booking.date}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(booking.status)}">
+                                ${getStatusIcon(booking.status)} ${booking.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <select onchange="updateStatus('${booking.id}', this.value)" 
+                                        class="text-sm border border-gray-300 rounded px-2 py-1">
+                                    <option value="Pending" ${booking.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="In Transit" ${booking.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+                                    <option value="Delivered" ${booking.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                                </select>
+                                <button onclick="editBooking('${booking.id}')" class="text-blue-600 hover:text-blue-900">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteBooking('${booking.id}')" class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                table.insertAdjacentHTML('beforeend', row);
+
+                // Mobile card
+                const card = `
+                    <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">${booking.id}</h3>
+                                <p class="text-sm text-gray-600">${booking.client} - ${booking.company}</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(booking.status)}">
+                                ${getStatusIcon(booking.status)} ${booking.status}
+                            </span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-phone w-4 mr-2"></i>
+                                <a href="tel:${booking.phone}" class="hover:text-blue-600">${booking.phone}</a>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-route w-4 mr-2"></i>
+                                ${booking.pickup} → ${booking.drop}
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-box w-4 mr-2"></i>
+                                ${booking.cargo}
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-calendar w-4 mr-2"></i>
+                                ${booking.date}
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2">
+                            <select onchange="updateStatus('${booking.id}', this.value)" 
+                                    class="flex-1 text-sm border border-gray-300 rounded px-3 py-2">
+                                <option value="Pending" ${booking.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="In Transit" ${booking.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+                                <option value="Delivered" ${booking.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                            </select>
+                            <button onclick="editBooking('${booking.id}')" class="btn-secondary text-sm">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </button>
+                            <button onclick="deleteBooking('${booking.id}')" class="btn-danger text-sm">
+                                <i class="fas fa-trash mr-1"></i>Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+                cards.insertAdjacentHTML('beforeend', card);
+            });
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'Pending': return 'status-pending';
+                case 'In Transit': return 'status-transit';
+                case 'Delivered': return 'status-delivered';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function getStatusIcon(status) {
+            switch(status) {
+                case 'Pending': return '⏳';
+                case 'In Transit': return '🚚';
+                case 'Delivered': return '✅';
+                default: return '❓';
+            }
+        }
+
+        function updateStatus(id, status) {
+            const booking = bookings.find(b => b.id === id);
+            if (booking) {
+                booking.status = status;
+                renderBookings();
+                updateDashboardStats();
+                showNotification(`Status updated to ${status}`, 'success');
+                
+                // Simulate sync to Firebase and Google Sheets
+                console.log('Synced to Firebase and Google Sheets');
+            }
+        }
+
+        function editBooking(id) {
+            const booking = bookings.find(b => b.id === id);
+            if (booking) {
+                showNotification('Edit functionality would open a modal here', 'info');
+            }
+        }
+
+        function deleteBooking(id) {
+            if (confirm('Are you sure you want to delete this booking?')) {
+                bookings = bookings.filter(b => b.id !== id);
+                renderBookings();
+                updateDashboardStats();
+                showNotification('Booking deleted successfully', 'success');
+            }
+        }
+
+        function updateDashboardStats() {
+            const total = bookings.length;
+            const pending = bookings.filter(b => b.status === 'Pending').length;
+            const transit = bookings.filter(b => b.status === 'In Transit').length;
+            const delivered = bookings.filter(b => b.status === 'Delivered').length;
+            
+            document.getElementById('total-bookings').textContent = total;
+            document.getElementById('pending-count').textContent = pending;
+            document.getElementById('transit-count').textContent = transit;
+            document.getElementById('delivered-count').textContent = delivered;
+        }
+
+        // Filter and search functions
+        function applyFilters() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const status = document.getElementById('status-filter').value;
+            const date = document.getElementById('date-filter').value;
+            
+            let filtered = bookings.filter(b => 
+                (b.client.toLowerCase().includes(search) || 
+                 b.id.toLowerCase().includes(search) ||
+                 b.company.toLowerCase().includes(search)) &&
+                (!status || b.status === status) &&
+                (!date || b.date === date)
+            );
+            
+            // Temporarily replace bookings for demo
+            const originalBookings = [...bookings];
+            bookings = filtered;
+            renderBookings();
+            
+            // Restore original data after a delay
+            setTimeout(() => {
+                bookings = originalBookings;
+            }, 100);
+        }
+
+        function searchRecords() {
+            showNotification('Records search functionality would be implemented here', 'info');
+        }
+
+        // Modal functions
+        function showAddBookingModal() {
+            document.getElementById('add-booking-modal').classList.remove('hidden');
+        }
+
+        function closeAddBookingModal() {
+            document.getElementById('add-booking-modal').classList.add('hidden');
+            document.querySelector('form[onsubmit="addBooking(event)"]').reset();
+        }
+
+        function addBooking(event) {
+            event.preventDefault();
+            
+            const newBooking = {
+                id: 'TN' + String(bookings.length + 1).padStart(3, '0'),
+                client: document.getElementById('client-name').value,
+                company: document.getElementById('client-company').value,
+                phone: document.getElementById('client-phone').value,
+                email: document.getElementById('client-email').value,
+                pickup: document.getElementById('pickup-location').value,
+                drop: document.getElementById('drop-location').value,
+                cargo: document.getElementById('cargo-details').value,
+                date: new Date().toISOString().split('T')[0],
+                status: 'Pending'
+            };
+            
+            bookings.unshift(newBooking);
+            renderBookings();
+            updateDashboardStats();
+            closeAddBookingModal();
+            showNotification('New booking added successfully!', 'success');
+        }
+
+        // Export functions
+        function exportData(format) {
+            if (format === 'csv') {
+                const csv = Papa.unparse(bookings);
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tanish-logistic-bookings.csv';
+                a.click();
+                URL.revokeObjectURL(url);
+                showNotification('CSV exported successfully!', 'success');
+            } else if (format === 'pdf') {
+                showNotification('PDF export would be implemented here', 'info');
+            } else if (format === 'excel') {
+                showNotification('Excel export would be implemented here', 'info');
+            }
+        }
+
+        function syncWithSheets() {
+            showNotification('Syncing with Google Sheets...', 'info');
+            // Simulate sync delay
+            setTimeout(() => {
+                showNotification('Successfully synced with Google Sheets!', 'success');
+            }, 2000);
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Initialize dashboard on load
+        showSection('dashboard');
+    </script>
+</body>
+</html>

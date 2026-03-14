@@ -1,0 +1,154 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enum for User Roles
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+// User Model for authentication and roles
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Booking Model to store all booking information
+
+model Booking {
+
+  id                  String        @id @default(cuid())
+
+  bookingId           String        @unique // For human-readable IDs like TN0007
+
+  clientName          String
+
+  companyName         String?
+
+  phone               String
+
+  email               String
+
+  pickup              String
+
+  drop                String
+
+  cargo               String
+
+  cargoWeight         Float?
+
+  cargoValue          Float?
+
+  cargoDescription    String?
+
+  pickupAddress       String
+
+  dropAddress         String
+
+  date                DateTime
+
+  serviceType         String
+
+    specialInstructions String?
+
+    price               Float?
+
+    status              BookingStatus @default(PENDING)
+
+    createdAt           DateTime      @default(now())
+
+    updatedAt           DateTime      @updatedAt
+
+  
+
+    // Relations
+
+    driverId  String?
+
+  driver    Driver?  @relation(fields: [driverId], references: [id])
+
+  vehicleId String?
+
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+
+}
+
+
+
+// Driver Model
+
+model Driver {
+
+  id            String    @id @default(cuid())
+
+  name          String
+
+  phone         String    @unique
+
+  licenseNumber String    @unique
+
+  createdAt     DateTime  @default(now())
+
+  updatedAt     DateTime  @updatedAt
+
+  bookings      Booking[] // A driver can have multiple bookings
+
+}
+
+
+
+// Vehicle Model
+
+model Vehicle {
+
+  id           String    @id @default(cuid())
+
+  make         String
+
+  model        String
+
+  licensePlate String    @unique
+
+  type         String // e.g., "Truck", "Van", "Container"
+
+  capacity     Float // in tons
+
+  createdAt    DateTime  @default(now())
+
+  updatedAt    DateTime  @updatedAt
+
+  bookings     Booking[] // A vehicle can be used for multiple bookings
+
+}
+
+
+
+// Enum for Booking Status
+
+enum BookingStatus {
+
+  PENDING
+
+  CONFIRMED
+
+  IN_TRANSIT
+
+  DELIVERED
+
+  CANCELLED
+
+}

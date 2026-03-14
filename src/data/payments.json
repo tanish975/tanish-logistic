@@ -1,0 +1,23 @@
+[
+  {
+    "id": "PAY-001",
+    "bookingId": "BK-001",
+    "amount": 5000,
+    "status": "Paid",
+    "date": "2025-10-20"
+  },
+  {
+    "id": "PAY-002",
+    "bookingId": "BK-002",
+    "amount": 7500,
+    "status": "Paid",
+    "date": "2025-10-21"
+  },
+  {
+    "id": "PAY-003",
+    "bookingId": "BK-003",
+    "amount": 3000,
+    "status": "Pending",
+    "date": "2025-10-22"
+  }
+]
