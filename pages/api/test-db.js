@@ -6,6 +6,26 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
+  // First check if DATABASE_URL is set
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    return res.status(500).json({ 
+      success: false, 
+      error: 'DATABASE_URL is not set',
+      nodeEnv: process.env.NODE_ENV
+    });
+  }
+
+  // Check if it's the correct format
+  if (!dbUrl.startsWith('postgresql://')) {
+    return res.status(500).json({ 
+      success: false, 
+      error: 'DATABASE_URL has invalid format',
+      dbUrlPreview: dbUrl.substring(0, 30) + '...',
+      nodeEnv: process.env.NODE_ENV
+    });
+  }
+
   try {
     // Test database connection
     await prisma.$connect();
@@ -19,8 +39,7 @@ export default async function handler(req, res) {
       message: 'Database connected!',
       userCount,
       bookingCount,
-      nodeEnv: process.env.NODE_ENV,
-      dbUrlSet: !!process.env.DATABASE_URL
+      nodeEnv: process.env.NODE_ENV
     });
   } catch (error) {
     console.error('Database error:', error);
@@ -29,7 +48,7 @@ export default async function handler(req, res) {
       error: error.message,
       code: error.code,
       nodeEnv: process.env.NODE_ENV,
-      dbUrlSet: !!process.env.DATABASE_URL
+      dbUrlPreview: dbUrl.substring(0, 50) + '...'
     });
   } finally {
     await prisma.$disconnect();
