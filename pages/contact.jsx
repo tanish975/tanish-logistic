@@ -36,9 +36,15 @@ const Contact = () => {
     },
     {
       icon: MapPin,
-      title: "Address",
-      details: ["Shop No. 04, Udandeep Complex", "B/h. Nityanand Complex, Opp. Essar Petrol Pump", "Tarsali, Sussen Road", "Vadodara - 390009, India"],
+      title: "Head Office",
+      details: ["House No. 393, Sector 2, Block B", "Adarsh Nagar, Nr. Mata Rani Mandir", "Mandi Gobind Garh, FGS, Punjab"],
       color: "text-red-500"
+    },
+    {
+      icon: MapPin,
+      title: "Branch Office",
+      details: ["Shop No. 04, Udandeep Complex", "B/h. Nityanand Complex, Opp. Essar Petrol Pump", "Tarsali, Sussen Road", "Vadodara - 390009, India"],
+      color: "text-orange-500"
     },
     {
       icon: Clock,
@@ -119,20 +125,20 @@ const Contact = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-20">
             {contactInfo.map((info, index) => {
               const IconComponent = info.icon;
               return (
                 <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5, delay: index * 0.2 }} key={index}>
-                  <Card className="text-center bg-white shadow-lg hover:shadow-2xl transition-all duration-300 rounded-xl overflow-hidden transform hover:-translate-y-2">
-                    <CardContent className="p-8">
-                      <div className={`w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner`}>
-                        <IconComponent className={`h-10 w-10 ${info.color}`} />
+                  <Card className="text-center bg-white shadow-lg hover:shadow-2xl transition-all duration-300 rounded-xl overflow-hidden transform hover:-translate-y-2 h-full">
+                    <CardContent className="p-6">
+                      <div className={`w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner`}>
+                        <IconComponent className={`h-8 w-8 ${info.color}`} />
                       </div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-4">{info.title}</h3>
-                      <div className="space-y-2">
+                      <h3 className="text-xl font-bold text-gray-900 mb-3">{info.title}</h3>
+                      <div className="space-y-1">
                         {info.details.map((detail, idx) => (
-                          <p key={idx} className="text-gray-600 text-lg">{detail}</p>
+                          <p key={idx} className="text-gray-600 text-sm">{detail}</p>
                         ))}
                       </div>
                     </CardContent>

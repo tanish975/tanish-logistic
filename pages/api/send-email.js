@@ -3,9 +3,26 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? '******' : 'NOT SET'); // Log masked key
 
+// Email validation helper
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { name, email, message, phone, company, service } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !message) {
+      return res.status(400).json({ message: 'Name, email, and message are required fields.' });
+    }
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      console.error('Invalid email format:', email);
+      return res.status(400).json({ message: 'Please provide a valid email address.' });
+    }
 
     try {
       // Send email to admin
@@ -47,9 +64,14 @@ export default async function handler(req, res) {
 
       if (userError) {
         console.error('Resend API error (user):', userError);
-        // Optional: Decide if you still want to return a success to the user
-        // even if their confirmation email failed. For now, we'll flag it.
-        return res.status(500).json({ message: 'Admin email sent, but failed to send confirmation email.', error: userError.message });
+        // Admin email was sent successfully, so we return success with a warning
+        // rather than failing the entire request
+        return res.status(200).json({ 
+          message: 'Message sent successfully! However, we could not send the confirmation email.', 
+          warning: 'Confirmation email failed', 
+          adminEmailId: adminEmail.id,
+          error: userError.message 
+        });
       }
 
       console.log('Resend API success:', { adminEmailId: adminEmail.id, userEmailId: userEmail.id });

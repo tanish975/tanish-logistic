@@ -13,8 +13,6 @@ import {
   Users,
   LineChart,
   Settings,
-  UserCircle,
-  Truck,
   Map,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,8 +23,6 @@ import ReportsView from '@/components/admin/ReportsView';
 import AdminControlsView from '@/components/admin/AdminControlsView';
 import DashboardView from '@/components/admin/DashboardView';
 import ReviewsView from '@/components/admin/ReviewsView';
-import DriversView from '@/components/admin/DriversView';
-import VehiclesView from '@/components/admin/VehiclesView';
 import RoutesView from '@/components/admin/RoutesView';
 import SettingsPage from './settings';
 
@@ -42,14 +38,6 @@ const AccessDenied = ({ onLogout }) => (
 
 const VALID_BOOKING_STATUSES = ['PENDING', 'CONFIRMED', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'];
 
-// Sample bookings data (without database)
-const sampleBookings = [
-  { id: 1, bookingId: 'BK001', clientName: 'ABC Corporation', pickup: 'Mumbai', drop: 'Delhi', date: '2025-03-10', status: 'DELIVERED', price: 25000 },
-  { id: 2, bookingId: 'BK002', clientName: 'XYZ Industries', pickup: 'Bangalore', drop: 'Chennai', date: '2025-03-12', status: 'IN_TRANSIT', price: 18000 },
-  { id: 3, bookingId: 'BK003', clientName: 'PQR Logistics', pickup: 'Ahmedabad', drop: 'Surat', date: '2025-03-14', status: 'PENDING', price: 8000 },
-  { id: 4, bookingId: 'BK004', clientName: 'Global Trade Co', pickup: 'Hyderabad', drop: 'Pune', date: '2025-03-15', status: 'CONFIRMED', price: 22000 },
-  { id: 5, bookingId: 'BK005', clientName: 'Sunrise Exports', pickup: 'Vadodara', drop: 'Mumbai', date: '2025-03-16', status: 'PENDING', price: 15000 },
-];
 
 const AdminPage = () => {
   const [user, setUser] = useState(null);
@@ -98,13 +86,33 @@ const AdminPage = () => {
   }, [bookings, searchInput, statusFilter]);
 
   const loadBookings = async () => {
-    setBookings(sampleBookings);
-    toast.success('Bookings loaded successfully');
+    try {
+      const response = await fetch('/api/get-bookings', {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          setUser(null);
+          toast.error('Session expired. Please login again.');
+          return;
+        }
+        throw new Error('Failed to fetch bookings');
+      }
+      const data = await response.json();
+      setBookings(data);
+      toast.success('Bookings loaded successfully');
+    } catch (error) {
+      console.error('Error loading bookings:', error);
+      // Don't show error toast, just log
+    }
   };
 
   const loadReviews = async () => {
     try {
-      const response = await fetch('/data/reviews.json');
+      // Fetch ALL reviews including pending ones for admin view
+      const response = await fetch('/api/reviews?all=true', {
+        credentials: 'include'
+      });
       if (!response.ok) throw new Error('Failed to fetch reviews');
       const data = await response.json();
       setReviews(data);
@@ -130,12 +138,35 @@ const AdminPage = () => {
   };
 
   const handleUpdateBookingStatus = async (bookingId, newStatus) => {
-    setBookings(prevBookings =>
-      prevBookings.map(b =>
-        b.bookingId === bookingId ? { ...b, status: newStatus } : b
-      )
-    );
-    toast.success(`Booking ${bookingId} status updated to ${newStatus}`);
+    try {
+      const response = await fetch('/api/update-booking-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId, newStatus }),
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update booking status');
+      }
+      
+      const result = await response.json();
+      
+      setBookings(prevBookings =>
+        prevBookings.map(b =>
+          (b.id === bookingId || b.bookingId === bookingId) ? { ...b, status: newStatus } : b
+        )
+      );
+      setFilteredBookings(prevBookings =>
+        prevBookings.map(b =>
+          (b.id === bookingId || b.bookingId === bookingId) ? { ...b, status: newStatus } : b
+        )
+      );
+      toast.success(`Booking ${bookingId} status updated to ${newStatus}`);
+    } catch (error) {
+      console.error('Error updating booking status:', error);
+      toast.error('Failed to update booking status');
+    }
   };
 
   const getStatusVariant = (status) => {
@@ -200,7 +231,6 @@ const AdminPage = () => {
                           <TableHead>Client</TableHead>
                           <TableHead>Route</TableHead>
                           <TableHead>Date</TableHead>
-                          <TableHead>Price</TableHead>
                           <TableHead>Status</TableHead>
                           <TableHead>Actions</TableHead>
                         </TableRow>
@@ -208,13 +238,12 @@ const AdminPage = () => {
                       <TableBody>
                         {filteredBookings.map(booking => (
                           <TableRow key={booking.id}>
-                            <TableCell className="font-medium">{booking.bookingId}</TableCell>
-                            <TableCell>{booking.clientName}</TableCell>
+                            <TableCell className="font-medium">{booking.bookingId || booking.id}</TableCell>
+                            <TableCell>{booking.clientName || booking.customerName}</TableCell>
                             <TableCell>{booking.pickup} → {booking.drop}</TableCell>
-                            <TableCell>{new Date(booking.date).toLocaleDateString()}</TableCell>
-                            <TableCell>₹{booking.price?.toLocaleString()}</TableCell>
+                            <TableCell>{booking.date ? new Date(booking.date).toLocaleDateString() : 'N/A'}</TableCell>
                             <TableCell>
-                                <Select value={booking.status} onValueChange={(newStatus) => handleUpdateBookingStatus(booking.bookingId, newStatus)}>
+                                <Select value={booking.status} onValueChange={(newStatus) => handleUpdateBookingStatus(booking.id, newStatus)}>
                                     <SelectTrigger className="w-[120px] bg-background">
                                         <SelectValue placeholder="Update Status" />
                                     </SelectTrigger>
@@ -235,10 +264,6 @@ const AdminPage = () => {
                   </Card>
                 </div>
               );
-            case 'drivers':
-              return <DriversView />;
-            case 'vehicles':
-              return <VehiclesView />;
             case 'routes':
               return <RoutesView />;
             case 'customers':
@@ -272,15 +297,7 @@ const AdminPage = () => {
                 <Package className="mr-2 h-4 w-4" />
                 Bookings
               </Button>
-               <Button variant={currentSection === 'drivers' ? 'default' : 'outline'} onClick={() => setCurrentSection('drivers')} className="justify-start">
-                <UserCircle className="mr-2 h-4 w-4" />
-                Drivers
-              </Button>
-              <Button variant={currentSection === 'vehicles' ? 'default' : 'outline'} onClick={() => setCurrentSection('vehicles')} className="justify-start">
-                <Truck className="mr-2 h-4 w-4" />
-                Vehicles
-              </Button>
-              <Button variant={currentSection === 'routes' ? 'default' : 'outline'} onClick={() => setCurrentSection('routes')} className="justify-start">
+               <Button variant={currentSection === 'routes' ? 'default' : 'outline'} onClick={() => setCurrentSection('routes')} className="justify-start">
                 <Map className="mr-2 h-4 w-4" />
                 Routes
               </Button>

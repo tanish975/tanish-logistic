@@ -1,10 +1,6 @@
+import prisma from '@/lib/prisma';
 
-import fs from 'fs';
-import path from 'path';
-
-const bookingsFilePath = path.join(process.cwd(), 'src', 'data', 'bookings.json');
-
-export default function handler(req, res) {
+export default async function handler(req, res) {
     if (req.method !== 'POST') {
         res.setHeader('Allow', ['POST']);
         return res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -17,21 +13,27 @@ export default function handler(req, res) {
     }
 
     try {
-        const fileContents = fs.readFileSync(bookingsFilePath, 'utf8');
-        let bookings = JSON.parse(fileContents || '[]');
+        // Try to find by bookingId first, then by id
+        let booking = await prisma.booking.findFirst({
+            where: {
+                OR: [
+                    { bookingId: id },
+                    { id: id },
+                ],
+            },
+        });
 
-        const initialLength = bookings.length;
-        bookings = bookings.filter(b => b.id !== id);
-
-        if (bookings.length === initialLength) {
+        if (!booking) {
             return res.status(404).json({ message: 'Booking not found.' });
         }
 
-        fs.writeFileSync(bookingsFilePath, JSON.stringify(bookings, null, 2));
+        await prisma.booking.delete({
+            where: { id: booking.id },
+        });
 
         res.status(200).json({ message: 'Booking deleted successfully.' });
     } catch (error) {
         console.error('Error deleting booking:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 }

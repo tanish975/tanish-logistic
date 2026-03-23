@@ -1,0 +1,24 @@
+# Vercel Environment Variables to Add Manually
+
+## Go to: Vercel Dashboard → Your Project → Settings → Environment Variables
+
+### Add these 3 variables:
+
+1. **DATABASE_URL** (already exists - update if needed)
+   Value: postgresql://neondb_owner:npg_ebclrW2oBGv5@ep-wild-hat-an919v7j-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require
+
+2. **SECRET_COOKIE_PASSWORD** (NEED TO ADD)
+   Value: tanishlogistic2024securestring32char
+
+3. **RESEND_API_KEY** (check if exists)
+   Value: re_gXTcsNWn_Ljj5uMYVPspZZU2X8DWCyk48
+
+### After adding variables:
+1. Go to Deployments
+2. Click the latest deployment
+3. Click "Redeploy"
+
+### Login credentials:
+- URL: yourvercelurl.com/admin
+- Email: tanish@admin.com
+- Password: tanish123
