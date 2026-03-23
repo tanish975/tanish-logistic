@@ -1,23 +1,17 @@
 import { PrismaClient } from '@prisma/client';
 
-let prisma;
+// Singleton pattern to avoid creating too many connections in development
+// In production, we'll create a new client each time to avoid connection issues
+const prisma = global.prisma || new PrismaClient({
+  log: process.env.NODE_ENV === 'production' ? ['error'] : ['query', 'error', 'warn'],
+});
 
-if (process.env.NODE_ENV === 'production') {
-  // For production, create a new client each time to avoid connection issues
-  prisma = new PrismaClient({
-    log: ['error', 'warn'],
-  });
-} else {
-  // For development, use global to avoid creating too many connections
-  if (!global.prisma) {
-    global.prisma = new PrismaClient({
-      log: ['query', 'error', 'warn'],
-    });
-  }
-  prisma = global.prisma;
+// Store in global for development to avoid creating too many connections
+if (process.env.NODE_ENV !== 'production') {
+  global.prisma = prisma;
 }
 
-// Add error handler for connection issues
+// Add error handler
 prisma.$on('error', (e) => {
   console.error('Prisma error:', e);
 });
