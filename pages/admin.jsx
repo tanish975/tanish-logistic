@@ -232,6 +232,7 @@ const AdminPage = () => {
                           <TableHead>Route</TableHead>
                           <TableHead>Date</TableHead>
                           <TableHead>Status</TableHead>
+                          <TableHead>Price</TableHead>
                           <TableHead>Actions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -255,6 +256,9 @@ const AdminPage = () => {
                                         ))}
                                     </SelectContent>
                                 </Select>
+                            </TableCell>
+                            <TableCell className="text-right">
+                                {booking.price ? `₹${parseFloat(booking.price).toLocaleString()}` : '-'}
                             </TableCell>
                             <TableCell></TableCell>
                           </TableRow>
