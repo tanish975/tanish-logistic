@@ -1,0 +1,68 @@
+[
+  {
+    "id": "VEH001",
+    "type": "Truck",
+    "model": "Tata 407",
+    "registrationNumber": "MH-01-AB-1234",
+    "capacity": "1000 kg",
+    "status": "AVAILABLE",
+    "insuranceExpiry": "2026-06-15",
+    "lastService": "2025-02-10",
+    "createdAt": "2024-01-10T10:00:00.000Z"
+  },
+  {
+    "id": "VEH002",
+    "type": "Mini Truck",
+    "model": "Ashok Leyland Dost",
+    "registrationNumber": "MH-01-CD-5678",
+    "capacity": "500 kg",
+    "status": "AVAILABLE",
+    "insuranceExpiry": "2026-08-20",
+    "lastService": "2025-01-25",
+    "createdAt": "2024-02-15T10:00:00.000Z"
+  },
+  {
+    "id": "VEH003",
+    "type": "Heavy Truck",
+    "model": "Mahindra Blazo",
+    "registrationNumber": "KA-01-EF-9012",
+    "capacity": "2500 kg",
+    "status": "ON_TRIP",
+    "insuranceExpiry": "2026-05-10",
+    "lastService": "2025-03-01",
+    "createdAt": "2024-03-20T10:00:00.000Z"
+  },
+  {
+    "id": "VEH004",
+    "type": "Refrigerated Van",
+    "model": "Tata Cold Chain",
+    "registrationNumber": "TN-01-GH-3456",
+    "capacity": "800 kg",
+    "status": "AVAILABLE",
+    "insuranceExpiry": "2026-07-15",
+    "lastService": "2025-02-28",
+    "createdAt": "2024-04-10T10:00:00.000Z"
+  },
+  {
+    "id": "VEH005",
+    "type": "Tanker",
+    "model": "Bharat Benz",
+    "registrationNumber": "AP-01-IJ-7890",
+    "capacity": "5000 L",
+    "status": "ON_TRIP",
+    "insuranceExpiry": "2026-09-01",
+    "lastService": "2025-01-15",
+    "createdAt": "2024-05-05T10:00:00.000Z"
+  },
+  {
+    "id": "VEH006",
+    "type": "Pickup",
+    "model": "Mahindra Bolero Pickup",
+    "registrationNumber": "MH-01-KL-2345",
+    "capacity": "750 kg",
+    "status": "AVAILABLE",
+    "insuranceExpiry": "2026-04-20",
+    "lastService": "2025-03-05",
+    "createdAt": "2024-06-12T10:00:00.000Z"
+  }
+]

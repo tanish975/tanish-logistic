@@ -1,0 +1,57 @@
+[
+  {
+    "id": "DRV001",
+    "name": "Ramesh Kumar",
+    "phone": "9876543210",
+    "licenseNumber": "DL-1234567890",
+    "vehicleType": "Truck",
+    "experience": 8,
+    "status": "AVAILABLE",
+    "rating": 4.8,
+    "createdAt": "2024-01-15T10:00:00.000Z"
+  },
+  {
+    "id": "DRV002",
+    "name": "Suresh Patel",
+    "phone": "9876543211",
+    "licenseNumber": "MH-2345678901",
+    "vehicleType": "Mini Truck",
+    "experience": 5,
+    "status": "AVAILABLE",
+    "rating": 4.5,
+    "createdAt": "2024-02-20T10:00:00.000Z"
+  },
+  {
+    "id": "DRV003",
+    "name": "Mahesh Singh",
+    "phone": "9876543212",
+    "licenseNumber": "KA-3456789012",
+    "vehicleType": "Heavy Truck",
+    "experience": 12,
+    "status": "ON_TRIP",
+    "rating": 4.9,
+    "createdAt": "2024-03-10T10:00:00.000Z"
+  },
+  {
+    "id": "DRV004",
+    "name": "Ajay Sharma",
+    "phone": "9876543213",
+    "licenseNumber": "TN-4567890123",
+    "vehicleType": "Refrigerated Van",
+    "experience": 6,
+    "status": "AVAILABLE",
+    "rating": 4.6,
+    "createdAt": "2024-04-05T10:00:00.000Z"
+  },
+  {
+    "id": "DRV005",
+    "name": "Vijay Gupta",
+    "phone": "9876543214",
+    "licenseNumber": "AP-5678901234",
+    "vehicleType": "Truck",
+    "experience": 10,
+    "status": "ON_TRIP",
+    "rating": 4.7,
+    "createdAt": "2024-05-12T10:00:00.000Z"
+  }
+]

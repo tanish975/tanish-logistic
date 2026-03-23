@@ -1,22 +1,4 @@
-import fs from 'fs';
-import path from 'path';
-
-const reviewsFilePath = path.join(process.cwd(), 'public', 'data', 'reviews.json');
-
-// Helper to read reviews
-const readReviews = () => {
-  try {
-    const data = fs.readFileSync(reviewsFilePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-};
-
-// Helper to write reviews
-const writeReviews = (reviews) => {
-  fs.writeFileSync(reviewsFilePath, JSON.stringify(reviews, null, 2));
-};
+import prisma from '@/lib/prisma';
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -24,18 +6,34 @@ export default async function handler(req, res) {
   switch (method) {
     case 'GET':
       try {
-        const { pending } = req.query;
-        const reviews = readReviews();
+        const { pending, all } = req.query;
         
-        // If requesting pending reviews
-        if (pending === 'true') {
-          return res.status(200).json(reviews.filter(r => r.status === 'pending'));
+        let where = {};
+        
+        // If requesting all reviews (for admin)
+        if (all !== 'true') {
+          // If not requesting all, filter by status
+          if (pending === 'true') {
+            where.status = 'pending';
+          } else {
+            // Return only approved reviews by default (for public display)
+            where.status = 'approved';
+          }
         }
         
-        // Return only approved reviews by default (for public display)
-        res.status(200).json(reviews.filter(r => r.status !== 'pending'));
+        const reviews = await prisma.review.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+        });
+        
+        res.status(200).json(reviews);
       } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch reviews' });
+        console.error('Error fetching reviews:', error);
+        if (error.message && error.message.includes('connection')) {
+          res.status(503).json({ error: 'Database connection error. Please try again later.', details: error.message });
+        } else {
+          res.status(500).json({ error: 'Failed to fetch reviews', details: error.message });
+        }
       }
       break;
 
@@ -47,20 +45,17 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Rating and comment are required' });
         }
 
-        const reviews = readReviews();
-        const newReview = {
-          id: reviews.length + 1,
-          platform: platform || 'Site',
-          rating: parseInt(rating),
-          comment,
-          name: name || 'Anonymous',
-          date: date || new Date().toISOString().split('T')[0],
-          status: isPublic === true ? 'approved' : 'pending', // Public submissions need approval
-          isPublic: isPublic || false
-        };
-
-        reviews.unshift(newReview); // Add to beginning
-        writeReviews(reviews);
+        const newReview = await prisma.review.create({
+          data: {
+            platform: platform || 'Site',
+            rating: parseInt(rating),
+            comment,
+            name: name || 'Anonymous',
+            date: date ? new Date(date) : new Date(),
+            status: isPublic === true ? 'approved' : 'pending',
+            isPublic: isPublic || false,
+          },
+        });
 
         res.status(201).json({ 
           success: true, 
@@ -68,38 +63,37 @@ export default async function handler(req, res) {
           review: newReview 
         });
       } catch (error) {
-        res.status(500).json({ error: 'Failed to add review' });
+        console.error('Error adding review:', error);
+        res.status(500).json({ error: 'Failed to add review', details: error.message });
       }
       break;
 
     case 'PUT':
       try {
         const { id, status } = req.body;
-        const reviews = readReviews();
-        const reviewIndex = reviews.findIndex(r => r.id === id);
         
-        if (reviewIndex === -1) {
-          return res.status(404).json({ error: 'Review not found' });
-        }
+        const updatedReview = await prisma.review.update({
+          where: { id },
+          data: { status },
+        });
 
-        reviews[reviewIndex].status = status;
-        writeReviews(reviews);
-
-        res.status(200).json({ success: true, review: reviews[reviewIndex] });
+        res.status(200).json({ success: true, review: updatedReview });
       } catch (error) {
-        res.status(500).json({ error: 'Failed to update review status' });
+        console.error('Error updating review:', error);
+        res.status(500).json({ error: 'Failed to update review status', details: error.message });
       }
       break;
 
     case 'DELETE':
       try {
         const { id } = req.body;
-        const reviews = readReviews();
-        const filteredReviews = reviews.filter(r => r.id !== id);
-        writeReviews(filteredReviews);
+        await prisma.review.delete({
+          where: { id },
+        });
         res.status(200).json({ success: true });
       } catch (error) {
-        res.status(500).json({ error: 'Failed to delete review' });
+        console.error('Error deleting review:', error);
+        res.status(500).json({ error: 'Failed to delete review', details: error.message });
       }
       break;
 

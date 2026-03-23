@@ -135,14 +135,31 @@ const ReviewsView = ({ reviews, onRefresh }) => {
     }
   };
 
-  const data = [
-    { name: 'Jan', reviews: 10 },
-    { name: 'Feb', reviews: 15 },
-    { name: 'Mar', reviews: 25 },
-    { name: 'Apr', reviews: 40 },
-    { name: 'May', reviews: 35 },
-    { name: 'Jun', reviews: 50 },
-  ];
+  // Generate chart data dynamically from reviews
+  const generateChartData = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentMonth = new Date().getMonth();
+    
+    // Get last 6 months
+    const chartData = [];
+    for (let i = 5; i >= 0; i--) {
+      const monthIndex = (currentMonth - i + 12) % 12;
+      const monthName = months[monthIndex];
+      const year = currentMonth - i < 0 ? new Date().getFullYear() - 1 : new Date().getFullYear();
+      
+      // Count reviews for this month
+      const count = approvedReviews.filter(r => {
+        const reviewDate = new Date(r.date);
+        return reviewDate.getMonth() === monthIndex && reviewDate.getFullYear() === year;
+      }).length;
+      
+      chartData.push({ name: monthName, reviews: count });
+    }
+    
+    return chartData;
+  };
+
+  const data = generateChartData();
 
   return (
     <div className="space-y-4">

@@ -14,18 +14,23 @@ const Book = () => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingData, setBookingData] = useState({
+    // Company Info
     companyName: '',
     contactPerson: '',
     phone: '',
     email: '',
+    // Cargo Info
+    cargoType: '',
+    cargoWeight: '',
+    cargoLength: '',
+    cargoWidth: '',
+    cargoHeight: '',
+    cargoDescription: '',
+    // Service Details
     pickupLocation: '',
     pickupAddress: '',
     dropLocation: '',
     dropAddress: '',
-    cargoType: '',
-    cargoWeight: '',
-    cargoValue: '',
-    cargoDescription: '',
     preferredDate: '',
     preferredTime: '',
     serviceType: '',
@@ -52,21 +57,24 @@ const Book = () => {
     setIsSubmitting(true);
     try {
       const bookingPayload = {
-        companyName: bookingData.companyName,
+        customerName: bookingData.companyName,
         contactPerson: bookingData.contactPerson,
         phone: bookingData.phone,
         email: bookingData.email,
-        pickupLocation: bookingData.pickupLocation,
+        pickup: bookingData.pickupLocation,
         pickupAddress: bookingData.pickupAddress,
-        dropLocation: bookingData.dropLocation,
+        drop: bookingData.dropLocation,
         dropAddress: bookingData.dropAddress,
-        cargoType: bookingData.cargoType,
-        cargoWeight: bookingData.cargoWeight,
-        cargoValue: bookingData.cargoValue,
+        goodsType: bookingData.cargoType,
+        weight: bookingData.cargoWeight,
+        cargoLength: bookingData.cargoLength,
+        cargoWidth: bookingData.cargoWidth,
+        cargoHeight: bookingData.cargoHeight,
         cargoDescription: bookingData.cargoDescription,
-        preferredDate: bookingData.preferredDate,
+        date: bookingData.preferredDate,
         serviceType: bookingData.serviceType,
         specialInstructions: bookingData.specialInstructions,
+        status: 'PENDING'
       };
 
       const response = await fetch('/api/add-booking', {
@@ -92,9 +100,9 @@ const Book = () => {
   };
 
   const steps = [
-    { number: 1, title: 'Company Info', icon: Package },
+    { number: 1, title: 'Cargo Info', icon: Package },
     { number: 2, title: 'Service Details', icon: Truck },
-    { number: 3, title: 'Cargo Info', icon: Package },
+    { number: 3, title: 'Company Info', icon: Package },
     { number: 4, title: 'Review', icon: CheckCircle }
   ];
 
@@ -146,13 +154,99 @@ const Book = () => {
             </CardHeader>
             <CardContent className="p-8">
               <form onSubmit={handleSubmit}>
+                {/* Step 1: Cargo Info */}
                 {step === 1 && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="space-y-8">
-                    {/* Step 1 content as before */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-2">
-                        <Label htmlFor="companyName" className="text-lg">Company Name *</Label>
-                        <Input id="companyName" value={bookingData.companyName} onChange={(e) => handleInputChange('companyName', e.target.value)} placeholder="Enter your company name" required className="p-4 text-lg" />
+                        <Label htmlFor="cargoType" className="text-lg">Cargo Type *</Label>
+                        <Input id="cargoType" value={bookingData.cargoType} onChange={(e) => handleInputChange('cargoType', e.target.value)} placeholder="e.g., Electronics, Textiles, Machinery" required className="p-4 text-lg" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="cargoWeight" className="text-lg">Cargo Weight (kg) *</Label>
+                        <Input id="cargoWeight" type="number" value={bookingData.cargoWeight} onChange={(e) => handleInputChange('cargoWeight', e.target.value)} placeholder="e.g., 500" required className="p-4 text-lg" />
+                      </div>
+                    </div>
+                    
+                    {/* Cargo Dimensions */}
+                    <div className="space-y-2">
+                      <Label className="text-lg">Cargo Dimensions (L x W x H) in feet</Label>
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="cargoLength" className="text-sm text-gray-600">Length (ft)</Label>
+                          <Input id="cargoLength" type="number" value={bookingData.cargoLength} onChange={(e) => handleInputChange('cargoLength', e.target.value)} placeholder="e.g., 10" className="p-4 text-lg" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cargoWidth" className="text-sm text-gray-600">Width (ft)</Label>
+                          <Input id="cargoWidth" type="number" value={bookingData.cargoWidth} onChange={(e) => handleInputChange('cargoWidth', e.target.value)} placeholder="e.g., 6" className="p-4 text-lg" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cargoHeight" className="text-sm text-gray-600">Height (ft)</Label>
+                          <Input id="cargoHeight" type="number" value={bookingData.cargoHeight} onChange={(e) => handleInputChange('cargoHeight', e.target.value)} placeholder="e.g., 6" className="p-4 text-lg" />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="cargoDescription" className="text-lg">Cargo Description</Label>
+                      <Textarea id="cargoDescription" value={bookingData.cargoDescription} onChange={(e) => handleInputChange('cargoDescription', e.target.value)} placeholder="Briefly describe the cargo contents" className="p-4 text-lg" />
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Step 2: Service Details */}
+                {step === 2 && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-2">
+                        <Label htmlFor="pickupLocation" className="text-lg">Pickup Location *</Label>
+                        <Input id="pickupLocation" value={bookingData.pickupLocation} onChange={(e) => handleInputChange('pickupLocation', e.target.value)} placeholder="e.g., Mumbai, Maharashtra" required className="p-4 text-lg" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="dropLocation" className="text-lg">Drop Location *</Label>
+                        <Input id="dropLocation" value={bookingData.dropLocation} onChange={(e) => handleInputChange('dropLocation', e.target.value)} placeholder="e.g., Delhi" required className="p-4 text-lg" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="pickupAddress" className="text-lg">Pickup Address *</Label>
+                      <Textarea id="pickupAddress" value={bookingData.pickupAddress} onChange={(e) => handleInputChange('pickupAddress', e.target.value)} placeholder="Full pickup address with landmark" required className="p-4 text-lg" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="dropAddress" className="text-lg">Drop Address *</Label>
+                      <Textarea id="dropAddress" value={bookingData.dropAddress} onChange={(e) => handleInputChange('dropAddress', e.target.value)} placeholder="Full drop-off address with landmark" required className="p-4 text-lg" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-2">
+                        <Label htmlFor="preferredDate" className="text-lg">Preferred Date *</Label>
+                        <Input id="preferredDate" type="date" value={bookingData.preferredDate} onChange={(e) => handleInputChange('preferredDate', e.target.value)} required className="p-4 text-lg" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="serviceType" className="text-lg">Service Type *</Label>
+                        <Select onValueChange={(value) => handleInputChange('serviceType', value)} value={bookingData.serviceType}>
+                          <SelectTrigger className="p-4 text-lg"><SelectValue placeholder="Select a service type" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="intercity-interstate-freight">Intercity & Interstate Freight</SelectItem>
+                            <SelectItem value="b2b-cargo-movement">B2B Cargo Movement</SelectItem>
+                            <SelectItem value="fleet-based-transport">Fleet-based Transport</SelectItem>
+                            <SelectItem value="contract-logistics">Contract Logistics</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="specialInstructions" className="text-lg">Special Instructions (Optional)</Label>
+                      <Textarea id="specialInstructions" value={bookingData.specialInstructions} onChange={(e) => handleInputChange('specialInstructions', e.target.value)} placeholder="Any special handling requirements, fragile items, etc." className="p-4 text-lg" />
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Step 3: Company Info */}
+                {step === 3 && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-2">
+                        <Label htmlFor="companyName" className="text-lg">Company Name / Customer Name *</Label>
+                        <Input id="companyName" value={bookingData.companyName} onChange={(e) => handleInputChange('companyName', e.target.value)} placeholder="Enter your company or name" required className="p-4 text-lg" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="contactPerson" className="text-lg">Contact Person *</Label>
@@ -172,95 +266,52 @@ const Book = () => {
                   </motion.div>
                 )}
 
-                {step === 2 && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-2">
-                        <Label htmlFor="pickupLocation" className="text-lg">Pickup Location *</Label>
-                        <Input id="pickupLocation" value={bookingData.pickupLocation} onChange={(e) => handleInputChange('pickupLocation', e.target.value)} placeholder="e.g., City, State" required className="p-4 text-lg" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="dropLocation" className="text-lg">Drop Location *</Label>
-                        <Input id="dropLocation" value={bookingData.dropLocation} onChange={(e) => handleInputChange('dropLocation', e.target.value)} placeholder="e.g., City, State" required className="p-4 text-lg" />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="pickupAddress" className="text-lg">Pickup Address *</Label>
-                      <Textarea id="pickupAddress" value={bookingData.pickupAddress} onChange={(e) => handleInputChange('pickupAddress', e.target.value)} placeholder="Full pickup address" required className="p-4 text-lg" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="dropAddress" className="text-lg">Drop Address *</Label>
-                      <Textarea id="dropAddress" value={bookingData.dropAddress} onChange={(e) => handleInputChange('dropAddress', e.target.value)} placeholder="Full drop-off address" required className="p-4 text-lg" />
-                    </div>
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-2">
-                            <Label htmlFor="preferredDate" className="text-lg">Preferred Date *</Label>
-                            <Input id="preferredDate" type="date" value={bookingData.preferredDate} onChange={(e) => handleInputChange('preferredDate', e.target.value)} required className="p-4 text-lg" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="serviceType" className="text-lg">Service Type *</Label>
-                            <Select onValueChange={(value) => handleInputChange('serviceType', value)} value={bookingData.serviceType}>
-                                <SelectTrigger className="p-4 text-lg"><SelectValue placeholder="Select a service type" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="intercity-interstate-freight">Intercity & Interstate Freight</SelectItem>
-                                    <SelectItem value="b2b-cargo-movement">B2B Cargo Movement</SelectItem>
-                                    <SelectItem value="fleet-based-transport">Fleet-based Transport</SelectItem>
-                                    <SelectItem value="contract-logistics">Contract Logistics</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {step === 3 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-2">
-                                <Label htmlFor="cargoType" className="text-lg">Cargo Type *</Label>
-                                <Input id="cargoType" value={bookingData.cargoType} onChange={(e) => handleInputChange('cargoType', e.target.value)} placeholder="e.g., Electronics, Textiles" required className="p-4 text-lg" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="cargoWeight" className="text-lg">Cargo Weight (kg) *</Label>
-                                <Input id="cargoWeight" type="number" value={bookingData.cargoWeight} onChange={(e) => handleInputChange('cargoWeight', e.target.value)} placeholder="e.g., 500" required className="p-4 text-lg" />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="cargoValue" className="text-lg">Cargo Value (INR)</Label>
-                            <Input id="cargoValue" type="number" value={bookingData.cargoValue} onChange={(e) => handleInputChange('cargoValue', e.target.value)} placeholder="e.g., 100000" className="p-4 text-lg" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="cargoDescription" className="text-lg">Cargo Description</Label>
-                            <Textarea id="cargoDescription" value={bookingData.cargoDescription} onChange={(e) => handleInputChange('cargoDescription', e.target.value)} placeholder="Briefly describe the cargo" className="p-4 text-lg" />
-                        </div>
-                    </motion.div>
-                )}
-
+                {/* Step 4: Review */}
                 {step === 4 && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="space-y-6">
                         <h3 className="text-2xl font-bold text-gray-800 mb-6">Review Your Booking</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 p-6 border rounded-lg bg-gray-50">
+                        
+                        {/* Cargo Info */}
+                        <div className="p-4 border rounded-lg bg-blue-50">
+                          <h4 className="font-bold text-lg mb-3 text-blue-800">Cargo Information</h4>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div><Label className="font-semibold">Type:</Label><p className="text-gray-700">{bookingData.cargoType}</p></div>
+                            <div><Label className="font-semibold">Weight:</Label><p className="text-gray-700">{bookingData.cargoWeight} kg</p></div>
+                            {(bookingData.cargoLength || bookingData.cargoWidth || bookingData.cargoHeight) && (
+                              <div className="col-span-2"><Label className="font-semibold">Dimensions:</Label><p className="text-gray-700">{bookingData.cargoLength || '-'} x {bookingData.cargoWidth || '-'} x {bookingData.cargoHeight || '-'} ft</p></div>
+                            )}
+                            <div className="col-span-2"><Label className="font-semibold">Description:</Label><p className="text-gray-700">{bookingData.cargoDescription || 'N/A'}</p></div>
+                          </div>
+                        </div>
+                        
+                        {/* Service Details */}
+                        <div className="p-4 border rounded-lg bg-green-50">
+                          <h4 className="font-bold text-lg mb-3 text-green-800">Service Details</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div><Label className="font-semibold">Pickup:</Label><p className="text-gray-700">{bookingData.pickupLocation}</p></div>
+                            <div><Label className="font-semibold">Drop-off:</Label><p className="text-gray-700">{bookingData.dropLocation}</p></div>
+                            <div className="col-span-2"><Label className="font-semibold">Pickup Address:</Label><p className="text-gray-700">{bookingData.pickupAddress}</p></div>
+                            <div className="col-span-2"><Label className="font-semibold">Drop-off Address:</Label><p className="text-gray-700">{bookingData.dropAddress}</p></div>
+                            <div><Label className="font-semibold">Service Type:</Label><p className="text-gray-700">{bookingData.serviceType}</p></div>
+                            <div><Label className="font-semibold">Preferred Date:</Label><p className="text-gray-700">{bookingData.preferredDate}</p></div>
+                            {bookingData.specialInstructions && <div className="col-span-2"><Label className="font-semibold">Instructions:</Label><p className="text-gray-700">{bookingData.specialInstructions}</p></div>}
+                          </div>
+                        </div>
+                        
+                        {/* Company Info */}
+                        <div className="p-4 border rounded-lg bg-purple-50">
+                          <h4 className="font-bold text-lg mb-3 text-purple-800">Company Information</h4>
+                          <div className="grid grid-cols-2 gap-2">
                             <div><Label className="font-semibold">Company:</Label><p className="text-gray-700">{bookingData.companyName}</p></div>
                             <div><Label className="font-semibold">Contact:</Label><p className="text-gray-700">{bookingData.contactPerson}</p></div>
                             <div><Label className="font-semibold">Phone:</Label><p className="text-gray-700">{bookingData.phone}</p></div>
                             <div><Label className="font-semibold">Email:</Label><p className="text-gray-700">{bookingData.email}</p></div>
-                            <div className="md:col-span-2"><hr/></div>
-                            <div><Label className="font-semibold">Pickup:</Label><p className="text-gray-700">{bookingData.pickupLocation}</p></div>
-                            <div><Label className="font-semibold">Drop-off:</Label><p className="text-gray-700">{bookingData.dropLocation}</p></div>
-                            <div className="md:col-span-2"><Label className="font-semibold">Pickup Address:</Label><p className="text-gray-700">{bookingData.pickupAddress}</p></div>
-                            <div className="md:col-span-2"><Label className="font-semibold">Drop-off Address:</Label><p className="text-gray-700">{bookingData.dropAddress}</p></div>
-                            <div className="md:col-span-2"><hr/></div>
-                            <div><Label className="font-semibold">Service Type:</Label><p className="text-gray-700">{bookingData.serviceType}</p></div>
-                            <div><Label className="font-semibold">Preferred Date:</Label><p className="text-gray-700">{bookingData.preferredDate}</p></div>
-                            <div className="md:col-span-2"><hr/></div>
-                            <div><Label className="font-semibold">Cargo Type:</Label><p className="text-gray-700">{bookingData.cargoType}</p></div>
-                            <div><Label className="font-semibold">Weight:</Label><p className="text-gray-700">{bookingData.cargoWeight} kg</p></div>
-                            <div><Label className="font-semibold">Value:</Label><p className="text-gray-700">₹{bookingData.cargoValue}</p></div>
-                            <div className="md:col-span-2"><Label className="font-semibold">Description:</Label><p className="text-gray-700">{bookingData.cargoDescription}</p></div>
+                          </div>
                         </div>
                     </motion.div>
                 )}
 
+                {/* Step 5: Success */}
                 {step === 5 && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="text-center space-y-4">
                         <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
@@ -269,9 +320,10 @@ const Book = () => {
                     </motion.div>
                 )}
 
+                {/* Navigation Buttons */}
                 {step < 5 && (
                   <div className="flex justify-between mt-12 pt-8 border-t">
-                    {step > 1 && step < 5 && (
+                    {step > 1 && (
                       <Button type="button" variant="outline" onClick={prevStep} size="lg" className="px-8 py-4 text-lg">
                         Previous
                       </Button>

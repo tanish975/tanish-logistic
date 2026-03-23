@@ -1,8 +1,4 @@
-import { getIronSession } from 'iron-session';
-import sessionOptions from '@/lib/session';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
@@ -10,17 +6,9 @@ export default async function handler(req, res) {
         return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 
-    const session = await getIronSession(req, res, sessionOptions);
-
-    if (!session.user || session.user.role !== 'ADMIN') {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-
     try {
         const bookings = await prisma.booking.findMany({
-            orderBy: {
-                createdAt: 'desc'
-            }
+            orderBy: { createdAt: 'desc' },
         });
 
         const customers = {};
@@ -55,8 +43,6 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error('Error getting customers:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    } finally {
-        await prisma.$disconnect();
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 }

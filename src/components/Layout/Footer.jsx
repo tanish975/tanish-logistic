@@ -42,10 +42,22 @@ export const Footer = () => {
             <h3 className="text-xl font-bold mb-6">Contact Us</h3>
             <ul className="space-y-3 text-gray-400">
               <li className="flex items-start">
-                <span className="mt-1 mr-3 h-5 w-5" style={{ color: primaryColor }}>📍</span>
-                <span>{settings.contactDetails || 'Vadodara, Gujarat, India'}</span>
+                <span className="mt-1 mr-3 h-5 w-5" style={{ color: primaryColor }}>🏢</span>
+                <div>
+                  <p className="font-semibold text-white">Head Office:</p>
+                  <p>House No. 393, Sector 2, Block B,</p>
+                  <p>Adarsh Nagar, Nr. Mata Rani Mandir,</p>
+                  <p>Mandi Gobind Garh, FGS, Punjab</p>
+                </div>
               </li>
-              <li className="flex items-center">
+              <li className="flex items-start mt-4">
+                <span className="mt-1 mr-3 h-5 w-5" style={{ color: primaryColor }}>📍</span>
+                <div>
+                  <p className="font-semibold text-white">Branch Address:</p>
+                  <p>{settings.contactDetails || 'Vadodara, Gujarat, India'}</p>
+                </div>
+              </li>
+              <li className="flex items-center mt-4">
                 <span className="mr-3 h-5 w-5" style={{ color: primaryColor }}>📧</span>
                 <a href="mailto:tanishlogistic744@gmail.com" className="hover:opacity-80" style={{ color: primaryColor }}>tanishlogistic744@gmail.com</a>
               </li>

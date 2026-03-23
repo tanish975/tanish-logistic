@@ -1,9 +1,6 @@
-import fs from 'fs';
-import path from 'path';
+import prisma from '@/lib/prisma';
 
-const bookingsFilePath = path.join(process.cwd(), 'src', 'data', 'bookings.json');
-
-export default function handler(req, res) {
+export default async function handler(req, res) {
     if (req.method !== 'POST') {
         res.setHeader('Allow', ['POST']);
         return res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -16,25 +13,28 @@ export default function handler(req, res) {
     }
 
     try {
-        const fileContents = fs.readFileSync(bookingsFilePath, 'utf8');
-        let bookings = JSON.parse(fileContents || '[]');
+        // Try to find by bookingId first, then by id
+        let booking = await prisma.booking.findFirst({
+            where: {
+                OR: [
+                    { bookingId: id },
+                    { id: id },
+                ],
+            },
+        });
 
-        const bookingIndex = bookings.findIndex(b => b.id === id);
-
-        if (bookingIndex === -1) {
+        if (!booking) {
             return res.status(404).json({ message: 'Booking not found.' });
         }
 
-        bookings[bookingIndex].status = status;
-        // Optional: Add an updatedAt timestamp
-        bookings[bookingIndex].updatedAt = new Date().toISOString();
+        const updatedBooking = await prisma.booking.update({
+            where: { id: booking.id },
+            data: { status: status.toUpperCase() },
+        });
 
-
-        fs.writeFileSync(bookingsFilePath, JSON.stringify(bookings, null, 2));
-
-        res.status(200).json({ message: 'Booking updated successfully.', booking: bookings[bookingIndex] });
+        res.status(200).json({ message: 'Booking updated successfully.', booking: updatedBooking });
     } catch (error) {
         console.error('Error updating booking:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 }

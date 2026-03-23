@@ -1,29 +1,28 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const popularRoutes = await prisma.booking.groupBy({
-        by: ['pickup', 'drop'],
-        _count: {
-          _all: true,
-        },
-        orderBy: {
-          _count: {
-            id: 'desc',
-          },
-        },
-        take: 10, // Adjust the number of popular routes to return
+      const bookings = await prisma.booking.findMany();
+      
+      // Group bookings by route (pickup -> drop)
+      const routeCounts = {};
+      bookings.forEach(booking => {
+        const routeKey = `${booking.pickup} → ${booking.drop}`;
+        if (!routeCounts[routeKey]) {
+          routeCounts[routeKey] = {
+            pickup: booking.pickup,
+            drop: booking.drop,
+            count: 0
+          };
+        }
+        routeCounts[routeKey].count += 1;
       });
-
-      // Remap the result to a more friendly format
-      const formattedRoutes = popularRoutes.map(route => ({
-        pickup: route.pickup,
-        drop: route.drop,
-        count: route._count._all,
-      }));
+      
+      // Convert to array and sort by count
+      const formattedRoutes = Object.values(routeCounts)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
 
       res.status(200).json(formattedRoutes);
     } catch (error) {

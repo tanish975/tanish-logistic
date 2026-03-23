@@ -1,12 +1,23 @@
 [
   {
-    "id": 1,
-    "platform": "Google",
+    "id": 6,
+    "platform": "Site",
     "rating": 5,
-    "comment": "Excellent service! On-time delivery and very professional.",
-    "date": "2025-06-15",
+    "comment": "great work\n",
+    "name": "devil",
+    "date": "2026-03-23",
     "status": "approved",
-    "name": "John D."
+    "isPublic": true
+  },
+  {
+    "id": 9,
+    "platform": "Site",
+    "rating": 5,
+    "comment": "ON TIME DELIVERY AND FRIENDLY SERVICE",
+    "name": "JATIN",
+    "date": "2026-03-15",
+    "status": "approved",
+    "isPublic": true
   },
   {
     "id": 2,
@@ -16,33 +27,6 @@
     "date": "2025-06-14",
     "status": "approved",
     "name": "Sarah M."
-  },
-  {
-    "id": 3,
-    "platform": "Google",
-    "rating": 5,
-    "comment": "Highly recommended! They handled my cargo with great care.",
-    "date": "2025-06-12",
-    "status": "approved",
-    "name": "Mike R."
-  },
-  {
-    "id": 4,
-    "platform": "Google",
-    "rating": 3,
-    "comment": "The delivery was delayed by a day, but the customer service was helpful.",
-    "date": "2025-06-10",
-    "status": "approved",
-    "name": "Lisa K."
-  },
-  {
-    "id": 5,
-    "platform": "Facebook",
-    "rating": 5,
-    "comment": "I've been using their service for months, and they never disappoint.",
-    "date": "2025-06-08",
-    "status": "approved",
-    "name": "David P."
   },
   {
     "id": 6,
@@ -59,7 +43,7 @@
     "rating": 4,
     "comment": "Great service, always on time deliveries. Highly recommend!",
     "date": "2026-02-20",
-    "status": "pending",
+    "status": "approved",
     "name": "Rajesh Kumar"
   },
   {
@@ -68,7 +52,7 @@
     "rating": 5,
     "comment": "Best logistic service in Vadodara. Very satisfied with their work.",
     "date": "2026-03-01",
-    "status": "pending",
+    "status": "approved",
     "name": "Priya Patel"
   }
 ]
