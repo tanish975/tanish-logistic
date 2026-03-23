@@ -75,7 +75,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:https": "next dev --https",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "export": "next build && next export",
