@@ -20,5 +20,5 @@
 
 ### Login credentials:
 - URL: yourvercelurl.com/admin
-- Email: tanish@admin.com
-- Password: tanish123
+- Email: tksunaria@gmail.com
+- Password: Tanishlogistic09

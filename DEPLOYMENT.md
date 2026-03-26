@@ -129,8 +129,8 @@ After deployment, you can login at:
 https://your-site.com/admin
 ```
 
-**Default username:** tanish
-**Password:** (whatever you set in ADMIN_PASSWORD env var)
+**Default username:** tksunaria@gmail.com
+**Password:** Tanishlogistic09
 
 ---
 
