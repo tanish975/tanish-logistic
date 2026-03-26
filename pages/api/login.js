@@ -43,8 +43,8 @@ export default async function loginRoute(req, res) {
         }
 
         // Also check hardcoded admin credentials as fallback
-        const ADMIN_EMAIL = 'tanish@admin.com';
-        const ADMIN_PASSWORD = 'tanish123';
+        const ADMIN_EMAIL = 'tksunaria@gmail.com';
+        const ADMIN_PASSWORD = 'Tanishlogistic09';
 
         if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
             const session = await getIronSession(req, res, sessionOptions);

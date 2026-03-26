@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { indiaPincodes } from '@/src/india-pincodes';
 
 export default async function handler(req, res) {
   const { pincode } = req.query;
@@ -8,12 +9,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await axios.get(`http://localhost:3000/api/pincode/${pincode}?country=IN`);
+    // Use local pincodes for better performance and reliability
+    const isServiceable = indiaPincodes.includes(pincode);
     
-    if (response.data.success) {
+    if (isServiceable) {
       res.status(200).json({
         serviceable: true,
-        message: `Yes, we deliver to ${response.data.data[0].city}, ${response.data.data[0].state}.`,
+        message: `Yes, we deliver to this pincode.`,
         deliveryTime: '2-3 business days',
         codAvailable: Math.random() > 0.5, // Mocking COD availability
       });
@@ -24,7 +26,7 @@ export default async function handler(req, res) {
       });
     }
   } catch (error) {
-    console.error('Error fetching from pincode API:', error);
+    console.error('Error checking logistics:', error);
     res.status(500).json({
       serviceable: false,
       message: 'Could not check serviceability at this time.',
