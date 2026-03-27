@@ -15,14 +15,19 @@ export default async function loginRoute(req, res) {
     }
 
     try {
+        console.log('Login attempt for email:', email);
+        
         // Find user in database
         const user = await prisma.user.findUnique({
             where: { email },
         });
         
+        console.log('Database user found:', user ? 'yes' : 'no');
+        
         if (user) {
             // Check password
             const isValid = await bcrypt.compare(password, user.password);
+            console.log('Password validation result:', isValid);
             
             if (isValid) {
                 const session = await getIronSession(req, res, sessionOptions);
@@ -45,6 +50,10 @@ export default async function loginRoute(req, res) {
         // Also check hardcoded admin credentials as fallback
         const ADMIN_EMAIL = 'tksunaria@gmail.com';
         const ADMIN_PASSWORD = 'Tanishlogistic09';
+
+        console.log('Checking hardcoded credentials. Input email:', email, 'Input password:', password);
+        console.log('Expected email:', ADMIN_EMAIL, 'Expected password:', ADMIN_PASSWORD);
+        console.log('Email match:', email === ADMIN_EMAIL, 'Password match:', password === ADMIN_PASSWORD);
 
         if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
             const session = await getIronSession(req, res, sessionOptions);
