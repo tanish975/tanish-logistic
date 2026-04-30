@@ -135,12 +135,18 @@ const Contact = () => {
                       <div className={`w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner`}>
                         <IconComponent className={`h-8 w-8 ${info.color}`} />
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-3">{info.title}</h3>
-                      <div className="space-y-1">
-                        {info.details.map((detail, idx) => (
-                          <p key={idx} className="text-gray-600 text-sm">{detail}</p>
-                        ))}
-                      </div>
+                       <h3 className="text-xl font-bold text-gray-900 mb-3">{info.title}</h3>
+                       <div className="space-y-1">
+                         {info.details.map((detail, idx) => (
+                           info.title === "Phone" ? (
+                             <a key={idx} href={`tel:${detail.replace(/\s+/g, '')}`} className="block text-gray-600 text-sm hover:text-blue-600 transition-colors">
+                               {detail}
+                             </a>
+                           ) : (
+                             <p key={idx} className="text-gray-600 text-sm">{detail}</p>
+                           )
+                         ))}
+                       </div>
                     </CardContent>
                   </Card>
                 </motion.div>

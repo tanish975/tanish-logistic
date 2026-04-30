@@ -153,8 +153,23 @@ export const Header = () => {
       {isOpen && (
         <div className="md:hidden bg-white shadow-lg">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            {/* Mobile menu header with close button */}
+            <div className="flex items-center justify-between mb-2 px-3">
+              <span className="text-sm font-semibold text-gray-500 uppercase">Navigation</span>
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
+                aria-label="Close menu"
+              >
+                <X size={20} />
+              </button>
+            </div>
             {[...navLinks, ...moreLinks].map((link) => (
-              <Link key={link.href} href={link.href}>
+              <Link 
+                key={link.href} 
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+              >
                 <span className={`block px-3 py-2 rounded-md text-base font-medium ${router.pathname === link.href ? 'bg-blue-50 text-blue-600' : 'text-gray-800'} hover:bg-gray-100`}>
                   {link.label}
                 </span>

@@ -1,104 +1,97 @@
+import { getIronSession } from 'iron-session';
+import sessionOptions from '@/lib/session';
 import prisma from '@/lib/prisma';
 
-export default async function handler(req, res) {
-  const { method } = req;
+export default async function reviewsRoute(req, res) {
+  const session = await getIronSession(req, res, sessionOptions);
 
-  switch (method) {
-    case 'GET':
-      try {
-        const { pending, all } = req.query;
-        
-        let where = {};
-        
-        // If requesting all reviews (for admin)
-        if (all !== 'true') {
-          // If not requesting all, filter by status
-          if (pending === 'true') {
-            where.status = 'pending';
-          } else {
-            // Return only approved reviews by default (for public display)
-            where.status = 'approved';
-          }
-        }
-        
-        const reviews = await prisma.review.findMany({
-          where,
-          orderBy: { createdAt: 'desc' },
-        });
-        
-        res.status(200).json(reviews);
-      } catch (error) {
-        console.error('Error fetching reviews:', error);
-        if (error.message && error.message.includes('connection')) {
-          res.status(503).json({ error: 'Database connection error. Please try again later.', details: error.message });
-        } else {
-          res.status(500).json({ error: 'Failed to fetch reviews', details: error.message });
-        }
+  // Check if user is authenticated and is admin
+  if (!session.user || session.user.role !== 'ADMIN') {
+    return res.status(403).json({ message: 'Unauthorized. Admin access required.' });
+  }
+
+  try {
+    if (req.method === 'GET') {
+      // Fetch all reviews with optional status filter
+      const { status } = req.query;
+      const where = status ? { status } : {};
+
+      const reviews = await prisma.review.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+      });
+
+      return res.status(200).json(reviews);
+    }
+
+    if (req.method === 'POST') {
+      const { platform, rating, comment, name = 'Anonymous', date, status = 'pending', isPublic = false } = req.body;
+
+      if (!platform || !rating || !comment) {
+        return res.status(400).json({ message: 'Platform, rating, and comment are required.' });
       }
-      break;
 
-    case 'POST':
-      try {
-        const { platform, rating, comment, date, name, isPublic } = req.body;
-        
-        if (!rating || !comment) {
-          return res.status(400).json({ error: 'Rating and comment are required' });
-        }
-
-        const newReview = await prisma.review.create({
-          data: {
-            platform: platform || 'Site',
-            rating: parseInt(rating),
-            comment,
-            name: name || 'Anonymous',
-            date: date ? new Date(date) : new Date(),
-            status: isPublic === true ? 'approved' : 'pending',
-            isPublic: isPublic || false,
-          },
-        });
-
-        res.status(201).json({ 
-          success: true, 
-          message: isPublic === true ? 'Review submitted and published!' : 'Review submitted for moderation!',
-          review: newReview 
-        });
-      } catch (error) {
-        console.error('Error adding review:', error);
-        res.status(500).json({ error: 'Failed to add review', details: error.message });
+      if (rating < 1 || rating > 5) {
+        return res.status(400).json({ message: 'Rating must be between 1 and 5.' });
       }
-      break;
 
-    case 'PUT':
-      try {
-        const { id, status } = req.body;
-        
-        const updatedReview = await prisma.review.update({
-          where: { id },
-          data: { status },
-        });
+      const reviewDate = date ? new Date(date) : new Date();
 
-        res.status(200).json({ success: true, review: updatedReview });
-      } catch (error) {
-        console.error('Error updating review:', error);
-        res.status(500).json({ error: 'Failed to update review status', details: error.message });
+      const newReview = await prisma.review.create({
+        data: {
+          platform,
+          rating,
+          comment,
+          name,
+          date: reviewDate,
+          status,
+          isPublic,
+        },
+      });
+
+      return res.status(201).json(newReview);
+    }
+
+    if (req.method === 'PUT') {
+      const { id, status: newStatus, isPublic } = req.body;
+
+      if (!id) {
+        return res.status(400).json({ message: 'Review ID is required.' });
       }
-      break;
 
-    case 'DELETE':
-      try {
-        const { id } = req.body;
-        await prisma.review.delete({
-          where: { id },
-        });
-        res.status(200).json({ success: true });
-      } catch (error) {
-        console.error('Error deleting review:', error);
-        res.status(500).json({ error: 'Failed to delete review', details: error.message });
+      const updateData = {};
+      if (newStatus !== undefined) updateData.status = newStatus;
+      if (isPublic !== undefined) updateData.isPublic = isPublic;
+
+      const updatedReview = await prisma.review.update({
+        where: { id },
+        data: updateData,
+      });
+
+      return res.status(200).json(updatedReview);
+    }
+
+    if (req.method === 'DELETE') {
+      const { id } = req.body;
+
+      if (!id) {
+        return res.status(400).json({ message: 'Review ID is required.' });
       }
-      break;
 
-    default:
-      res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
-      res.status(405).end(`Method ${method} Not Allowed`);
+      await prisma.review.delete({
+        where: { id },
+      });
+
+      return res.status(200).json({ message: 'Review deleted successfully.' });
+    }
+
+    return res.status(405).json({ message: 'Method not allowed' });
+  } catch (error) {
+    // P2025: Record to update not found
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Review not found.' });
+    }
+
+    return res.status(500).json({ message: 'Internal server error.' });
   }
 }

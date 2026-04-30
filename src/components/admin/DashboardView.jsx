@@ -55,46 +55,46 @@ const DashboardView = () => {
     
     const pieChartData = Object.entries(analytics.bookingsByStatus).map(([name, value]) => ({ name, value }));
 
-    return (
-        <div className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <Card className="shadow-lg">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Revenue (Delivered)</CardTitle>
-                        <IndianRupee className="h-5 w-5 text-green-500" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold">₹{analytics.totalRevenue.toLocaleString()}</div>
-                    </CardContent>
-                </Card>
-                <Card className="shadow-lg">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-                        <Package className="h-5 w-5 text-blue-500" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold">{analytics.bookingVolume}</div>
-                    </CardContent>
-                </Card>
-                <Card className="shadow-lg">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Pending Bookings</CardTitle>
-                        <Users className="h-5 w-5 text-yellow-500" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold">{analytics.bookingsByStatus.PENDING || 0}</div>
-                    </CardContent>
-                </Card>
-                <Card className="shadow-lg">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">In Transit</CardTitle>
-                        <Star className="h-5 w-5 text-purple-500" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold">{analytics.bookingsByStatus.IN_TRANSIT || 0}</div>
-                    </CardContent>
-                </Card>
-            </div>
+     return (
+         <div className="space-y-6">
+             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                 <Card className="shadow-lg">
+                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                         <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
+                         <Package className="h-5 w-5 text-blue-500" />
+                     </CardHeader>
+                     <CardContent>
+                         <div className="text-3xl font-bold">{analytics.bookingVolume}</div>
+                     </CardContent>
+                 </Card>
+                 <Card className="shadow-lg">
+                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                         <CardTitle className="text-sm font-medium">Pending Bookings</CardTitle>
+                         <Users className="h-5 w-5 text-yellow-500" />
+                     </CardHeader>
+                     <CardContent>
+                         <div className="text-3xl font-bold">{analytics.bookingsByStatus.PENDING || 0}</div>
+                     </CardContent>
+                 </Card>
+                 <Card className="shadow-lg">
+                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                         <CardTitle className="text-sm font-medium">In Transit</CardTitle>
+                         <Star className="h-5 w-5 text-purple-500" />
+                     </CardHeader>
+                     <CardContent>
+                         <div className="text-3xl font-bold">{analytics.bookingsByStatus.IN_TRANSIT || 0}</div>
+                     </CardContent>
+                 </Card>
+                 <Card className="shadow-lg">
+                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                         <CardTitle className="text-sm font-medium">Delivered</CardTitle>
+                         <IndianRupee className="h-5 w-5 text-green-500" />
+                     </CardHeader>
+                     <CardContent>
+                         <div className="text-3xl font-bold">{analytics.bookingsByStatus.DELIVERED || 0}</div>
+                     </CardContent>
+                 </Card>
+             </div>
             <div className="grid gap-6 md:grid-cols-2">
                 <Card className="shadow-lg">
                     <CardHeader>

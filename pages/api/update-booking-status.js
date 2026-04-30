@@ -39,7 +39,6 @@ export default async function handler(req, res) {
 
     res.status(200).json(updatedBooking);
   } catch (error) {
-    console.error('Error updating booking status:', error);
-    res.status(500).json({ message: 'Error updating booking status', error: error.message });
+    res.status(500).json({ message: 'Error updating booking status' });
   }
 }

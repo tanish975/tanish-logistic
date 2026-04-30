@@ -26,7 +26,6 @@ export default async function handler(req, res) {
       });
     }
   } catch (error) {
-    console.error('Error checking logistics:', error);
     res.status(500).json({
       serviceable: false,
       message: 'Could not check serviceability at this time.',

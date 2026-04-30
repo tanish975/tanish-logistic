@@ -38,7 +38,7 @@ export const SettingsProvider = ({ children }) => {
           setSettings(prev => ({ ...prev, ...data }));
         }
       } catch (error) {
-        console.error('Failed to load settings:', error);
+        // Failed to load settings - continue with defaults
       } finally {
         setIsLoading(false);
       }

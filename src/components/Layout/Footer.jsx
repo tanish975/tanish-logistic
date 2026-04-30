@@ -57,14 +57,22 @@ export const Footer = () => {
                   <p>{settings.contactDetails || 'Vadodara, Gujarat, India'}</p>
                 </div>
               </li>
-              <li className="flex items-center mt-4">
-                <span className="mr-3 h-5 w-5" style={{ color: primaryColor }}>📧</span>
-                <a href="mailto:tanishlogistic744@gmail.com" className="hover:opacity-80" style={{ color: primaryColor }}>tanishlogistic744@gmail.com</a>
-              </li>
-              <li className="flex items-center">
-                <span className="mr-3 h-5 w-5" style={{ color: primaryColor }}>📞</span>
-                <span>+91 6351255716</span>
-              </li>
+               <li className="flex items-center mt-4">
+                 <span className="mr-3 h-5 w-5" style={{ color: primaryColor }}>📧</span>
+                 <a href="mailto:tanishlogistic744@gmail.com" className="hover:opacity-80" style={{ color: primaryColor }}>tanishlogistic744@gmail.com</a>
+               </li>
+               <li className="flex items-center mt-4">
+                 <span className="mr-3 h-5 w-5" style={{ color: primaryColor }}>📞</span>
+                 <div className="flex flex-col">
+                   <a href="tel:+916351255716" className="hover:opacity-80 transition-opacity" style={{ color: primaryColor }}>
+                     +91 6351255716
+                   </a>
+                   <a href="tel:+919924204744" className="hover:opacity-80 transition-opacity mt-1" style={{ color: primaryColor }}>
+                     +91 9924204744
+                   </a>
+                 </div>
+                </li>
+
             </ul>
           </div>
 

@@ -1,7 +1,6 @@
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? '******' : 'NOT SET'); // Log masked key
 
 // Email validation helper
 function isValidEmail(email) {
@@ -18,17 +17,16 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Name, email, and message are required fields.' });
     }
 
-    // Validate email format
+      // Validate email format
     if (!isValidEmail(email)) {
-      console.error('Invalid email format:', email);
       return res.status(400).json({ message: 'Please provide a valid email address.' });
     }
 
     try {
       // Send email to admin
       const { data: adminEmail, error: adminError } = await resend.emails.send({
-        from: 'Contact Form <onboarding@resend.dev>',
-        to: 'tksunaria@gmail.com', // TEMP: Changed for testing with onboarding@resend.dev. Change to your desired admin email when using a verified domain.
+        from: 'Contact Form <noreply@tanishlogistic.com>', // TODO: Replace "yourdomain.com" with your actual domain name!
+        to: 'tanishlogistic744@gmail.com', // Note: Because you have your own domain, you can now change this to any email id if needed.
         subject: `New Contact Form Submission from ${name}`,
         html: `
           <p>You have a new contact form submission:</p>
@@ -43,13 +41,12 @@ export default async function handler(req, res) {
       });
 
       if (adminError) {
-        console.error('Resend API error (admin):', adminError);
-        return res.status(500).json({ message: 'Failed to send admin email.', error: adminError.message });
+        return res.status(500).json({ message: 'Failed to send admin email.' });
       }
 
       // Send confirmation email to user
       const { data: userEmail, error: userError } = await resend.emails.send({
-        from: 'Tanish Logistic <onboarding@resend.dev>',
+        from: 'Tanish Logistic <noreply@tanishlogistic.com>', // TODO: Replace "yourdomain.com" with your actual domain name!
         to: email,
         subject: 'Thank you for your message!',
         html: `
@@ -63,25 +60,17 @@ export default async function handler(req, res) {
       });
 
       if (userError) {
-        console.error('Resend API error (user):', userError);
         // Admin email was sent successfully, so we return success with a warning
         // rather than failing the entire request
-        return res.status(200).json({ 
-          message: 'Message sent successfully! However, we could not send the confirmation email.', 
-          warning: 'Confirmation email failed', 
-          adminEmailId: adminEmail.id,
-          error: userError.message 
+        return res.status(200).json({
+          message: 'Message sent successfully! However, we could not send the confirmation email.',
+          warning: 'Confirmation email failed',
+          adminEmailId: adminEmail.id
         });
       }
 
-      console.log('Resend API success:', { adminEmailId: adminEmail.id, userEmailId: userEmail.id });
-      res.status(200).json({ message: 'Message sent successfully!', data: { adminEmailId: adminEmail.id, userEmailId: userEmail.id } });
+        res.status(200).json({ message: 'Message sent successfully!', data: { adminEmailId: adminEmail.id, userEmailId: userEmail.id } });
     } catch (error) {
-      console.error('General error in send-email handler:', error);
-      res.status(500).json({ message: 'Failed to send message due to a server error.', error: error.message });
+      res.status(500).json({ message: 'Failed to send message due to a server error.' });
     }
-  } else {
-    res.setHeader('Allow', ['POST']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
 }

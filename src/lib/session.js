@@ -4,7 +4,9 @@ const sessionOptions = {
   password: process.env.SECRET_COOKIE_PASSWORD || "tanishlogisticsessionpassword2024secure32chars",
   cookieName: "tanish-logistic-session",
   cookieOptions: {
-    secure: true, // Always use secure cookies in production
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60, // 24 hours
   },
 };
 

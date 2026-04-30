@@ -1,39 +1,66 @@
-import prisma from '@/lib/prisma';
+ import prisma from '@/lib/prisma';
 
-export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        res.setHeader('Allow', ['POST']);
-        return res.status(405).end(`Method ${req.method} Not Allowed`);
-    }
+  export default async function handler(req, res) {
+      if (req.method !== 'POST') {
+          res.setHeader('Allow', ['POST']);
+          return res.status(405).end(`Method ${req.method} Not Allowed`);
+      }
 
-    const { id } = req.body;
+      const { id, deleteAllCancelled } = req.body;
 
-    if (!id) {
-        return res.status(400).json({ message: 'Booking ID is required.' });
-    }
+      try {
+          if (deleteAllCancelled) {
+              // Bulk delete all cancelled bookings
+              // First, clear driver and vehicle references
+              await prisma.booking.updateMany({
+                  where: { status: 'CANCELLED' },
+                  data: { driverId: null, vehicleId: null }
+              });
 
-    try {
-        // Try to find by bookingId first, then by id
-        let booking = await prisma.booking.findFirst({
-            where: {
-                OR: [
-                    { bookingId: id },
-                    { id: id },
-                ],
-            },
-        });
+              const result = await prisma.booking.deleteMany({
+                  where: { status: 'CANCELLED' }
+              });
 
-        if (!booking) {
-            return res.status(404).json({ message: 'Booking not found.' });
-        }
+              if (result.count === 0) {
+                  return res.status(200).json({ message: 'No cancelled bookings found to delete.' });
+              }
 
-        await prisma.booking.delete({
-            where: { id: booking.id },
-        });
+              return res.status(200).json({ 
+                  message: `Successfully deleted ${result.count} cancelled booking(s).` 
+              });
+          }
 
-        res.status(200).json({ message: 'Booking deleted successfully.' });
-    } catch (error) {
-        console.error('Error deleting booking:', error);
-        res.status(500).json({ message: 'Internal Server Error', error: error.message });
-    }
-}
+          // Individual booking deletion
+          if (!id) {
+              return res.status(400).json({ message: 'Booking ID is required.' });
+          }
+
+          // Try to find by bookingId first, then by id
+          let booking = await prisma.booking.findFirst({
+              where: {
+                  OR: [
+                      { bookingId: id },
+                      { id: id },
+                  ],
+              },
+          });
+
+          if (!booking) {
+              return res.status(404).json({ message: 'Booking not found.' });
+          }
+
+          // Clear driver and vehicle references first to avoid foreign key constraint
+          await prisma.booking.update({
+              where: { id: booking.id },
+              data: { driverId: null, vehicleId: null }
+          });
+
+          await prisma.booking.delete({
+              where: { id: booking.id },
+          });
+
+          res.status(200).json({ message: 'Booking deleted successfully.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+ }

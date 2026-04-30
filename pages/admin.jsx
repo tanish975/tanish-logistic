@@ -50,6 +50,9 @@ const AdminPage = () => {
   const [searchInput, setSearchInput] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  // Mobile sidebar state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -137,6 +140,14 @@ const AdminPage = () => {
     }
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
+
   const handleUpdateBookingStatus = async (bookingId, newStatus) => {
     try {
       const response = await fetch('/api/update-booking-status', {
@@ -169,16 +180,64 @@ const AdminPage = () => {
     }
   };
 
-  const getStatusVariant = (status) => {
-    switch (status) {
-      case 'DELIVERED': return 'success';
-      case 'IN_TRANSIT': return 'secondary';
-      case 'CANCELLED': return 'destructive';
-      case 'CONFIRMED': return 'default';
-      case 'PENDING':
-      default: return 'outline';
-    }
-  };
+   const handleDeleteBooking = async (bookingId) => {
+     if (!confirm('Are you sure you want to delete this booking?')) return;
+
+     try {
+       const response = await fetch('/api/delete-booking', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ id: bookingId }),
+         credentials: 'include'
+       });
+
+       const data = await response.json();
+
+       if (!response.ok) {
+         throw new Error(data.message || data.error?.message || 'Failed to delete booking');
+       }
+
+       setBookings(prevBookings => prevBookings.filter(b => b.id !== bookingId && b.bookingId !== bookingId));
+       setFilteredBookings(prevFiltered => prevFiltered.filter(b => b.id !== bookingId && b.bookingId !== bookingId));
+       toast.success(data.message || 'Booking deleted successfully');
+     } catch (error) {
+       console.error('Error deleting booking:', error);
+       toast.error(`Failed to delete booking: ${error.message}`);
+     }
+   };
+
+   const handleDeleteAllCancelled = async () => {
+     if (!confirm('Are you sure you want to delete ALL cancelled bookings permanently? This cannot be undone.')) return;
+
+     try {
+       const response = await fetch('/api/delete-booking', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ deleteAllCancelled: true }),
+         credentials: 'include'
+       });
+
+       if (!response.ok) throw new Error('Failed to delete cancelled bookings');
+
+       setBookings(prevBookings => prevBookings.filter(b => b.status !== 'CANCELLED'));
+       setFilteredBookings(prevFiltered => prevFiltered.filter(b => b.status !== 'CANCELLED'));
+       toast.success('All cancelled bookings deleted successfully');
+     } catch (error) {
+       console.error('Error deleting cancelled bookings:', error);
+       toast.error('Failed to delete cancelled bookings');
+     }
+   };
+
+   const getStatusVariant = (status) => {
+     switch (status) {
+       case 'DELIVERED': return 'success';
+       case 'IN_TRANSIT': return 'secondary';
+       case 'CANCELLED': return 'destructive';
+       case 'CONFIRMED': return 'default';
+       case 'PENDING':
+       default: return 'outline';
+     }
+   };
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen"><p>Loading...</p></div>;
@@ -206,68 +265,75 @@ const AdminPage = () => {
             case 'dashboard':
               return <DashboardView bookings={bookings} />;
             case 'bookings':
-              return (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <Input placeholder="Search by client or booking ID..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} className="max-w-sm" />
-                    <Select onValueChange={setStatusFilter} defaultValue="all">
-                      <SelectTrigger className="w-[180px] bg-background border-input">
-                        <SelectValue placeholder="Filter by status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Status</SelectItem>
-                        {VALID_BOOKING_STATUSES.map(status => (
-                            <SelectItem key={status} value={status}>{status.replace('_', ' ')}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Button onClick={loadBookings}>Refresh</Button>
-                  </div>
-                  <Card className="shadow-lg">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Booking ID</TableHead>
-                          <TableHead>Client</TableHead>
-                          <TableHead>Route</TableHead>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Price</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredBookings.map(booking => (
-                          <TableRow key={booking.id}>
-                            <TableCell className="font-medium">{booking.bookingId || booking.id}</TableCell>
-                            <TableCell>{booking.clientName || booking.customerName}</TableCell>
-                            <TableCell>{booking.pickup} → {booking.drop}</TableCell>
-                            <TableCell>{booking.date ? new Date(booking.date).toLocaleDateString() : 'N/A'}</TableCell>
-                            <TableCell>
-                                <Select value={booking.status} onValueChange={(newStatus) => handleUpdateBookingStatus(booking.id, newStatus)}>
-                                    <SelectTrigger className="w-[120px] bg-background">
-                                        <SelectValue placeholder="Update Status" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {VALID_BOOKING_STATUSES.map(status => (
-                                            <SelectItem key={status} value={status}>
-                                                <Badge variant={getStatusVariant(status)}>{status.replace('_', ' ')}</Badge>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </TableCell>
-                            <TableCell className="text-right">
-                                {booking.price ? `₹${parseFloat(booking.price).toLocaleString()}` : '-'}
-                            </TableCell>
-                            <TableCell></TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </Card>
-                </div>
-              );
+               return (
+                 <div className="space-y-4">
+                   <div className="flex items-center gap-4">
+                     <Input placeholder="Search by client or booking ID..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} className="max-w-sm" />
+                     <Select onValueChange={setStatusFilter} defaultValue="all">
+                       <SelectTrigger className="w-[180px] bg-background border-input">
+                         <SelectValue placeholder="Filter by status" />
+                       </SelectTrigger>
+                       <SelectContent>
+                         <SelectItem value="all">All Status</SelectItem>
+                         {VALID_BOOKING_STATUSES.map(status => (
+                             <SelectItem key={status} value={status}>{status.replace('_', ' ')}</SelectItem>
+                         ))}
+                       </SelectContent>
+                     </Select>
+                     <Button onClick={loadBookings}>Refresh</Button>
+                     <Button onClick={handleDeleteAllCancelled} variant="destructive">
+                       Delete All Cancelled
+                     </Button>
+                   </div>
+                   <Card className="shadow-lg">
+                     <Table>
+                       <TableHeader>
+                         <TableRow>
+                           <TableHead>Booking ID</TableHead>
+                           <TableHead>Client</TableHead>
+                           <TableHead>Route</TableHead>
+                           <TableHead>Date</TableHead>
+                           <TableHead>Status</TableHead>
+                           <TableHead>Actions</TableHead>
+                         </TableRow>
+                       </TableHeader>
+                       <TableBody>
+                         {filteredBookings.map(booking => (
+                           <TableRow key={booking.id}>
+                             <TableCell className="font-medium">{booking.bookingId || booking.id}</TableCell>
+                             <TableCell>{booking.clientName || booking.customerName}</TableCell>
+                             <TableCell>{booking.pickup} → {booking.drop}</TableCell>
+                             <TableCell>{booking.date ? new Date(booking.date).toLocaleDateString() : 'N/A'}</TableCell>
+                             <TableCell>
+                                 <Select value={booking.status} onValueChange={(newStatus) => handleUpdateBookingStatus(booking.id, newStatus)}>
+                                     <SelectTrigger className="w-[120px] bg-background">
+                                         <SelectValue placeholder="Update Status" />
+                                     </SelectTrigger>
+                                     <SelectContent>
+                                         {VALID_BOOKING_STATUSES.map(status => (
+                                             <SelectItem key={status} value={status}>
+                                                 <Badge variant={getStatusVariant(status)}>{status.replace('_', ' ')}</Badge>
+                                             </SelectItem>
+                                         ))}
+                                     </SelectContent>
+                                 </Select>
+                             </TableCell>
+                             <TableCell>
+                               <Button
+                                 variant="destructive"
+                                 size="sm"
+                                 onClick={() => handleDeleteBooking(booking.id)}
+                               >
+                                 Delete
+                               </Button>
+                             </TableCell>
+                           </TableRow>
+                         ))}
+                       </TableBody>
+                     </Table>
+                   </Card>
+                 </div>
+               );
             case 'routes':
               return <RoutesView />;
             case 'customers':
@@ -289,42 +355,105 @@ const AdminPage = () => {
       <Head><title>Tanish Logistic - Admin</title></Head>
       <Toaster richColors />
       <div className="flex min-h-screen w-full flex-col bg-gray-50">
-        <aside className="fixed inset-y-0 left-0 z-10 hidden w-60 flex-col border-r bg-gray-100 sm:flex">
-          <div className="flex flex-col gap-2 p-4 pt-14">
-            <h2 className="text-lg font-semibold">Tanish Logistic</h2>
+        {/* Mobile overlay */}
+        {isSidebarOpen && (
+          <div 
+            className="fixed inset-0 z-20 bg-black/50 sm:hidden"
+            onClick={closeSidebar}
+          />
+        )}
+
+        {/* Sidebar */}
+        <aside className={`
+          fixed inset-y-0 left-0 z-30 w-60 flex-col border-r bg-gray-100
+          transform transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          sm:static sm:translate-x-0 sm:flex
+          ${isSidebarOpen ? 'flex' : 'hidden'}
+        `}>
+          <div className="flex flex-col gap-2 p-4 pt-14 sm:pt-4">
+            <div className="flex items-center justify-between sm:hidden">
+              <h2 className="text-lg font-semibold">Tanish Logistic</h2>
+              <button 
+                onClick={closeSidebar}
+                className="p-2 rounded-md hover:bg-gray-200"
+                aria-label="Close sidebar"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <h2 className="text-lg font-semibold hidden sm:block">Tanish Logistic</h2>
             <nav className="flex flex-col gap-1">
-              <Button variant={currentSection === 'dashboard' ? 'default' : 'outline'} onClick={() => setCurrentSection('dashboard')} className="justify-start">
+              <Button 
+                variant={currentSection === 'dashboard' ? 'default' : 'outline'} 
+                onClick={() => { setCurrentSection('dashboard'); closeSidebar(); }}
+                className="justify-start"
+              >
                 <LayoutDashboard className="mr-2 h-4 w-4" />
                 Dashboard
               </Button>
-              <Button variant={currentSection === 'bookings' ? 'default' : 'outline'} onClick={() => setCurrentSection('bookings')} className="justify-start">
+              <Button 
+                variant={currentSection === 'bookings' ? 'default' : 'outline'} 
+                onClick={() => { setCurrentSection('bookings'); closeSidebar(); }}
+                className="justify-start"
+              >
                 <Package className="mr-2 h-4 w-4" />
                 Bookings
               </Button>
-               <Button variant={currentSection === 'routes' ? 'default' : 'outline'} onClick={() => setCurrentSection('routes')} className="justify-start">
+              <Button 
+                variant={currentSection === 'routes' ? 'default' : 'outline'} 
+                onClick={() => { setCurrentSection('routes'); closeSidebar(); }}
+                className="justify-start"
+              >
                 <Map className="mr-2 h-4 w-4" />
                 Routes
               </Button>
-              <Button variant={currentSection === 'customers' ? 'default' : 'outline'} onClick={() => setCurrentSection('customers')} className="justify-start">
+              <Button 
+                variant={currentSection === 'customers' ? 'default' : 'outline'} 
+                onClick={() => { setCurrentSection('customers'); closeSidebar(); }}
+                className="justify-start"
+              >
                 <Users className="mr-2 h-4 w-4" />
                 Customers
               </Button>
-              <Button variant={currentSection === 'reviews' ? 'default' : 'outline'} onClick={() => setCurrentSection('reviews')} className="justify-start">
+              <Button 
+                variant={currentSection === 'reviews' ? 'default' : 'outline'} 
+                onClick={() => { setCurrentSection('reviews'); closeSidebar(); }}
+                className="justify-start"
+              >
                 <LineChart className="mr-2 h-4 w-4" />
                 Reviews
               </Button>
-              <Button variant={currentSection === 'settings' ? 'default' : 'outline'} onClick={() => setCurrentSection('settings')} className="justify-start">
+              <Button 
+                variant={currentSection === 'settings' ? 'default' : 'outline'} 
+                onClick={() => { setCurrentSection('settings'); closeSidebar(); }}
+                className="justify-start"
+              >
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
               </Button>
             </nav>
           </div>
         </aside>
+
+        {/* Main content area */}
         <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-64">
           <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+            {/* Mobile menu button */}
+            <button
+              onClick={toggleSidebar}
+              className="sm:hidden p-2 rounded-md hover:bg-gray-100"
+              aria-label="Open menu"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
             <h1 className="text-xl font-bold">{currentSection.charAt(0).toUpperCase() + currentSection.slice(1)}</h1>
             <div className="ml-auto flex items-center gap-2">
-              <Button onClick={handleLogout}>Logout</Button>
+              <Button onClick={handleLogout} variant="outline" size="sm">Logout</Button>
             </div>
           </header>
           <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">

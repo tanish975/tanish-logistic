@@ -72,10 +72,8 @@ export const updateBookingStatus = (bookingId, status) => {
       writeData(bookingsFile, bookings);
       return bookings[index];
     }
-    console.log('Booking not found for ID:', bookingId, 'Available IDs:', bookings.map(b => b.id));
     return null;
   } catch (error) {
-    console.error('Error in updateBookingStatus:', error);
     throw error;
   }
 };

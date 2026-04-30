@@ -15,71 +15,38 @@ export default async function loginRoute(req, res) {
     }
 
     try {
-        console.log('Login attempt for email:', email);
-        
         // Find user in database
         const user = await prisma.user.findUnique({
             where: { email },
         });
         
-        console.log('Database user found:', user ? 'yes' : 'no');
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid credentials.' });
+        }
+
+        // Check password
+        const isValid = await bcrypt.compare(password, user.password);
         
-        if (user) {
-            // Check password
-            const isValid = await bcrypt.compare(password, user.password);
-            console.log('Password validation result:', isValid);
-            
-            if (isValid) {
-                const session = await getIronSession(req, res, sessionOptions);
-                
-                session.user = {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    role: user.role,
-                };
-                await session.save();
-
-                return res.status(200).json({ 
-                    user: session.user,
-                    message: 'Login successful'
-                });
-            }
+        if (!isValid) {
+            return res.status(401).json({ message: 'Invalid credentials.' });
         }
 
-        // Also check hardcoded admin credentials as fallback
-        const ADMIN_EMAIL = 'tksunaria@gmail.com';
-        const ADMIN_PASSWORD = 'Tanishlogistic09';
+        // User authenticated - create session
+        const session = await getIronSession(req, res, sessionOptions);
+        
+        session.user = {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+        };
+        await session.save();
 
-        console.log('Checking hardcoded credentials. Input email:', email, 'Input password:', password);
-        console.log('Expected email:', ADMIN_EMAIL, 'Expected password:', ADMIN_PASSWORD);
-        console.log('Email match:', email === ADMIN_EMAIL, 'Password match:', password === ADMIN_PASSWORD);
-
-        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-            const session = await getIronSession(req, res, sessionOptions);
-            
-            session.user = {
-                id: 1,
-                email: ADMIN_EMAIL,
-                name: 'Tanish Admin',
-                role: 'ADMIN',
-            };
-            await session.save();
-
-            return res.status(200).json({ 
-                user: session.user,
-                message: 'Login successful'
-            });
-        }
-
-        return res.status(401).json({ message: 'Invalid credentials.' });
+        return res.status(200).json({ 
+            user: session.user,
+            message: 'Login successful'
+        });
     } catch (error) {
-        console.error('Login error:', error);
-        // Check if it's a database connection error
-        if (error.message && error.message.includes('connection')) {
-            res.status(503).json({ message: 'Database connection error. Please try again later.' });
-        } else {
-            res.status(500).json({ message: 'Internal server error.' });
-        }
+      return res.status(500).json({ message: 'Internal server error.' });
     }
 }

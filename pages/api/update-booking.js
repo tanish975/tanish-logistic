@@ -34,7 +34,6 @@ export default async function handler(req, res) {
 
         res.status(200).json({ message: 'Booking updated successfully.', booking: updatedBooking });
     } catch (error) {
-        console.error('Error updating booking:', error);
-        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+      res.status(500).json({ message: 'Internal Server Error' });
     }
 }
