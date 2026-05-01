@@ -81,3 +81,5 @@ agenthub/agents/youtube/db
 # Mobile development
 android-sdk/ 
 /src/generated/prisma
+.env*
+Tanish billing app
