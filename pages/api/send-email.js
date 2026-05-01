@@ -73,4 +73,5 @@ export default async function handler(req, res) {
     } catch (error) {
       res.status(500).json({ message: 'Failed to send message due to a server error.' });
     }
+  }
 }

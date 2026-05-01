@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { indiaPincodes } from '@/src/india-pincodes';
+import { indiaPincodes } from '@/india-pincodes';
 
 export default async function handler(req, res) {
   const { pincode } = req.query;
