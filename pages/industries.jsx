@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Factory, Warehouse, Building, Briefcase, ArrowRight, CheckCircle,
-  Truck, Package, Shield, Clock, Users, Target 
+  Factory, Warehouse, Building, Briefcase, ArrowRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 

@@ -4,12 +4,19 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { toast } from 'sonner';
 import { IndianRupee, Package, Users, Star } from 'lucide-react';
 
-const COLORS = {
-    PENDING: '#f59e0b',
-    CONFIRMED: '#3b82f6',
-    IN_TRANSIT: '#8b5cf6',
-    DELIVERED: '#22c55e',
-    CANCELLED: '#ef4444',
+const CHART_COLORS = {
+    brand: '#2563EB',
+    secondary: '#0EA5E9',
+    accent: '#06B6D4',
+    neutral: '#3B82F6',
+};
+
+const STATUS_COLORS = {
+    PENDING: '#F59E0B',
+    CONFIRMED: '#2563EB',
+    IN_TRANSIT: '#06B6D4',
+    DELIVERED: '#10B981',
+    CANCELLED: '#EF4444',
 };
 
 const DashboardView = () => {
@@ -61,7 +68,7 @@ const DashboardView = () => {
                  <Card className="shadow-lg">
                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                          <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-                         <Package className="h-5 w-5 text-blue-500" />
+                          <Package className="h-5 w-5 text-blue-600" />
                      </CardHeader>
                      <CardContent>
                          <div className="text-3xl font-bold">{analytics.bookingVolume}</div>
@@ -108,7 +115,7 @@ const DashboardView = () => {
                                 <YAxis allowDecimals={false} />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="count" fill="#3b82f6" name="New Bookings" />
+                                 <Bar dataKey="count" fill={CHART_COLORS.brand} name="New Bookings" />
                             </BarChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -126,14 +133,14 @@ const DashboardView = () => {
                                     cy="50%"
                                     labelLine={false}
                                     outerRadius={100}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                    nameKey="name"
-                                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                >
-                                    {pieChartData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[entry.name]} />
-                                    ))}
+                                     fill={CHART_COLORS.brand}
+                                     dataKey="value"
+                                     nameKey="name"
+                                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                 >
+                                     {pieChartData.map((entry, index) => (
+                                         <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name] || CHART_COLORS.neutral} />
+                                     ))}
                                 </Pie>
                                 <Tooltip />
                                 <Legend />

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Package, Truck, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, CheckCircle, ArrowRight, MapPin, Box } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
 
@@ -45,6 +45,40 @@ const Book = () => {
   };
 
   const nextStep = () => {
+    if (step === 1) {
+      if (!bookingData.cargoType.trim() || !bookingData.cargoWeight.trim()) {
+        toast.error('Please fill in all required cargo fields.');
+        return;
+      }
+    } else if (step === 2) {
+      if (
+        !bookingData.pickupLocation.trim() ||
+        !bookingData.dropLocation.trim() ||
+        !bookingData.pickupAddress.trim() ||
+        !bookingData.dropAddress.trim() ||
+        !bookingData.preferredDate ||
+        !bookingData.serviceType
+      ) {
+        toast.error('Please fill in all required service details.');
+        return;
+      }
+    } else if (step === 3) {
+      const phoneRegex = /^[0-9]{10,15}$/;
+      if (
+        !bookingData.companyName.trim() ||
+        !bookingData.contactPerson.trim() ||
+        !bookingData.phone.trim() ||
+        !bookingData.email.trim()
+      ) {
+        toast.error('Please fill in all required company info fields.');
+        return;
+      }
+      if (!phoneRegex.test(bookingData.phone.replace(/\D/g, ''))) {
+        toast.error('Please enter a valid phone number (10-15 digits).');
+        return;
+      }
+    }
+
     setStep(step + 1);
   };
 
@@ -100,9 +134,9 @@ const Book = () => {
   };
 
   const steps = [
-    { number: 1, title: 'Cargo Info', icon: Package },
-    { number: 2, title: 'Service Details', icon: Truck },
-    { number: 3, title: 'Company Info', icon: Package },
+    { number: 1, title: 'Cargo Info', icon: Box },
+    { number: 2, title: 'Service Details', icon: MapPin },
+    { number: 3, title: 'Company Info', icon: User },
     { number: 4, title: 'Review', icon: CheckCircle }
   ];
 
@@ -256,7 +290,7 @@ const Book = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-2">
                         <Label htmlFor="phone" className="text-lg">Phone Number *</Label>
-                        <Input id="phone" type="tel" value={bookingData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} placeholder="+91-XXXXXXXXXX" required className="p-4 text-lg" />
+                         <Input id="phone" type="tel" value={bookingData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} placeholder="+91-XXXXXXXXXX" required className="p-4 text-lg" pattern="[0-9]{10,15}" maxLength={15} />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email" className="text-lg">Email Address *</Label>
@@ -273,40 +307,55 @@ const Book = () => {
                         
                         {/* Cargo Info */}
                         <div className="p-4 border rounded-lg bg-blue-50">
-                          <h4 className="font-bold text-lg mb-3 text-blue-800">Cargo Information</h4>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div><Label className="font-semibold">Type:</Label><p className="text-gray-700">{bookingData.cargoType}</p></div>
-                            <div><Label className="font-semibold">Weight:</Label><p className="text-gray-700">{bookingData.cargoWeight} kg</p></div>
-                            {(bookingData.cargoLength || bookingData.cargoWidth || bookingData.cargoHeight) && (
-                              <div className="col-span-2"><Label className="font-semibold">Dimensions:</Label><p className="text-gray-700">{bookingData.cargoLength || '-'} x {bookingData.cargoWidth || '-'} x {bookingData.cargoHeight || '-'} ft</p></div>
-                            )}
-                            <div className="col-span-2"><Label className="font-semibold">Description:</Label><p className="text-gray-700">{bookingData.cargoDescription || 'N/A'}</p></div>
-                          </div>
+                            <div className="flex items-center justify-between mb-3">
+                                <h4 className="font-bold text-lg text-blue-800">Cargo Information</h4>
+                                <Button type="button" variant="outline" size="sm" onClick={() => setStep(1)} className="text-blue-600 border-blue-600 hover:bg-blue-50">
+                                    Edit
+                                </Button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div><Label className="font-semibold">Type:</Label><p className="text-gray-700">{bookingData.cargoType}</p></div>
+                                <div><Label className="font-semibold">Weight:</Label><p className="text-gray-700">{bookingData.cargoWeight} kg</p></div>
+                                {(bookingData.cargoLength || bookingData.cargoWidth || bookingData.cargoHeight) && (
+                                  <div className="col-span-2"><Label className="font-semibold">Dimensions:</Label><p className="text-gray-700">{bookingData.cargoLength || '-'} x {bookingData.cargoWidth || '-'} x {bookingData.cargoHeight || '-'} ft</p></div>
+                                )}
+                                <div className="col-span-2"><Label className="font-semibold">Description:</Label><p className="text-gray-700">{bookingData.cargoDescription || 'N/A'}</p></div>
+                            </div>
                         </div>
                         
                         {/* Service Details */}
                         <div className="p-4 border rounded-lg bg-green-50">
-                          <h4 className="font-bold text-lg mb-3 text-green-800">Service Details</h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            <div><Label className="font-semibold">Pickup:</Label><p className="text-gray-700">{bookingData.pickupLocation}</p></div>
-                            <div><Label className="font-semibold">Drop-off:</Label><p className="text-gray-700">{bookingData.dropLocation}</p></div>
-                            <div className="col-span-2"><Label className="font-semibold">Pickup Address:</Label><p className="text-gray-700">{bookingData.pickupAddress}</p></div>
-                            <div className="col-span-2"><Label className="font-semibold">Drop-off Address:</Label><p className="text-gray-700">{bookingData.dropAddress}</p></div>
-                            <div><Label className="font-semibold">Service Type:</Label><p className="text-gray-700">{bookingData.serviceType}</p></div>
-                            <div><Label className="font-semibold">Preferred Date:</Label><p className="text-gray-700">{bookingData.preferredDate}</p></div>
-                            {bookingData.specialInstructions && <div className="col-span-2"><Label className="font-semibold">Instructions:</Label><p className="text-gray-700">{bookingData.specialInstructions}</p></div>}
-                          </div>
+                            <div className="flex items-center justify-between mb-3">
+                                <h4 className="font-bold text-lg text-green-800">Service Details</h4>
+                                <Button type="button" variant="outline" size="sm" onClick={() => setStep(2)} className="text-green-600 border-green-600 hover:bg-green-50">
+                                    Edit
+                                </Button>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div><Label className="font-semibold">Pickup:</Label><p className="text-gray-700">{bookingData.pickupLocation}</p></div>
+                                <div><Label className="font-semibold">Drop-off:</Label><p className="text-gray-700">{bookingData.dropLocation}</p></div>
+                                <div className="col-span-2"><Label className="font-semibold">Pickup Address:</Label><p className="text-gray-700">{bookingData.pickupAddress}</p></div>
+                                <div className="col-span-2"><Label className="font-semibold">Drop-off Address:</Label><p className="text-gray-700">{bookingData.dropAddress}</p></div>
+                                <div><Label className="font-semibold">Service Type:</Label><p className="text-gray-700">{bookingData.serviceType}</p></div>
+                                <div><Label className="font-semibold">Preferred Date:</Label><p className="text-gray-700">{bookingData.preferredDate}</p></div>
+                                {bookingData.specialInstructions && <div className="col-span-2"><Label className="font-semibold">Instructions:</Label><p className="text-gray-700">{bookingData.specialInstructions}</p></div>}
+                            </div>
                         </div>
                         
                         {/* Company Info */}
                         <div className="p-4 border rounded-lg bg-purple-50">
-                          <h4 className="font-bold text-lg mb-3 text-purple-800">Company Information</h4>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div><Label className="font-semibold">Company:</Label><p className="text-gray-700">{bookingData.companyName}</p></div>
-                            <div><Label className="font-semibold">Contact:</Label><p className="text-gray-700">{bookingData.contactPerson}</p></div>
-                            <div><Label className="font-semibold">Phone:</Label><p className="text-gray-700">{bookingData.phone}</p></div>
-                            <div><Label className="font-semibold">Email:</Label><p className="text-gray-700">{bookingData.email}</p></div>
-                          </div>
+                            <div className="flex items-center justify-between mb-3">
+                                <h4 className="font-bold text-lg text-purple-800">Company Information</h4>
+                                <Button type="button" variant="outline" size="sm" onClick={() => setStep(3)} className="text-purple-600 border-purple-600 hover:bg-purple-50">
+                                    Edit
+                                </Button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div><Label className="font-semibold">Company:</Label><p className="text-gray-700">{bookingData.companyName}</p></div>
+                                <div><Label className="font-semibold">Contact:</Label><p className="text-gray-700">{bookingData.contactPerson}</p></div>
+                                <div><Label className="font-semibold">Phone:</Label><p className="text-gray-700">{bookingData.phone}</p></div>
+                                <div><Label className="font-semibold">Email:</Label><p className="text-gray-700">{bookingData.email}</p></div>
+                            </div>
                         </div>
                     </motion.div>
                 )}

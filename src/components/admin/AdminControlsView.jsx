@@ -1,6 +1,19 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
 const AdminControlsView = () => {
     const [users, setUsers] = useState([]);
@@ -12,6 +25,12 @@ const AdminControlsView = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    // Confirmation dialog state
+    const [confirmState, setConfirmState] = useState({
+      open: false,
+      userId: null,
+    });
 
     const fetchUsers = async () => {
         try {
@@ -62,7 +81,16 @@ const AdminControlsView = () => {
     };
 
     const handleDeleteUser = async (id) => {
-        if (!confirm('Are you sure you want to delete this user?')) return;
+        setConfirmState({
+          open: true,
+          userId: id,
+        });
+    };
+
+    const confirmDeleteUser = async () => {
+        const id = confirmState.userId;
+        if (!id) return;
+
         setError('');
         setSuccess('');
 
@@ -82,6 +110,8 @@ const AdminControlsView = () => {
             fetchUsers(); // Refresh the list
         } catch (err) {
             setError(err.message);
+        } finally {
+            setConfirmState(prev => ({ ...prev, open: false, userId: null }));
         }
     };
 
@@ -95,24 +125,26 @@ const AdminControlsView = () => {
             {error && <p className="bg-red-100 text-red-700 p-3 rounded-lg mb-4">{error}</p>}
             {success && <p className="bg-green-100 text-green-700 p-3 rounded-lg mb-4">{success}</p>}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Add New User Form */}
                 <div className="bg-white p-6 rounded-xl shadow-lg">
                     <h3 className="text-xl font-bold text-gray-800 mb-4">Add New Admin</h3>
                     <form onSubmit={handleAddUser} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                            <input type="text" value={name} onChange={e => setName(e.target.value)} required className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Full Name</Label>
+                            <Input id="name" value={name} onChange={e => setName(e.target.value)} required />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Username</label>
-                            <input type="text" value={username} onChange={e => setUsername(e.target.value)} required className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                        <div className="space-y-2">
+                            <Label htmlFor="username">Username</Label>
+                            <Input id="username" value={username} onChange={e => setUsername(e.target.value)} required />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Password</label>
-                            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                        <div className="space-y-2">
+                            <Label htmlFor="password">Password</Label>
+                            <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
                         </div>
-                        <button type="submit" className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg">Add Admin</button>
+                        <Button type="submit" className="w-full bg-blue-600 text-white hover:bg-blue-700">
+                            Add Admin
+                        </Button>
                     </form>
                 </div>
 
@@ -127,15 +159,34 @@ const AdminControlsView = () => {
                                         <p className="font-medium text-gray-900">{user.name}</p>
                                         <p className="text-sm text-gray-500">@{user.username}</p>
                                     </div>
-                                    <button onClick={() => handleDeleteUser(user.id)} className="text-red-500 hover:text-red-700 font-medium text-sm">
+                                    <Button onClick={() => handleDeleteUser(user.id)} variant="destructive" size="sm">
                                         Delete
-                                    </button>
+                                    </Button>
                                 </li>
                             ))}
                         </ul>
                     )}
                 </div>
             </div>
+
+            <Dialog open={confirmState.open} onOpenChange={(open) => setConfirmState(prev => ({ ...prev, open }))}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Delete User</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to delete this user? This action cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setConfirmState(prev => ({ ...prev, open: false }))}>
+                    Cancel
+                  </Button>
+                  <Button variant="destructive" onClick={confirmDeleteUser}>
+                    Delete
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
         </motion.section>
     );
 }

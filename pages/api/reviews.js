@@ -5,26 +5,9 @@ import prisma from '@/lib/prisma';
 export default async function reviewsRoute(req, res) {
   const session = await getIronSession(req, res, sessionOptions);
 
-  // Check if user is authenticated and is admin
-  if (!session.user || session.user.role !== 'ADMIN') {
-    return res.status(403).json({ message: 'Unauthorized. Admin access required.' });
-  }
-
-  try {
-    if (req.method === 'GET') {
-      // Fetch all reviews with optional status filter
-      const { status } = req.query;
-      const where = status ? { status } : {};
-
-      const reviews = await prisma.review.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-      });
-
-      return res.status(200).json(reviews);
-    }
-
-    if (req.method === 'POST') {
+  // Allow public submissions (POST), require admin for other operations
+  if (req.method === 'POST') {
+    try {
       const { platform, rating, comment, name = 'Anonymous', date, status = 'pending', isPublic = false } = req.body;
 
       if (!platform || !rating || !comment) {
@@ -50,6 +33,30 @@ export default async function reviewsRoute(req, res) {
       });
 
       return res.status(201).json(newReview);
+    } catch (error) {
+      if (error.code === 'P2025') {
+        return res.status(404).json({ message: 'Review not found.' });
+      }
+      return res.status(500).json({ message: 'Internal server error.' });
+    }
+  }
+
+  // Require admin for all other methods
+  if (!session.user || session.user.role !== 'ADMIN') {
+    return res.status(403).json({ message: 'Unauthorized. Admin access required.' });
+  }
+
+  try {
+    if (req.method === 'GET') {
+      const { status } = req.query;
+      const where = status ? { status } : {};
+
+      const reviews = await prisma.review.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+      });
+
+      return res.status(200).json(reviews);
     }
 
     if (req.method === 'PUT') {
@@ -87,7 +94,6 @@ export default async function reviewsRoute(req, res) {
 
     return res.status(405).json({ message: 'Method not allowed' });
   } catch (error) {
-    // P2025: Record to update not found
     if (error.code === 'P2025') {
       return res.status(404).json({ message: 'Review not found.' });
     }

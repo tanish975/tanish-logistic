@@ -2,6 +2,11 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Papa from 'papaparse';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 
 const ReportsView = () => {
     const [bookings, setBookings] = useState([]);
@@ -32,7 +37,7 @@ const ReportsView = () => {
 
     const handleFilter = () => {
         if (!startDate || !endDate) {
-            alert('Please select both a start and end date.');
+            toast.error('Please select both a start and end date.');
             return;
         }
 
@@ -49,7 +54,7 @@ const ReportsView = () => {
 
     const handleExport = () => {
         if (filteredBookings.length === 0) {
-            alert('No data to export.');
+            toast.error('No data to export.');
             return;
         }
 
@@ -73,32 +78,30 @@ const ReportsView = () => {
 
             <div className="bg-white p-6 rounded-xl shadow-lg mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                    <div>
-                        <label htmlFor="start-date" className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                        <input 
+                    <div className="space-y-2">
+                        <Label htmlFor="start-date">Start Date</Label>
+                        <Input 
                             type="date" 
                             id="start-date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                         />
                     </div>
-                    <div>
-                        <label htmlFor="end-date" className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                        <input 
+                    <div className="space-y-2">
+                        <Label htmlFor="end-date">End Date</Label>
+                        <Input 
                             type="date" 
                             id="end-date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                         />
                     </div>
-                    <button onClick={handleFilter} className="bg-blue-600 text-white px-4 py-2 rounded-lg h-10">
+                    <Button onClick={handleFilter} className="bg-blue-600 text-white hover:bg-blue-700">
                         Filter Report
-                    </button>
-                    <button onClick={handleExport} className="bg-green-600 text-white px-4 py-2 rounded-lg h-10">
+                    </Button>
+                    <Button onClick={handleExport} className="bg-green-600 text-white hover:bg-green-700">
                         Export to CSV
-                    </button>
+                    </Button>
                 </div>
             </div>
 

@@ -19,6 +19,13 @@ const BookingChart = ({ bookings }) => {
     { name: "Dec", total: Math.floor(Math.random() * 5000) + 1000 },
   ];
 
+  const CHART_COLORS = {
+    brand: '#2563EB',
+    secondary: '#0EA5E9',
+    accent: '#06B6D4',
+    neutral: '#3B82F6',
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -29,19 +36,19 @@ const BookingChart = ({ bookings }) => {
           <BarChart data={data}>
             <XAxis
               dataKey="name"
-              stroke="#888888"
+              stroke={CHART_COLORS.neutral}
               fontSize={12}
               tickLine={false}
               axisLine={false}
             />
             <YAxis
-              stroke="#888888"
+              stroke={CHART_COLORS.neutral}
               fontSize={12}
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => `$${value / 1000}K`}
             />
-            <Bar dataKey="total" fill="#adfa1d" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="total" fill={CHART_COLORS.brand} radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

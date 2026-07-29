@@ -1,8 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 import { useSettings } from '../../lib/SettingsContext';
 
 export const Footer = () => {
@@ -75,16 +72,6 @@ export const Footer = () => {
 
             </ul>
           </div>
-
-          {/* Newsletter */}
-          <div>
-            <h3 className="text-xl font-bold mb-6">Newsletter</h3>
-            <p className="text-gray-400 mb-4">Subscribe to our newsletter for the latest updates.</p>
-            <div className="flex">
-              <Input type="email" placeholder="Your Email" className="bg-gray-800 border-gray-700 rounded-r-none" />
-              <Button style={{ backgroundColor: primaryColor }} className="hover:opacity-90 rounded-l-none">Subscribe</Button>
-            </div>
-          </div>
         </div>
 
         {/* Bottom Bar */}
@@ -92,12 +79,6 @@ export const Footer = () => {
           <p className="text-gray-500 text-center md:text-left mb-4 md:mb-0">
             {copyright}
           </p>
-          <div className="flex space-x-6">
-            <Link href="#"><span className="text-gray-500 hover:text-white"><Facebook /></span></Link>
-            <Link href="#"><span className="text-gray-500 hover:text-white"><Twitter /></span></Link>
-            <Link href="#"><span className="text-gray-500 hover:text-white"><Instagram /></span></Link>
-            <Link href="#"><span className="text-gray-500 hover:text-white"><Linkedin /></span></Link>
-          </div>
         </div>
       </div>
     </footer>

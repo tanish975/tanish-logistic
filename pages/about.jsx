@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Truck, Users, Award, Target, CheckCircle, ArrowRight } from 'lucide-react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const About = () => {
   const stats = [
@@ -60,9 +60,6 @@ const About = () => {
       description: "Continuing to innovate and serve with excellence"
     }
   ];
-
-  const { scrollYProgress } = useScroll();
-  const pathLength = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -195,16 +192,33 @@ const About = () => {
           </div>
           
           <div className="relative">
-            <motion.svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full">
-              <motion.path
-                d="M 50,0 L 50,100"
-                stroke="#3b82f6"
-                strokeWidth="2"
-                initial={{ pathLength: 0 }}
-                style={{ pathLength: scrollYProgress }}
-              />
-            </motion.svg>
-            <div className="space-y-16">
+            {/* SVG Timeline Line */}
+            <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-full max-w-4xl h-full pointer-events-none">
+              <svg className="w-full h-full" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid meet" fill="none">
+                <motion.path
+                  d="M 200 0 L 200 800"
+                  stroke="url(#timelineGradient)"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0 }}
+                  whileInView={{ pathLength: 1 }}
+                  transition={{ duration: 1.5, ease: 'easeInOut' }}
+                  viewport={{ once: true }}
+                />
+                <defs>
+                  <linearGradient id="timelineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
+                    <stop offset="50%" stopColor="#3b82f6" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.2" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+
+            {/* Mobile Timeline Line */}
+            <div className="md:hidden absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-200 via-blue-500 to-blue-200" />
+
+             <div className="space-y-12 md:space-y-16">
               {timeline.map((item, index) => (
                   <motion.div
                     key={index}
@@ -214,10 +228,10 @@ const About = () => {
                     transition={{ duration: 0.8, delay: 0.2, type: 'spring', stiffness: 100, damping: 10 }}
                     viewport={{ once: true }}
                   >
-                    <div className={`w-1/2 flex ${index % 2 === 0 ? 'justify-end pr-8' : 'justify-start pl-8'}`}>
+                    <div className={`w-full md:w-1/2 flex ${index % 2 === 0 ? 'justify-end md:justify-end md:pr-16 pl-12 md:pl-0' : 'justify-start md:justify-start md:pl-16 pl-12'}`}>
                       <motion.div whileHover={{ scale: 1.05, rotateY: 5 }} transition={{ duration: 0.3 }} className="w-full">
                         <Card className="max-w-md shadow-xl hover:shadow-2xl transition-all duration-300 rounded-xl">
-                          <CardContent className="p-8">
+                          <CardContent className="p-6 md:p-8">
                             <div className="text-3xl font-bold text-blue-600 mb-3">{item.year}</div>
                             <h3 className="text-2xl font-bold text-gray-900 mb-3">{item.title}</h3>
                             <p className="text-gray-600 text-lg">{item.description}</p>
@@ -225,10 +239,28 @@ const About = () => {
                         </Card>
                       </motion.div>
                     </div>
-                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center relative z-10 shadow-lg">
-                      <div className="w-4 h-4 bg-white rounded-full"></div>
+                    
+                    {/* Timeline Node */}
+                    <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 w-12 h-12 bg-blue-600 rounded-full items-center justify-center relative z-10 shadow-lg">
+                      <motion.div
+                        className="absolute inset-0 rounded-full bg-blue-400"
+                        animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                      />
+                      <div className="w-4 h-4 bg-white rounded-full relative z-10" />
                     </div>
-                    <div className="w-1/2"></div>
+
+                    {/* Mobile Timeline Node */}
+                    <div className="md:hidden absolute left-6 transform -translate-x-1/2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                      <motion.div
+                        className="absolute inset-0 rounded-full bg-blue-400"
+                        animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                      />
+                      <div className="w-3 h-3 bg-white rounded-full relative z-10" />
+                    </div>
+                    
+                    <div className="hidden md:block w-1/2" />
                   </motion.div>
               ))}
             </div>

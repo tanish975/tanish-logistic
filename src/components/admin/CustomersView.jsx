@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Input } from '@/components/ui/input';
 
 const CustomersView = () => {
     const [customers, setCustomers] = useState([]);
@@ -46,12 +47,12 @@ const CustomersView = () => {
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-lg mb-6">
-                <input 
+                <Input 
                     type="text" 
                     placeholder="Search by name or phone..."
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    className="max-w-md"
                 />
             </div>
 

@@ -6,6 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Toaster, toast } from 'sonner';
 import { Check, X, Clock, Star, Trash2, Plus } from 'lucide-react';
 
@@ -19,6 +27,12 @@ const ReviewsView = ({ reviews, onRefresh }) => {
     date: new Date().toISOString().split('T')[0]
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  // Confirmation dialog state
+  const [confirmState, setConfirmState] = useState({
+    open: false,
+    reviewId: null,
+  });
 
   // Filter reviews based on status
   const approvedReviews = reviews.filter(r => r.status !== 'pending');
@@ -117,8 +131,16 @@ const ReviewsView = ({ reviews, onRefresh }) => {
   };
 
   const handleDeleteReview = async (id) => {
-    if (!confirm('Are you sure you want to delete this review?')) return;
-    
+    setConfirmState({
+      open: true,
+      reviewId: id,
+    });
+  };
+
+  const confirmDeleteReview = async () => {
+    const id = confirmState.reviewId;
+    if (!id) return;
+
     try {
       const response = await fetch('/api/reviews', {
         method: 'DELETE',
@@ -132,6 +154,8 @@ const ReviewsView = ({ reviews, onRefresh }) => {
       if (onRefresh) onRefresh();
     } catch (error) {
       toast.error('Failed to delete review');
+    } finally {
+      setConfirmState(prev => ({ ...prev, open: false, reviewId: null }));
     }
   };
 
@@ -224,7 +248,7 @@ const ReviewsView = ({ reviews, onRefresh }) => {
                 itemStyle={{ color: '#374151' }}
               />
               <Legend />
-              <Line type="monotone" dataKey="reviews" stroke="#10b981" strokeWidth={2} activeDot={{ r: 8 }} />
+              <Line type="monotone" dataKey="reviews" stroke="#2563EB" strokeWidth={2} activeDot={{ r: 8 }} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -441,6 +465,25 @@ const ReviewsView = ({ reviews, onRefresh }) => {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={confirmState.open} onOpenChange={(open) => setConfirmState(prev => ({ ...prev, open }))}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Review</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this review? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmState(prev => ({ ...prev, open: false }))}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteReview}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

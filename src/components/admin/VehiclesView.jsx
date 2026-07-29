@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { PlusCircle, Edit, Trash2, RefreshCw, Truck } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, RefreshCw } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,12 @@ const VehiclesView = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [formData, setFormData] = useState({ make: '', model: '', licensePlate: '', type: '', capacity: '' });
+
+  // Confirmation dialog state
+  const [confirmState, setConfirmState] = useState({
+    open: false,
+    vehicleId: null,
+  });
 
   const fetchVehicles = async () => {
     setIsLoading(true);
@@ -89,9 +95,15 @@ const VehiclesView = () => {
   };
 
   const handleDelete = async (vehicleId) => {
-    if (!confirm('Are you sure you want to delete this vehicle? This action cannot be undone.')) {
-      return;
-    }
+    setConfirmState({
+      open: true,
+      vehicleId,
+    });
+  };
+
+  const confirmDeleteVehicle = async () => {
+    const vehicleId = confirmState.vehicleId;
+    if (!vehicleId) return;
 
     try {
       const response = await fetch(`/api/vehicles/${vehicleId}`, { method: 'DELETE' });
@@ -103,6 +115,8 @@ const VehiclesView = () => {
       fetchVehicles(); // Refresh the list
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setConfirmState(prev => ({ ...prev, open: false, vehicleId: null }));
     }
   };
 
@@ -200,6 +214,25 @@ const VehiclesView = () => {
                 <Button type="submit">Save Vehicle</Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={confirmState.open} onOpenChange={(open) => setConfirmState(prev => ({ ...prev, open }))}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Vehicle</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this vehicle? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmState(prev => ({ ...prev, open: false }))}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteVehicle}>
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </Card>

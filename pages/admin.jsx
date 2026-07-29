@@ -8,6 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   LayoutDashboard,
   Package,
   Users,
@@ -52,6 +60,14 @@ const AdminPage = () => {
 
   // Mobile sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Confirmation dialog state
+  const [confirmState, setConfirmState] = useState({
+    open: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+  });
 
   useEffect(() => {
     const checkSession = async () => {
@@ -133,11 +149,17 @@ const AdminPage = () => {
   };
 
   const handleLogout = async () => {
-    if (confirm('Are you sure you want to logout?')) {
-      await fetch('/api/logout', { method: 'POST' });
-      setUser(null);
-      toast.info('You have been logged out.');
-    }
+    setConfirmState({
+      open: true,
+      title: 'Confirm Logout',
+      message: 'Are you sure you want to logout?',
+      onConfirm: async () => {
+        await fetch('/api/logout', { method: 'POST' });
+        setUser(null);
+        toast.info('You have been logged out.');
+        setConfirmState(prev => ({ ...prev, open: false }));
+      },
+    });
   };
 
   const toggleSidebar = () => {
@@ -181,52 +203,66 @@ const AdminPage = () => {
   };
 
    const handleDeleteBooking = async (bookingId) => {
-     if (!confirm('Are you sure you want to delete this booking?')) return;
+      setConfirmState({
+        open: true,
+        title: 'Delete Booking',
+        message: 'Are you sure you want to delete this booking?',
+        onConfirm: async () => {
+          try {
+            const response = await fetch('/api/delete-booking', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: bookingId }),
+              credentials: 'include'
+            });
 
-     try {
-       const response = await fetch('/api/delete-booking', {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ id: bookingId }),
-         credentials: 'include'
-       });
+            const data = await response.json();
 
-       const data = await response.json();
+            if (!response.ok) {
+              throw new Error(data.message || data.error?.message || 'Failed to delete booking');
+            }
 
-       if (!response.ok) {
-         throw new Error(data.message || data.error?.message || 'Failed to delete booking');
-       }
-
-       setBookings(prevBookings => prevBookings.filter(b => b.id !== bookingId && b.bookingId !== bookingId));
-       setFilteredBookings(prevFiltered => prevFiltered.filter(b => b.id !== bookingId && b.bookingId !== bookingId));
-       toast.success(data.message || 'Booking deleted successfully');
-     } catch (error) {
-       console.error('Error deleting booking:', error);
-       toast.error(`Failed to delete booking: ${error.message}`);
-     }
-   };
+            setBookings(prevBookings => prevBookings.filter(b => b.id !== bookingId && b.bookingId !== bookingId));
+            setFilteredBookings(prevFiltered => prevFiltered.filter(b => b.id !== bookingId && b.bookingId !== bookingId));
+            toast.success(data.message || 'Booking deleted successfully');
+          } catch (error) {
+            console.error('Error deleting booking:', error);
+            toast.error(`Failed to delete booking: ${error.message}`);
+          } finally {
+            setConfirmState(prev => ({ ...prev, open: false }));
+          }
+        },
+      });
+    };
 
    const handleDeleteAllCancelled = async () => {
-     if (!confirm('Are you sure you want to delete ALL cancelled bookings permanently? This cannot be undone.')) return;
+      setConfirmState({
+        open: true,
+        title: 'Delete All Cancelled',
+        message: 'Are you sure you want to delete ALL cancelled bookings permanently? This cannot be undone.',
+        onConfirm: async () => {
+          try {
+            const response = await fetch('/api/delete-booking', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ deleteAllCancelled: true }),
+              credentials: 'include'
+            });
 
-     try {
-       const response = await fetch('/api/delete-booking', {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ deleteAllCancelled: true }),
-         credentials: 'include'
-       });
+            if (!response.ok) throw new Error('Failed to delete cancelled bookings');
 
-       if (!response.ok) throw new Error('Failed to delete cancelled bookings');
-
-       setBookings(prevBookings => prevBookings.filter(b => b.status !== 'CANCELLED'));
-       setFilteredBookings(prevFiltered => prevFiltered.filter(b => b.status !== 'CANCELLED'));
-       toast.success('All cancelled bookings deleted successfully');
-     } catch (error) {
-       console.error('Error deleting cancelled bookings:', error);
-       toast.error('Failed to delete cancelled bookings');
-     }
-   };
+            setBookings(prevBookings => prevBookings.filter(b => b.status !== 'CANCELLED'));
+            setFilteredBookings(prevFiltered => prevFiltered.filter(b => b.status !== 'CANCELLED'));
+            toast.success('All cancelled bookings deleted successfully');
+          } catch (error) {
+            console.error('Error deleting cancelled bookings:', error);
+            toast.error('Failed to delete cancelled bookings');
+          } finally {
+            setConfirmState(prev => ({ ...prev, open: false }));
+          }
+        },
+      });
+    };
 
    const getStatusVariant = (status) => {
      switch (status) {
@@ -368,8 +404,8 @@ const AdminPage = () => {
           fixed inset-y-0 left-0 z-30 w-60 flex-col border-r bg-gray-100
           transform transition-transform duration-300 ease-in-out
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          sm:static sm:translate-x-0 sm:flex
           ${isSidebarOpen ? 'flex' : 'hidden'}
+          sm:static sm:translate-x-0 sm:flex
         `}>
           <div className="flex flex-col gap-2 p-4 pt-14 sm:pt-4">
             <div className="flex items-center justify-between sm:hidden">
@@ -460,6 +496,23 @@ const AdminPage = () => {
             {renderContent()}
           </main>
         </div>
+
+        <Dialog open={confirmState.open} onOpenChange={(open) => setConfirmState(prev => ({ ...prev, open }))}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{confirmState.title}</DialogTitle>
+              <DialogDescription>{confirmState.message}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setConfirmState(prev => ({ ...prev, open: false }))}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={confirmState.onConfirm}>
+                Confirm
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   );

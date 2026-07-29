@@ -23,6 +23,12 @@ const DriversView = () => {
   const [editingDriver, setEditingDriver] = useState(null);
   const [formData, setFormData] = useState({ name: '', phone: '', licenseNumber: '' });
 
+  // Confirmation dialog state
+  const [confirmState, setConfirmState] = useState({
+    open: false,
+    driverId: null,
+  });
+
   const fetchDrivers = async () => {
     setIsLoading(true);
     try {
@@ -48,6 +54,12 @@ const DriversView = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    const phoneRegex = /^[0-9]{10,15}$/;
+    if (!phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
+      toast.error('Please enter a valid phone number (10-15 digits).');
+      return;
+    }
+
     const url = editingDriver ? `/api/drivers/${editingDriver.id}` : '/api/drivers';
     const method = editingDriver ? 'PUT' : 'POST';
 
@@ -84,9 +96,15 @@ const DriversView = () => {
   };
 
   const handleDelete = async (driverId) => {
-    if (!confirm('Are you sure you want to delete this driver? This action cannot be undone.')) {
-      return;
-    }
+    setConfirmState({
+      open: true,
+      driverId,
+    });
+  };
+
+  const confirmDeleteDriver = async () => {
+    const driverId = confirmState.driverId;
+    if (!driverId) return;
 
     try {
       const response = await fetch(`/api/drivers/${driverId}`, { method: 'DELETE' });
@@ -98,6 +116,8 @@ const DriversView = () => {
       fetchDrivers(); // Refresh the list
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setConfirmState(prev => ({ ...prev, open: false, driverId: null }));
     }
   };
 
@@ -168,7 +188,7 @@ const DriversView = () => {
             </div>
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number</label>
-              <Input id="phone" name="phone" value={formData.phone} onChange={handleFormChange} required />
+               <Input id="phone" name="phone" value={formData.phone} onChange={handleFormChange} required pattern="[0-9]{10,15}" maxLength={15} />
             </div>
             <div>
               <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">License Number</label>
@@ -181,6 +201,25 @@ const DriversView = () => {
                 <Button type="submit">Save Driver</Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={confirmState.open} onOpenChange={(open) => setConfirmState(prev => ({ ...prev, open }))}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Driver</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this driver? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmState(prev => ({ ...prev, open: false }))}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteDriver}>
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </Card>

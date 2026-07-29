@@ -3,9 +3,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Truck, Package, CheckCircle, ArrowRight, Star, MapPin, Clock, Shield, Zap, Award, Users } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import CountUp from 'react-countup';
-import { useInView } from 'react-intersection-observer';
 import { mockFaqs } from "../src/faq";
 import {
   Accordion,
@@ -24,27 +23,30 @@ const Home = () => {
   
   const heroContent = [
     {
-      video: '/hero-video.mp4/mixkit-52428-video-52428-full-hd.mp4',
+      video: '/hero-videos/mixkit-52428-video-52428-full-hd.mp4',
       slogan: slogan
     },
     {
-      video: '/hero-video.mp4/mixkit-cars-and-trucks-crossing-on-a-highway-in-nature-44284-full-hd.mp4',
+      video: '/hero-videos/mixkit-cars-and-trucks-crossing-on-a-highway-in-nature-44284-full-hd.mp4',
       slogan: 'Your Cargo, Our Commitment'
     },
     {
-      video: '/hero-video.mp4/mixkit-large-truck-driving-along-a-rural-highway-45488-hd-ready.mp4',
+      video: '/hero-videos/mixkit-large-truck-driving-along-a-rural-highway-45488-hd-ready.mp4',
       slogan: 'Connecting India, One Delivery at a Time'
     },
     {
-      video: '/hero-video.mp4/mixkit-various-vehicles-traverse-the-asphalt-highway-beside-the-breathtaking-desert-52014-full-hd.mp4',
+      video: '/hero-videos/mixkit-various-vehicles-traverse-the-asphalt-highway-beside-the-breathtaking-desert-52014-full-hd.mp4',
       slogan: 'The Future of Logistics is Here'
     }
   ];
   const [currentHeroIndex, setCurrentHeroIndex] = React.useState(0);
 
-  const handleVideoEnd = () => {
-    setCurrentHeroIndex((prevIndex) => (prevIndex + 1) % heroContent.length);
-  };
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHeroIndex((prevIndex) => (prevIndex + 1) % heroContent.length);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [heroContent.length]);
 
   const hubStations = [
     { name: 'Mumbai, Maharashtra', image: 'https://images.pexels.com/photos/2234638/pexels-photo-2234638.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop', description: 'Our main hub, connecting the financial capital to the rest of India.' },
@@ -57,24 +59,48 @@ const Home = () => {
     { name: 'Chennai, Tamil Nadu', image: 'https://images.pexels.com/photos/1007657/pexels-photo-1007657.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop', description: 'Our gateway to Southern India, with strong connectivity to ports.' },
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.3,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 40, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 100,
+        damping: 20,
+      },
+    },
+  };
+
   return (
     <>
     <style jsx="true" global="true">{`
         @keyframes scroll {
           0% {
-            transform: translateX(0);
-          }
+           transform: translateX(0);
+         }
           100% {
-            transform: translateX(-100%);
-          }
+           transform: translateX(-100%);
+         }
         }
         @keyframes scroll-reverse {
           0% {
-            transform: translateX(-100%);
-          }
+           transform: translateX(-100%);
+         }
           100% {
-            transform: translateX(0);
-          }
+           transform: translateX(0);
+         }
         }
         .scrolling-wrapper {
           animation: scroll 40s linear infinite;
@@ -82,45 +108,95 @@ const Home = () => {
         .scrolling-wrapper-reverse {
           animation: scroll-reverse 40s linear infinite;
         }
+        .carousel-container:hover .scrolling-wrapper,
+        .carousel-container:hover .scrolling-wrapper-reverse {
+          animation-play-state: paused;
+        }
       `}</style>
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="relative h-screen flex items-center justify-center text-white">
-        <video
-          key={currentHeroIndex}
-          autoPlay
-          muted
-          onEnded={handleVideoEnd}
-          className="absolute z-0 w-full h-full object-cover"
+      <motion.section 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+        className="relative h-screen flex items-center justify-center text-white overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-black/60 z-10" />
+        {heroContent.map((content, index) => (
+          <motion.video
+            key={index}
+            autoPlay
+            muted
+            loop
+            className="absolute z-0 w-full h-full object-cover"
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ 
+              opacity: index === currentHeroIndex ? 1 : 0,
+              scale: index === currentHeroIndex ? 1 : 1.05,
+            }}
+            transition={{ duration: 1.2, ease: 'easeInOut' }}
+          >
+            <source src={content.video} type="video/mp4" />
+          </motion.video>
+        ))}
+        <motion.div 
+          className="relative z-20 max-w-full mx-auto px-2 sm:px-4 lg:px-6 text-center"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
         >
-          <source
-            src={heroContent[currentHeroIndex].video}
-            type="video/mp4"
-          />
-          Your browser does not support the video tag.
-        </video>
-        <div className="absolute inset-0 bg-black/60"></div>
-        <div className="relative z-10 max-w-full mx-auto px-2 sm:px-4 lg:px-6 text-center">
-          <motion.h1 initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
+          <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-tight">
             {heroContent[currentHeroIndex].slogan}
           </motion.h1>
-          <motion.p initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="text-xl md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto leading-relaxed">
+          <motion.p variants={itemVariants} className="text-xl md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto leading-relaxed">
             Reliable B2B logistics across India with expert road transport solutions. {slogan}
           </motion.p>
-          <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }} className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Button asChild size="lg" style={{ backgroundColor: primaryColor }} className="hover:opacity-90 text-white px-10 py-5 text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
-              <Link href="/contact">
-                Get Quote Today
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900 px-10 py-5 text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
-              <Link href="/services">
-                Our Services
-              </Link>
-            </Button>
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-6 justify-center">
+            <motion.div
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            >
+              <Button asChild size="lg" style={{ backgroundColor: primaryColor }} className="text-white px-10 py-5 text-lg shadow-2xl">
+                <Link href="/contact">
+                  Get Quote Today
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </motion.div>
+            <motion.div
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            >
+              <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900 px-10 py-5 text-lg shadow-2xl">
+                <Link href="/services">
+                  Our Services
+                </Link>
+              </Button>
+            </motion.div>
           </motion.div>
-        </div>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.div 
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 2, duration: 0.8 }}
+        >
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            className="w-6 h-10 border-2 border-white rounded-full flex justify-center"
+          >
+            <motion.div
+              animate={{ y: [0, 12, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className="w-1 h-3 bg-white rounded-full mt-2"
+            />
+          </motion.div>
+        </motion.div>
       </motion.section>
 
       {/* Quick Stats */}
@@ -162,7 +238,7 @@ const Home = () => {
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Hub Stations</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">We have a strong presence in major industrial and commercial hubs across the nation.</p>
           </div>
-          <div className="overflow-hidden">
+          <div className="carousel-container overflow-hidden">
             <div className="flex scrolling-wrapper">
               {[...Array(2)].map((_, i) => (
                 <React.Fragment key={i}>

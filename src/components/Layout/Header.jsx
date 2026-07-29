@@ -144,14 +144,20 @@ export const Header = () => {
             </DropdownMenu>
           </div>
           <div className="md:hidden flex items-center">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-800 hover:text-blue-600">
+            <button 
+              onClick={() => setIsOpen(!isOpen)} 
+              className="text-gray-800 hover:text-blue-600"
+              aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={isOpen}
+              aria-controls="mobile-menu"
+            >
               {isOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
         </div>
       </div>
       {isOpen && (
-        <div className="md:hidden bg-white shadow-lg">
+        <div id="mobile-menu" className="md:hidden bg-white shadow-lg">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {/* Mobile menu header with close button */}
             <div className="flex items-center justify-between mb-2 px-3">

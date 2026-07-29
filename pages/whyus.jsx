@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Shield, Clock, Award, Target, Truck, Users, MapPin, CheckCircle, 
-  ArrowRight, Star, Phone, Zap, DollarSign, Headphones 
+  Shield, Clock, Award, DollarSign, Truck, Headphones, 
+  CheckCircle, ArrowRight 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -135,9 +135,9 @@ const WhyUs = () => {
           </div>
           
           <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }}>
-            <Card className="shadow-2xl rounded-2xl overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-lg">
+             <Card className="shadow-2xl rounded-2xl overflow-hidden">
+               <div className="table-wrapper overflow-x-auto">
+                 <table className="w-full text-lg min-w-[500px]">
                   <thead className="bg-gray-800 text-white">
                     <tr>
                       <th className="px-8 py-5 text-left font-semibold">Features</th>

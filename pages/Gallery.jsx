@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card.js';
 import { Button } from '@/components/ui/button.js';
 import { Badge } from '@/components/ui/badge.js';
@@ -9,60 +9,89 @@ import Image from 'next/image';
 const Gallery = () => {
   const [selectedImage, setSelectedImage] = useState(null);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelectedImage(null);
+      }
+    };
+
+    if (selectedImage) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedImage]);
+
   const galleryImages = [
     {
       id: 1,
       url: "/gallery/Picture1.jpg",
+      alt: "Logistics truck on highway",
       category: "All"
     },
     {
       id: 2,
       url: "/gallery/Picture2.jpg",
+      alt: "Warehouse storage facility",
       category: "All"
     },
     {
       id: 3,
       url: "/gallery/Picture3.png",
+      alt: "Cargo loading operation",
       category: "All"
     },
     {
       id: 4,
       url: "/gallery/Picture4.png",
+      alt: "Fleet of delivery vehicles",
       category: "All"
     },
     {
       id: 5,
       url: "/gallery/Picture5.jpg",
+      alt: "Professional logistics team",
       category: "All"
     },
     {
       id: 6,
       url: "/gallery/Picture6.jpg",
+      alt: "Modern transport truck",
       category: "All"
     },
     {
       id: 7,
       url: "/gallery/Picture7.jpg",
+      alt: "Packages ready for delivery",
       category: "All"
     },
     {
       id: 8,
       url: "/gallery/Picture8.jpg",
+      alt: "Intercity freight transport",
       category: "All"
     },
     {
       id: 9,
       url: "/gallery/Picture9.jpg",
+      alt: "Logistics warehouse interior",
       category: "All"
     },
     {
       id: 10,
       url: "/gallery/Picture10.jpg",
+      alt: "Commercial vehicle on route",
       category: "All"
     },
     {
       id: 11,
       url: "/gallery/Picture11.jpg",
+      alt: "Tanish Logistic fleet operations",
       category: "All"
     }
   ];
@@ -119,7 +148,7 @@ const Gallery = () => {
                     <div className="relative overflow-hidden h-64">
                                             <Image
                                               src={image.url}
-                                              alt="Gallery Image"
+                                               alt={image.alt}
                                               fill
                                               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                               className="object-cover transition-transform duration-300 group-hover:scale-110"
@@ -142,8 +171,9 @@ const Gallery = () => {
             {/* Close Button */}
             <button
               onClick={closeLightbox}
-              className="absolute -top-12 right-0 text-white bg-transparent rounded-full p-2 hover:bg-white/20 transition-all z-10">
-              <X className="h-8 w-8" />
+              className="absolute -top-12 right-0 text-white bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full w-12 h-12 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:rotate-90 z-10"
+              aria-label="Close lightbox">
+              <X className="h-6 w-6" />
             </button>
 
             {/* Navigation Buttons */}
@@ -163,7 +193,7 @@ const Gallery = () => {
             <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.3 }} className="w-full h-full flex items-center justify-center">
                             <Image
                               src={selectedImage.url}
-                              alt="Gallery Image"
+                               alt={selectedImage.alt}
                               fill
                               sizes="100vw"
                               className="object-contain rounded-lg shadow-2xl"

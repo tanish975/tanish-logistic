@@ -70,6 +70,13 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const phoneRegex = /^[0-9]{10,15}$/;
+    if (formData.phone && !phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
+      toast.error('Please enter a valid phone number (10-15 digits).');
+      setIsSubmitting(false);
+      return;
+    }
+
     const promise = fetch('/api/send-email', {
       method: 'POST',
       headers: {
@@ -181,7 +188,7 @@ const Contact = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-2">
                       <Label htmlFor="phone" className="text-lg font-medium">Phone Number</Label>
-                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="p-4 text-lg" />
+                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="p-4 text-lg" pattern="[0-9]{10,15}" maxLength={15} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="company" className="text-lg font-medium">Company Name</Label>
