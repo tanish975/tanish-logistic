@@ -12,11 +12,11 @@ export default {
     	extend: {
     		fontFamily: {
     			sans: [
-    				'Roboto',
+    				'Plus Jakarta Sans',
     				'sans-serif'
     			],
     			serif: [
-    				'GFS Didot',
+    				'Plus Jakarta Sans',
     				'serif'
     			]
     		},

@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/router';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useSettings } from '../../lib/SettingsContext';
@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { Button } from '../ui/button';
-import { Menu, X, Truck } from 'lucide-react';
+import { ChevronDown, Menu, Truck, X } from 'lucide-react';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -30,13 +30,9 @@ const baseMoreLinks = [
 export const Header = () => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState({ centerX: -100 }); // Initialize off-screen
   const settings = useSettings();
 
   const [isAdmin, setIsAdmin] = useState(false);
-
-  const tabsRef = useRef([]);
-  const moreButtonRef = useRef(null); // New ref for More button
 
   useEffect(() => {
     const checkSession = async () => {
@@ -55,98 +51,56 @@ export const Header = () => {
 
   const moreLinks = isAdmin ? [...baseMoreLinks, { href: '/admin', label: 'Admin' }] : baseMoreLinks;
 
-  useEffect(() => {
-    let targetCenterX = -100; // Default off-screen
-
-    // Check main nav links
-    const activeNavLinkIndex = navLinks.findIndex(link => link.href === router.pathname);
-    if (activeNavLinkIndex !== -1) {
-      const activeTabNode = tabsRef.current[activeNavLinkIndex];
-      if (activeTabNode) {
-        targetCenterX = activeTabNode.offsetLeft + (activeTabNode.offsetWidth / 2);
-      }
-    } else {
-      // If not found in main nav, check more links
-      const activeMoreLink = moreLinks.some(link => link.href === router.pathname);
-      if (activeMoreLink && moreButtonRef.current) {
-        targetCenterX = moreButtonRef.current.offsetLeft + (moreButtonRef.current.offsetWidth / 2);
-      }
-    }
-
-    setActiveTab({ centerX: targetCenterX });
-  }, [router.pathname]);
-
   const siteName = settings.siteName ?? 'Tanish Logistic';
   const logoUrl = settings.logoUrl ?? '/icon.png';
+  const primaryColor = settings.primaryColor || '#0369A1';
 
   return (
-    <header className="bg-white text-gray-800 shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4">
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 text-slate-900 shadow-sm backdrop-blur">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center space-x-2">
-              <img src={logoUrl} alt={`${siteName} Logo`} className="h-12" />
-              <span className="text-2xl font-bold text-gray-800 font-serif">{siteName}</span>
+          <div className="min-w-0 flex-shrink-0">
+            <Link href="/" className="flex min-h-11 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-200">
+              <img src={logoUrl} alt={`${siteName} Logo`} className="h-11 w-11 rounded-md object-contain" />
+              <span className="max-w-[12rem] truncate text-xl font-extrabold text-slate-950 sm:max-w-none sm:text-2xl">{siteName}</span>
             </Link>
           </div>
-          <div className="hidden md:flex items-center relative">
-            {navLinks.map((link, i) => (
+          <nav className="hidden md:flex items-center gap-1" aria-label="Primary navigation">
+            {navLinks.map((link) => (
               <div
                 key={link.href}
-                ref={el => tabsRef.current[i] = el}
-                className="relative flex items-center justify-center h-full px-4" // Use padding for spacing
+                className="relative flex items-center justify-center"
               >
-                <Link href={link.href}>
-                  <span className={`text-lg font-medium hover:text-blue-600 transition-colors duration-300 ${router.pathname === link.href ? 'text-blue-600' : ''}`}>
+                <Link href={link.href} className={`inline-flex h-11 items-center rounded-md px-4 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-200 ${router.pathname === link.href ? 'bg-sky-50 text-sky-700' : 'text-slate-700 hover:bg-slate-100 hover:text-slate-950'}`}>
+                  <span>
                     {link.label}
                   </span>
                 </Link>
               </div>
             ))}
 
-            {activeTab.centerX !== -100 && ( // Only show if centerX is not -100 (off-screen)
-              <motion.div
-                layoutId="active-nav-truck"
-                initial={false}
-                animate={{
-                  x: activeTab.centerX,
-                }}
-                transition={{
-                  type: 'spring',
-                  stiffness: 200,
-                  damping: 25,
-                }}
-                className="absolute -bottom-5 h-6 w-6" // Fixed width for the truck container
-                style={{ left: 0, transform: 'translateX(-50%)' }} // Center the truck container on its X position
-              >
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 1, repeat: Infinity, repeatType: 'mirror' }}
-                >
-                  <Truck className="h-6 w-6 text-blue-600" />
-                </motion.div>
-              </motion.div>
-            )}
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button ref={moreButtonRef} variant="ghost" className="text-lg font-medium hover:text-blue-600">More</Button>
+                <Button variant="ghost" className="h-11 gap-1 rounded-md px-4 text-sm font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-950">
+                  More
+                  <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-white shadow-lg rounded-lg mt-2">
+              <DropdownMenuContent className="mt-2 rounded-lg border-slate-200 bg-white p-1 shadow-xl">
                 {moreLinks.map((link) => (
                   <DropdownMenuItem key={link.href} asChild>
-                    <Link href={link.href} className={`block px-4 py-2 text-lg ${router.pathname === link.href ? 'text-blue-600' : 'text-gray-800'} hover:bg-gray-100`}>
+                    <Link href={link.href} className={`block rounded-md px-4 py-2.5 text-sm font-semibold ${router.pathname === link.href ? 'bg-sky-50 text-sky-700' : 'text-slate-700'} hover:bg-slate-100`}>
                       {link.label}
                     </Link>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
+          </nav>
           <div className="md:hidden flex items-center">
             <button 
               onClick={() => setIsOpen(!isOpen)} 
-              className="text-gray-800 hover:text-blue-600"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-md text-slate-800 transition hover:bg-slate-100 hover:text-sky-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-200"
               aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isOpen}
               aria-controls="mobile-menu"
@@ -157,14 +111,18 @@ export const Header = () => {
         </div>
       </div>
       {isOpen && (
-        <div id="mobile-menu" className="md:hidden bg-white shadow-lg">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {/* Mobile menu header with close button */}
-            <div className="flex items-center justify-between mb-2 px-3">
-              <span className="text-sm font-semibold text-gray-500 uppercase">Navigation</span>
+        <motion.div
+          id="mobile-menu"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="border-t border-slate-200 bg-white shadow-lg md:hidden"
+        >
+          <div className="space-y-1 px-4 py-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Navigation</span>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="p-1 rounded-md hover:bg-gray-100 text-gray-500"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-200"
                 aria-label="Close menu"
               >
                 <X size={20} />
@@ -176,13 +134,22 @@ export const Header = () => {
                 href={link.href}
                 onClick={() => setIsOpen(false)}
               >
-                <span className={`block px-3 py-2 rounded-md text-base font-medium ${router.pathname === link.href ? 'bg-blue-50 text-blue-600' : 'text-gray-800'} hover:bg-gray-100`}>
+                <span className={`flex min-h-11 items-center rounded-md px-3 py-2 text-base font-bold ${router.pathname === link.href ? 'bg-sky-50 text-sky-700' : 'text-slate-800'} hover:bg-slate-100`}>
                   {link.label}
                 </span>
               </Link>
             ))}
+            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div className="flex items-center gap-3">
+                <Truck className="h-5 w-5" style={{ color: primaryColor }} aria-hidden="true" />
+                <p className="text-sm font-semibold text-slate-700">Need transport support?</p>
+              </div>
+              <Button asChild className="mt-3 h-11 w-full rounded-md font-bold text-white" style={{ backgroundColor: primaryColor }}>
+                <Link href="/contact" onClick={() => setIsOpen(false)}>Get a quote</Link>
+              </Button>
+            </div>
           </div>
-        </div>
+        </motion.div>
       )}
     </header>
   );
