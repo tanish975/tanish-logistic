@@ -3,13 +3,15 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Shield, Clock, Award, DollarSign, Truck, Headphones, 
-  CheckCircle, ArrowRight 
+import {
+  Shield, Clock, Award, DollarSign, Truck, Headphones,
+  CheckCircle, ArrowRight
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+import { SiteMetadata } from '@/components/Layout/Metadata';
 
 const WhyUs = () => {
+  const shouldReduceMotion = useReducedMotion();
   const advantages = [
     {
       icon: Shield,
@@ -61,28 +63,32 @@ const WhyUs = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SiteMetadata
+        title="Why Choose Tanish Logistic"
+        description="Tanish Logistic offers pan-India coverage, 24/7 support, transparent pricing, a modern fleet, and a 98% on-time delivery guarantee. Compare the difference."
+      />
       {/* Hero Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="relative bg-gradient-to-r from-gray-900 to-gray-800 text-white py-24">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="relative bg-gradient-to-r from-gray-900 to-gray-800 text-white py-24">
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
+          <motion.h1 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.2 }} className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
             Why Choose Tanish Logistic?
           </motion.h1>
-          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed mb-8">
+          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.4 }} className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed mb-8">
             Discover what makes us India's most trusted logistics partner. 
             From reliability to innovation, we deliver excellence in every shipment.
           </motion.p>
-          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }} className="flex justify-center space-x-8 text-lg">
+          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.6 }} className="flex justify-center space-x-8 text-lg">
             <div className="flex items-center">
-              <CheckCircle className="h-6 w-6 text-green-400 mr-2" />
+              <CheckCircle className="h-6 w-6 text-green-400 mr-2" aria-hidden="true" />
               <span>5+ Years Experience</span>
             </div>
             <div className="flex items-center">
-              <CheckCircle className="h-6 w-6 text-green-400 mr-2" />
+              <CheckCircle className="h-6 w-6 text-green-400 mr-2" aria-hidden="true" />
               <span>2,500+ Deliveries</span>
             </div>
             <div className="flex items-center">
-              <CheckCircle className="h-6 w-6 text-green-400 mr-2" />
+              <CheckCircle className="h-6 w-6 text-green-400 mr-2" aria-hidden="true" />
               <span>98% On-time Rate</span>
             </div>
           </motion.div>
@@ -90,7 +96,7 @@ const WhyUs = () => {
       </motion.section>
 
       {/* Key Advantages */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="py-20">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.2 }} className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -105,10 +111,10 @@ const WhyUs = () => {
             {advantages.map((advantage, index) => {
               const IconComponent = advantage.icon;
               return (
-                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5, delay: index * 0.2 }} whileHover={{ scale: 1.03 }} key={index}>
+                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : index * 0.2 }} whileHover={shouldReduceMotion ? undefined : { scale: 1.03 }} key={index}>
                   <Card className="group bg-white shadow-lg hover:shadow-2xl transition-all duration-300 rounded-xl overflow-hidden transform hover:-translate-y-2">
                     <div className={`bg-gradient-to-br ${advantage.color} p-8`}>
-                      <IconComponent className="h-12 w-12 text-white mx-auto" />
+                      <IconComponent className="h-12 w-12 text-white mx-auto" aria-hidden="true" />
                     </div>
                     <CardContent className="p-8 text-center">
                       <h3 className="text-2xl font-bold text-gray-900 mb-4">{advantage.title}</h3>
@@ -123,7 +129,7 @@ const WhyUs = () => {
       </motion.section>
 
       {/* Comparison Table */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="py-20 bg-gray-100">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.4 }} className="py-20 bg-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -134,17 +140,17 @@ const WhyUs = () => {
             </p>
           </div>
           
-          <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }}>
+          <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.6 }}>
              <Card className="shadow-2xl rounded-2xl overflow-hidden">
                <div className="table-wrapper overflow-x-auto">
                  <table className="w-full text-lg min-w-[500px]">
                   <thead className="bg-gray-800 text-white">
                     <tr>
-                      <th className="px-8 py-5 text-left font-semibold">Features</th>
-                      <th className="px-8 py-5 text-center font-semibold bg-blue-600">
-                        Tanish Logistic
-                      </th>
-                      <th className="px-8 py-5 text-center font-semibold">Others</th>
+<th className="px-8 py-5 text-left font-semibold" scope="col">Features</th>
+                       <th className="px-8 py-5 text-center font-semibold bg-blue-600" scope="col">
+                         Tanish Logistic
+                       </th>
+                       <th className="px-8 py-5 text-center font-semibold" scope="col">Others</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -153,7 +159,7 @@ const WhyUs = () => {
                         <td className="px-8 py-5 font-medium text-gray-900">{item.feature}</td>
                         <td className="px-8 py-5 text-center">
                           {item.us === true ? (
-                            <CheckCircle className="h-7 w-7 text-green-500 mx-auto" />
+                            <CheckCircle className="h-7 w-7 text-green-500 mx-auto" aria-hidden="true" />
                           ) : (
                             <Badge className="bg-green-100 text-green-800 text-base px-3 py-1 rounded-full">{item.us}</Badge>
                           )}
@@ -170,16 +176,16 @@ const WhyUs = () => {
       </motion.section>
 
       {/* CTA Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }} className="py-20 bg-blue-600">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.6 }} className="py-20 bg-blue-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h2 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.8 }} className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <motion.h2 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.8 }} className="text-4xl md:text-5xl font-bold text-white mb-4">
             Experience the Tanish Logistic Difference
           </motion.h2>
-          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 1.0 }} className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 1.0 }} className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
             Join thousands of satisfied customers who trust us with their logistics needs. 
             Get your free quote today and see why we're India's preferred logistics partner.
           </motion.p>
-          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 1.2 }} className="flex flex-col sm:flex-row gap-6 justify-center">
+          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 1.2 }} className="flex flex-col sm:flex-row gap-6 justify-center">
             <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-10 py-5 text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
               <Link href="/contact">
                 Get Free Quote

@@ -5,9 +5,24 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Truck, Users, Award, Target, CheckCircle, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+import { SiteMetadata } from '@/components/Layout/Metadata';
+
+// ponytail: one component renders both story blocks; swap image + copy via props
+const ImageTextBlock = ({ imageSrc, alt, imageFirst, heading, body, shouldReduceMotion }) => (
+  <div className={`grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${imageFirst ? '' : ''}`}>
+    <motion.div initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.6 }} className={imageFirst ? 'order-2 lg:order-1' : 'order-2 lg:order-2'}>
+      <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">{heading}</h2>
+      <p className="text-xl text-gray-600 mb-6 leading-relaxed">{body}</p>
+    </motion.div>
+    <motion.div initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.8 }} className={imageFirst ? 'order-1 lg:order-2' : 'order-1 lg:order-1 bg-gray-200 rounded-2xl h-96 flex items-center justify-center shadow-xl relative'}>
+      <Image src={imageSrc} alt={alt} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" quality={90} placeholder="blur" blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect width='100%25' height='100%25' fill='%23e5e7eb'/%3E%3C/svg%3E" className="object-cover rounded-2xl" />
+    </motion.div>
+  </div>
+);
 
 const About = () => {
+  const shouldReduceMotion = useReducedMotion();
   const stats = [
     { number: "5+", label: "Years of Experience" },
     { number: "100+", label: "Cities Covered" },
@@ -63,14 +78,18 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SiteMetadata
+        title="About — Tanish Logistic"
+        description="Tanish Logistic has been moving freight across India for 5+ years. Learn about our mission, values, and the team behind dependable B2B road transport."
+      />
       {/* Hero Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="relative bg-gradient-to-r from-gray-900 to-gray-800 text-white py-24">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="relative bg-gradient-to-r from-gray-900 to-gray-800 text-white py-24">
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
+          <motion.h1 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.2 }} className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
             About Tanish Logistic
           </motion.h1>
-          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.4 }} className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
             For over 5 years, we've been the trusted partner for businesses across India, 
             delivering reliable logistics solutions that drive success.
           </motion.p>
@@ -78,14 +97,14 @@ const About = () => {
       </motion.section>
 
       {/* Stats Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="py-20 bg-white">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.2 }} className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: index * 0.2 }} key={index}>
+              <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : index * 0.2 }} key={index}>
                 <Card className="text-center bg-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 rounded-xl transform hover:-translate-y-2">
                   <CardContent className="p-8">
-                    <div className="text-5xl font-extrabold text-blue-600 mb-3">{stat.number}</div>
+                    <div className="text-5xl font-extrabold tabular-nums text-blue-600 mb-3">{stat.number}</div>
                     <div className="text-xl font-medium text-gray-700">{stat.label}</div>
                   </CardContent>
                 </Card>
@@ -95,59 +114,32 @@ const About = () => {
         </div>
       </motion.section>
 
-      {/* Our Story */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="py-20 bg-gray-50">
+      {/* Our Story / Our Mission */}
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.4 }} className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <motion.div initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }} className="order-2 lg:order-1">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Our Story
-              </h2>
-              <p className="text-xl text-gray-600 mb-6 leading-relaxed">
-                Founded in 2023, Tanish Logistic began with a simple mission: to make logistics 
-                simple, reliable, and accessible for businesses across India. What started as a 
-                small fleet of trucks has grown into a comprehensive logistics solution provider.
-              </p>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Today, we serve over 1000+ clients across 100+ cities, handling everything from 
-                small packages to large industrial shipments. Our commitment to excellence and 
-                customer satisfaction has made us a trusted name in the industry.
-              </p>
-            </motion.div>
-            <motion.div initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.8 }} className="order-1 lg:order-2 bg-gray-200 rounded-2xl h-96 flex items-center justify-center shadow-xl relative">
-              <Image
-                src="/gemini1.png"
-                alt="Our Story Image"
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-contain rounded-2xl"
-              />
-            </motion.div>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mt-16">
-            <motion.div initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }} className="order-2 lg:order-2">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Our Mission
-              </h2>
-              <p className="text-xl text-gray-600 mb-6 leading-relaxed">
-                Our mission is to provide seamless, reliable, and cost-effective logistics solutions to our clients. We are committed to leveraging technology and innovation to exceed our clients' expectations and build long-term partnerships.
-              </p>
-            </motion.div>
-            <motion.div initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.8 }} className="order-1 lg:order-1 bg-gray-200 rounded-2xl h-96 flex items-center justify-center shadow-xl relative">
-              <Image
-                src="/gemini2.png"
-                alt="Our Mission Image"
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover rounded-2xl"
-              />
-            </motion.div>
+          <ImageTextBlock
+            imageFirst
+            imageSrc="/gemini1.webp"
+            alt="Our Story Image"
+            heading="Our Story"
+            body="Founded in 2023, Tanish Logistic began with a simple mission: to make logistics simple, reliable, and accessible for businesses across India. What started as a small fleet of trucks has grown into a comprehensive logistics solution provider.<br /><br />Today, we serve over 1000+ clients across 100+ cities, handling everything from small packages to large industrial shipments. Our commitment to excellence and customer satisfaction has made us a trusted name in the industry."
+            shouldReduceMotion={shouldReduceMotion}
+          />
+          <div className="mt-16">
+            <ImageTextBlock
+              imageFirst={false}
+              imageSrc="/gemini2.webp"
+              alt="Our Mission Image"
+              heading="Our Mission"
+              body="Our mission is to provide seamless, reliable, and cost-effective logistics solutions to our clients. We are committed to leveraging technology and innovation to exceed our clients' expectations and build long-term partnerships."
+              shouldReduceMotion={shouldReduceMotion}
+            />
           </div>
         </div>
       </motion.section>
 
       {/* Our Values */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }} className="py-20 bg-white">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.6 }} className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -162,7 +154,7 @@ const About = () => {
             {values.map((value, index) => {
               const IconComponent = value.icon;
               return (
-                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5, delay: index * 0.2 }} key={index}>
+                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : index * 0.2 }} key={index}>
                   <Card className="text-center bg-white shadow-lg hover:shadow-2xl transition-all duration-300 rounded-xl overflow-hidden transform hover:-translate-y-2">
                     <CardContent className="p-10">
                       <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
@@ -180,7 +172,7 @@ const About = () => {
       </motion.section>
 
       {/* Timeline */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.8 }} className="py-20 bg-gray-50">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.8 }} className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -194,7 +186,7 @@ const About = () => {
           <div className="relative">
             {/* SVG Timeline Line */}
             <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-full max-w-4xl h-full pointer-events-none">
-              <svg className="w-full h-full" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid meet" fill="none">
+              <svg className="w-full h-full" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid meet" fill="none" aria-hidden="true">
                 <motion.path
                   d="M 200 0 L 200 800"
                   stroke="url(#timelineGradient)"
@@ -202,7 +194,7 @@ const About = () => {
                   strokeLinecap="round"
                   initial={{ pathLength: 0 }}
                   whileInView={{ pathLength: 1 }}
-                  transition={{ duration: 1.5, ease: 'easeInOut' }}
+                  transition={{ duration: shouldReduceMotion ? 0 : 1.5, ease: 'easeInOut' }}
                   viewport={{ once: true }}
                 />
                 <defs>
@@ -225,11 +217,11 @@ const About = () => {
                     className={`flex items-center ${index % 2 === 1 ? 'flex-row-reverse' : ''}`}
                     initial={{ opacity: 0, x: index % 2 === 0 ? -200 : 200 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2, type: 'spring', stiffness: 100, damping: 10 }}
+                    transition={{ duration: shouldReduceMotion ? 0 : 0.8, delay: shouldReduceMotion ? 0 : 0.2, type: shouldReduceMotion ? false : 'spring', stiffness: 100, damping: 10 }}
                     viewport={{ once: true }}
                   >
                     <div className={`w-full md:w-1/2 flex ${index % 2 === 0 ? 'justify-end md:justify-end md:pr-16 pl-12 md:pl-0' : 'justify-start md:justify-start md:pl-16 pl-12'}`}>
-                      <motion.div whileHover={{ scale: 1.05, rotateY: 5 }} transition={{ duration: 0.3 }} className="w-full">
+                      <motion.div whileHover={shouldReduceMotion ? undefined : { scale: 1.05, rotateY: 5 }} transition={{ duration: shouldReduceMotion ? 0 : 0.3 }} className="w-full">
                         <Card className="max-w-md shadow-xl hover:shadow-2xl transition-all duration-300 rounded-xl">
                           <CardContent className="p-6 md:p-8">
                             <div className="text-3xl font-bold text-blue-600 mb-3">{item.year}</div>
@@ -241,21 +233,21 @@ const About = () => {
                     </div>
                     
                     {/* Timeline Node */}
-                    <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 w-12 h-12 bg-blue-600 rounded-full items-center justify-center relative z-10 shadow-lg">
+                    <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 w-12 h-12 bg-blue-600 rounded-full items-center justify-center relative z-10 shadow-lg" aria-hidden="true">
                       <motion.div
                         className="absolute inset-0 rounded-full bg-blue-400"
                         animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                        transition={{ duration: shouldReduceMotion ? 0 : 2, repeat: shouldReduceMotion ? 0 : Infinity, ease: 'easeInOut' }}
                       />
                       <div className="w-4 h-4 bg-white rounded-full relative z-10" />
                     </div>
 
                     {/* Mobile Timeline Node */}
-                    <div className="md:hidden absolute left-6 transform -translate-x-1/2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                    <div className="md:hidden absolute left-6 transform -translate-x-1/2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg" aria-hidden="true">
                       <motion.div
                         className="absolute inset-0 rounded-full bg-blue-400"
                         animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                        transition={{ duration: shouldReduceMotion ? 0 : 2, repeat: shouldReduceMotion ? 0 : Infinity, ease: 'easeInOut' }}
                       />
                       <div className="w-3 h-3 bg-white rounded-full relative z-10" />
                     </div>
@@ -269,16 +261,16 @@ const About = () => {
       </motion.section>
 
       {/* CTA Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 1.0 }} className="py-20 bg-blue-600">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 1.0 }} className="py-20 bg-blue-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h2 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 1.2 }} className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <motion.h2 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 1.2 }} className="text-4xl md:text-5xl font-bold text-white mb-4">
             Ready to Work With Us?
           </motion.h2>
-          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 1.4 }} className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 1.4 }} className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
             Join our growing family of satisfied clients and experience the difference 
             that 5+ years of expertise can make.
           </motion.p>
-          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 1.6 }} className="flex flex-col sm:flex-row gap-6 justify-center">
+          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 1.6 }} className="flex flex-col sm:flex-row gap-6 justify-center">
             <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-10 py-5 text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
               <Link href="/contact">
                 Get Started Today

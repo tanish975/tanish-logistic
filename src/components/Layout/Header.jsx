@@ -2,7 +2,7 @@
 import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useSettings } from '../../lib/SettingsContext';
 import {
   DropdownMenu,
@@ -20,14 +20,16 @@ const navLinks = [
   { href: '/Gallery', label: 'Gallery' },
 ];
 
+// ponytail: /industries route does not exist — drop the dead link instead of
+// shipping a 404. Re-add once the page is built.
 const baseMoreLinks = [
-  { href: '/industries', label: 'Industries' },
   { href: '/whyus', label: 'Why Us' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ];
 
 export const Header = () => {
+  const shouldReduceMotion = useReducedMotion();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const settings = useSettings();

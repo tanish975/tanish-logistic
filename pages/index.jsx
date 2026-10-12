@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { SiteMetadata } from '@/components/Layout/Metadata';
 import {
   Accordion,
   AccordionContent,
@@ -33,15 +34,23 @@ import { useSettings } from '@/lib/SettingsContext';
 const heroContent = [
   {
     video: '/hero-videos/mixkit-52428-video-52428-full-hd.mp4',
+    poster: '/hero-posters/mixkit-52428-video-52428-full-hd.jpg',
     title: 'Road freight built for serious business',
   },
   {
     video: '/hero-videos/mixkit-cars-and-trucks-crossing-on-a-highway-in-nature-44284-full-hd.mp4',
+    poster: '/hero-posters/mixkit-cars-and-trucks-crossing-on-a-highway-in-nature-44284-full-hd.jpg',
     title: 'Dependable movement across India',
   },
   {
     video: '/hero-videos/mixkit-large-truck-driving-along-a-rural-highway-45488-hd-ready.mp4',
+    poster: '/hero-posters/mixkit-large-truck-driving-along-a-rural-highway-45488-hd-ready.jpg',
     title: 'Your cargo, handled with discipline',
+  },
+  {
+    video: '/hero-videos/mixkit-various-vehicles-traverse-the-asphalt-highway-beside-the-breathtaking-desert-52014-full-hd.mp4',
+    poster: '/hero-posters/mixkit-various-vehicles-traverse-the-asphalt-highway-beside-the-breathtaking-desert-52014-full-hd.jpg',
+    title: 'Pan-India coverage, every route',
   },
 ];
 
@@ -141,6 +150,10 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-950">
+      <SiteMetadata
+        title="Tanish Logistic — Road freight built for serious business"
+        description="Tanish Logistic delivers reliable B2B road freight across India. Explore services, book cargo transport, check coverage, and get quotes from a team that treats your shipments with discipline."
+      />
       <section
         className="relative isolate min-h-[calc(100dvh-5rem)] overflow-hidden bg-slate-950 text-white"
         onFocus={() => setIsPaused(true)}
@@ -148,25 +161,32 @@ const Home = () => {
         onMouseLeave={() => setIsPaused(Boolean(shouldReduceMotion))}
       >
         <div className="absolute inset-0">
-          {heroContent.map((content, index) => (
+          {shouldReduceMotion ? (
+            <Image
+              src={heroContent[0].poster}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+              quality={85}
+            />
+          ) : (
             <motion.video
-              key={content.video}
+              key={heroContent[currentHeroIndex].video}
               autoPlay
               muted
               loop
               playsInline
               className="absolute inset-0 h-full w-full object-cover"
               initial={{ opacity: 0, scale: 1.02 }}
-              animate={{
-                opacity: index === currentHeroIndex ? 1 : 0,
-                scale: index === currentHeroIndex ? 1 : 1.02,
-              }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: 'easeOut' }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
               aria-hidden="true"
             >
-              <source src={content.video} type="video/mp4" />
+              <source src={heroContent[currentHeroIndex].video} type="video/mp4" />
             </motion.video>
-          ))}
+          )}
           <div className="absolute inset-0 bg-slate-950/72" />
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950 to-transparent" />
         </div>
@@ -279,7 +299,7 @@ const Home = () => {
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 px-px md:grid-cols-4">
           {stats.map((stat) => (
             <div key={stat.label} className="bg-white px-4 py-6 text-center sm:px-6">
-              <div className="text-3xl font-extrabold text-slate-950 sm:text-4xl">
+              <div className="text-3xl font-extrabold tabular-nums text-slate-950 sm:text-4xl">
                 <CountUp end={stat.value} duration={2.2} enableScrollSpy={!shouldReduceMotion} />
                 {stat.suffix}
               </div>
@@ -428,7 +448,7 @@ const Home = () => {
               <h2 className="mt-3 text-3xl font-extrabold text-slate-950 sm:text-4xl">Major hubs, connected by road discipline.</h2>
             </div>
             <Button asChild variant="outline" className="h-11 rounded-md border-slate-300 px-5 font-bold text-slate-800 hover:bg-slate-100">
-              <Link href="/industries">Explore industries</Link>
+              <Link href="/services">Explore services</Link>
             </Button>
           </div>
 

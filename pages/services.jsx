@@ -1,9 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, CheckCircle2, Handshake, Package, Route, ShieldCheck, Truck, Warehouse } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { PublicPageHero, SectionIntro, FinalCta, fadeUp } from '@/components/Layout/PublicPage';
+import { SiteMetadata } from '@/components/Layout/Metadata';
+import { PublicPageHero, SectionIntro, FinalCta } from '@/components/Layout/PublicPage';
 
 const services = [
   {
@@ -39,8 +40,14 @@ const process = [
   ['04', 'Close delivery', 'Proof, feedback, and next-route readiness.'],
 ];
 
-const Services = () => (
-  <div className="min-h-screen bg-slate-50 text-slate-950">
+const Services = () => {
+  const shouldReduceMotion = useReducedMotion();
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-950">
+    <SiteMetadata
+      title="Services — Tanish Logistic"
+      description="Intercity freight, B2B cargo movement, fleet-based transport, and contract logistics. See how Tanish Logistic plans, dispatches, and closes every shipment across India."
+    />
     <PublicPageHero
       eyebrow="Services"
       title="Freight services shaped around real business movement."
@@ -73,11 +80,11 @@ const Services = () => (
             return (
               <motion.article
                 key={service.title}
-                variants={fadeUp}
+                variants={{ hidden: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0, transition: { duration: shouldReduceMotion ? 0 : 0.45, ease: 'easeOut' } }}}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: '-80px' }}
-                transition={{ delay: index * 0.04 }}
+                transition={{ delay: shouldReduceMotion ? 0 : index * 0.04 }}
                 className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
               >
                 <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-600 via-cyan-400 to-emerald-400" />
@@ -134,6 +141,7 @@ const Services = () => (
       description="Send your load details and route. The team will help match the movement to the service that fits best."
     />
   </div>
-);
+  );
+}
 
 export default Services;

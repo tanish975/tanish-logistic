@@ -7,9 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Phone, Mail, MapPin, Clock, Send, Loader2, Star, ThumbsUp } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+import { SiteMetadata } from '@/components/Layout/Metadata';
 
 const Contact = () => {
+  const shouldReduceMotion = useReducedMotion();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -105,15 +107,19 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SiteMetadata
+        title="Contact — Tanish Logistic"
+        description="Get in touch with Tanish Logistic. Send a freight enquiry, request a quote, or leave a public review. We respond within 24 hours."
+      />
       <Toaster position="top-center" reverseOrder={false} />
       {/* Hero Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="relative bg-gradient-to-r from-gray-900 to-gray-800 text-white py-24">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="relative bg-gradient-to-r from-gray-900 to-gray-800 text-white py-24">
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
+          <motion.h1 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.2 }} className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
             Contact Us
           </motion.h1>
-          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.4 }} className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
             Get in touch with our team for any logistics needs, quotes, or inquiries. 
             We're here to help you succeed.
           </motion.p>
@@ -121,7 +127,7 @@ const Contact = () => {
       </motion.section>
 
       {/* Contact Information */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="py-20">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.2 }} className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -136,19 +142,19 @@ const Contact = () => {
             {contactInfo.map((info, index) => {
               const IconComponent = info.icon;
               return (
-                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5, delay: index * 0.2 }} key={index}>
+                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : index * 0.2 }} key={index}>
                   <Card className="text-center bg-white shadow-lg hover:shadow-2xl transition-all duration-300 rounded-xl overflow-hidden transform hover:-translate-y-2 h-full">
                     <CardContent className="p-6">
                       <div className={`w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner`}>
-                        <IconComponent className={`h-8 w-8 ${info.color}`} />
+                        <IconComponent className={`h-8 w-8 ${info.color}`} aria-hidden="true" />
                       </div>
                        <h3 className="text-xl font-bold text-gray-900 mb-3">{info.title}</h3>
                        <div className="space-y-1">
                          {info.details.map((detail, idx) => (
                            info.title === "Phone" ? (
-                             <a key={idx} href={`tel:${detail.replace(/\s+/g, '')}`} className="block text-gray-600 text-sm hover:text-blue-600 transition-colors">
-                               {detail}
-                             </a>
+<a key={idx} href={`tel:${detail.replace(/\s+/g, '')}`} className="block text-gray-600 text-sm hover:text-blue-600 transition-colors" translate="no">
+                                {detail}
+                              </a>
                            ) : (
                              <p key={idx} className="text-gray-600 text-sm">{detail}</p>
                            )
@@ -164,9 +170,9 @@ const Contact = () => {
       </motion.section>
 
       {/* Contact Form */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="py-20 bg-white">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.4 }} className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }}>
+          <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.6 }}>
             <Card className="shadow-2xl rounded-2xl overflow-hidden">
               <CardHeader className="text-center bg-gray-800 text-white p-10">
                 <CardTitle className="text-4xl font-bold">Send us a Message</CardTitle>
@@ -177,22 +183,22 @@ const Contact = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-2">
                       <Label htmlFor="name" className="text-lg font-medium">Full Name *</Label>
-                      <Input id="name" name="name" type="text" required value={formData.name} onChange={handleChange} className="p-4 text-lg" />
+                      <Input id="name" name="name" type="text" required value={formData.name} onChange={handleChange} className="p-4 text-lg" placeholder="John Doe…" autoComplete="name" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email" className="text-lg font-medium">Email Address *</Label>
-                      <Input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} className="p-4 text-lg" />
+                      <Input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} className="p-4 text-lg" placeholder="you@company.com…" autoComplete="email" />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-2">
                       <Label htmlFor="phone" className="text-lg font-medium">Phone Number</Label>
-                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="p-4 text-lg" pattern="[0-9]{10,15}" maxLength={15} />
+                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="p-4 text-lg" placeholder="+91-XXXXXXXXXX…" inputMode="tel" autoComplete="tel" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="company" className="text-lg font-medium">Company Name</Label>
-                      <Input id="company" name="company" type="text" value={formData.company} onChange={handleChange} className="p-4 text-lg" />
+                      <Input id="company" name="company" type="text" value={formData.company} onChange={handleChange} className="p-4 text-lg" placeholder="Acme Logistics…" autoComplete="organization" />
                     </div>
                   </div>
 
@@ -214,7 +220,7 @@ const Contact = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="message" className="text-lg font-medium">Message *</Label>
-                    <Textarea id="message" name="message" rows={6} required value={formData.message} onChange={handleChange} placeholder="Tell us about your logistics needs..." className="p-4 text-lg" />
+                    <Textarea id="message" name="message" rows={6} required value={formData.message} onChange={handleChange} placeholder="Tell us about your logistics needs…" className="p-4 text-lg" />
                   </div>
 
                   <div className="flex items-center space-x-3">
@@ -247,6 +253,7 @@ const Contact = () => {
 
 // Public Review Form Component
 const ReviewForm = () => {
+  const shouldReduceMotion = useReducedMotion();
   const [reviewData, setReviewData] = useState({
     name: '',
     rating: 5,
@@ -283,7 +290,7 @@ const ReviewForm = () => {
 
   if (submitted) {
     return (
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-20 bg-gradient-to-r from-green-50 to-blue-50">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="py-20 bg-gradient-to-r from-green-50 to-blue-50">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Card className="shadow-2xl rounded-2xl overflow-hidden">
             <CardContent className="p-12">
@@ -301,9 +308,9 @@ const ReviewForm = () => {
   }
 
   return (
-    <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-20 bg-gradient-to-r from-blue-50 to-purple-50">
+    <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="py-20 bg-gradient-to-r from-blue-50 to-purple-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}>
+        <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }}>
           <Card className="shadow-2xl rounded-2xl overflow-hidden border-2 border-blue-200">
             <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8">
               <CardTitle className="text-3xl font-bold">Rate Our Service</CardTitle>
@@ -313,14 +320,15 @@ const ReviewForm = () => {
               <form onSubmit={handleSubmitReview} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="reviewName" className="text-lg font-medium">Your Name</Label>
-                  <Input 
-                    id="reviewName" 
-                    type="text" 
-                    required 
-                    value={reviewData.name} 
-                    onChange={(e) => setReviewData({...reviewData, name: e.target.value})} 
-                    placeholder="Enter your name" 
-                    className="p-4 text-lg border-2 border-gray-200 focus:border-blue-500" 
+<Input
+                    id="reviewName"
+                    type="text"
+                    required
+                    value={reviewData.name}
+                    onChange={(e) => setReviewData({...reviewData, name: e.target.value})}
+                    placeholder="Enter your name…"
+                    className="p-4 text-lg border-2 border-gray-200 focus:border-blue-500"
+                    autoComplete="name"
                   />
                 </div>
 
@@ -332,9 +340,10 @@ const ReviewForm = () => {
                         key={star}
                         type="button"
                         onClick={() => setReviewData({...reviewData, rating: star})}
+                        aria-label={`Rate ${star} out of 5`}
                         className={`p-2 transition-transform hover:scale-110 ${star <= reviewData.rating ? 'text-yellow-400' : 'text-gray-300'}`}
                       >
-                        <Star className="h-10 w-10 fill-current" />
+                        <Star className="h-10 w-10 fill-current" aria-hidden="true" />
                       </button>
                     ))}
                     <span className="ml-4 text-2xl font-bold text-gray-700">
@@ -345,14 +354,14 @@ const ReviewForm = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="reviewComment" className="text-lg font-medium">Your Review *</Label>
-                  <Textarea 
-                    id="reviewComment" 
-                    rows={5} 
-                    required 
-                    value={reviewData.comment} 
-                    onChange={(e) => setReviewData({...reviewData, comment: e.target.value})} 
-                    placeholder="Tell us about your experience with our logistics services..." 
-                    className="p-4 text-lg border-2 border-gray-200 focus:border-blue-500" 
+<Textarea
+                    id="reviewComment"
+                    rows={5}
+                    required
+                    value={reviewData.comment}
+                    onChange={(e) => setReviewData({...reviewData, comment: e.target.value})}
+                    placeholder="Tell us about your experience with our logistics services…"
+                    className="p-4 text-lg border-2 border-gray-200 focus:border-blue-500"
                   />
                 </div>
                 

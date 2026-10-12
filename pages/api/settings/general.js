@@ -1,9 +1,9 @@
+import { withAdminRoute } from '@/lib/session';
 import fs from 'fs';
 import path from 'path';
 
 const settingsFilePath = path.resolve(process.cwd(), 'data/settings.json');
 
-// Default settings
 const defaultSettings = {
   siteName: 'Tanish Logistic',
   logoUrl: '/icon.png',
@@ -18,16 +18,14 @@ const defaultSettings = {
   passwordPolicy: ''
 };
 
-export default async function handler(req, res) {
+export default withAdminRoute(async function settingsGeneralRoute(req, res) {
   if (req.method === 'GET') {
     try {
       if (fs.existsSync(settingsFilePath)) {
         const fileContent = fs.readFileSync(settingsFilePath, 'utf-8');
         const savedSettings = JSON.parse(fileContent);
-        // Merge saved settings with defaults
         res.status(200).json({ ...defaultSettings, ...savedSettings });
       } else {
-        // Return defaults if no settings file exists
         res.status(200).json(defaultSettings);
       }
     } catch (error) {
@@ -35,7 +33,6 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'POST') {
     try {
-      // Ensure directory exists
       const dir = path.dirname(settingsFilePath);
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -50,4 +47,4 @@ export default async function handler(req, res) {
     res.setHeader('Allow', ['GET', 'POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-}
+});

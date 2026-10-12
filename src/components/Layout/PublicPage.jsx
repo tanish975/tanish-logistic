@@ -1,18 +1,18 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Button } from '../ui/button';
 
-export const fadeUp = {
+const fadeUp = (reduce) => ({
   hidden: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
-};
+  visible: { opacity: 1, y: 0, transition: { duration: reduce ? 0 : 0.45, ease: 'easeOut' } },
+});
 
-export const stagger = {
+const stagger = (reduce) => ({
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.08 } },
-};
+  visible: { opacity: 1, transition: { staggerChildren: reduce ? 0 : 0.07, delayChildren: reduce ? 0 : 0.08 } },
+});
 
 export const PublicPageHero = ({
   eyebrow,
@@ -23,45 +23,48 @@ export const PublicPageHero = ({
   secondaryHref = '/services',
   secondaryLabel = 'View services',
   children,
-}) => (
-  <section className="relative isolate overflow-hidden bg-slate-950 text-white">
-    <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(148,163,184,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.18)_1px,transparent_1px)] [background-size:44px_44px]" aria-hidden="true" />
-    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-sky-300/80 to-transparent" aria-hidden="true" />
-    <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1fr_0.85fr] lg:px-8">
-      <motion.div variants={stagger} initial="hidden" animate="visible" className="max-w-3xl">
-        <motion.div variants={fadeUp} className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-bold text-sky-100 backdrop-blur">
-          <Sparkles className="h-4 w-4" aria-hidden="true" />
-          {eyebrow}
+}) => {
+  const shouldReduceMotion = useReducedMotion();
+  return (
+    <section className="relative isolate overflow-hidden bg-slate-950 text-white">
+      <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(148,163,184,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.18)_1px,transparent_1px)] [background-size:44px_44px]" aria-hidden="true" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-sky-300/80 to-transparent" aria-hidden="true" />
+      <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1fr_0.85fr] lg:px-8">
+        <motion.div variants={stagger(shouldReduceMotion)} initial="hidden" animate="visible" className="max-w-3xl">
+          <motion.div variants={fadeUp(shouldReduceMotion)} className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-bold text-sky-100 backdrop-blur">
+            <Sparkles className="h-4 w-4" aria-hidden="true" />
+            {eyebrow}
+          </motion.div>
+          <motion.h1 variants={fadeUp(shouldReduceMotion)} className="text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
+            {title}
+          </motion.h1>
+          <motion.p variants={fadeUp(shouldReduceMotion)} className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+            {description}
+          </motion.p>
+          <motion.div variants={fadeUp(shouldReduceMotion)} className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Button asChild size="lg" className="h-12 rounded-md bg-sky-700 px-6 text-base font-bold text-white hover:bg-sky-800">
+              <Link href={primaryHref}>
+                {primaryLabel}
+                <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="h-12 rounded-md border-white/30 bg-white/5 px-6 text-base font-bold text-white hover:bg-white hover:text-slate-950">
+              <Link href={secondaryHref}>{secondaryLabel}</Link>
+            </Button>
+          </motion.div>
         </motion.div>
-        <motion.h1 variants={fadeUp} className="text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
-          {title}
-        </motion.h1>
-        <motion.p variants={fadeUp} className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-          {description}
-        </motion.p>
-        <motion.div variants={fadeUp} className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Button asChild size="lg" className="h-12 rounded-md bg-sky-700 px-6 text-base font-bold text-white hover:bg-sky-800">
-            <Link href={primaryHref}>
-              {primaryLabel}
-              <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
-            </Link>
-          </Button>
-          <Button asChild size="lg" variant="outline" className="h-12 rounded-md border-white/30 bg-white/5 px-6 text-base font-bold text-white hover:bg-white hover:text-slate-950">
-            <Link href={secondaryHref}>{secondaryLabel}</Link>
-          </Button>
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.55, ease: 'easeOut' }}
+          className="rounded-lg border border-white/10 bg-white/[0.07] p-5 shadow-2xl shadow-black/30 backdrop-blur"
+        >
+          {children}
         </motion.div>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.55, ease: 'easeOut' }}
-        className="rounded-lg border border-white/10 bg-white/[0.07] p-5 shadow-2xl shadow-black/30 backdrop-blur"
-      >
-        {children}
-      </motion.div>
-    </div>
-  </section>
-);
+      </div>
+    </section>
+  );
+};
 
 export const SectionIntro = ({ eyebrow, title, description, align = 'left' }) => (
   <div className={align === 'center' ? 'mx-auto max-w-3xl text-center' : 'max-w-3xl'}>

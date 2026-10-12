@@ -1,14 +1,10 @@
-import { withSessionRoute } from '@/lib/session';
+import { withAdminRoute } from '@/lib/session';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 
 const saltRounds = 10;
 
-export default withSessionRoute(async function addUserRoute(req, res) {
-    if (!req.session.user) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-
+export default withAdminRoute(async function addUserRoute(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).end();
     }
@@ -19,8 +15,15 @@ export default withSessionRoute(async function addUserRoute(req, res) {
         return res.status(400).json({ message: 'Email, password, and name are required.' });
     }
 
+    if (typeof email !== 'string' || typeof password !== 'string' || typeof name !== 'string') {
+        return res.status(400).json({ message: 'Invalid input types.' });
+    }
+
+    if (password.length < 8) {
+        return res.status(400).json({ message: 'Password must be at least 8 characters.' });
+    }
+
     try {
-        // Check if user already exists
         const existingUser = await prisma.user.findUnique({
             where: { email },
         });
@@ -40,8 +43,8 @@ export default withSessionRoute(async function addUserRoute(req, res) {
             },
         });
 
-        res.status(201).json({ 
-            message: 'User added successfully.', 
+        res.status(201).json({
+            message: 'User added successfully.',
             user: {
                 id: newUser.id,
                 email: newUser.email,

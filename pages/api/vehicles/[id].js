@@ -1,8 +1,9 @@
+import { withAdminRoute } from '@/lib/session';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export default async function handler(req, res) {
+export default withAdminRoute(async function vehicleRoute(req, res) {
   const { id } = req.query;
 
   switch (req.method) {
@@ -54,7 +55,7 @@ export default async function handler(req, res) {
         await prisma.vehicle.delete({
           where: { id },
         });
-        res.status(204).end(); // No content
+        res.status(204).end();
       } catch (error) {
         console.error('Error deleting vehicle:', error);
         if (error.code === 'P2025') {
@@ -68,4 +69,4 @@ export default async function handler(req, res) {
       res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
       res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-}
+});

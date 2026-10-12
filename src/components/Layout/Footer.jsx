@@ -3,10 +3,10 @@ import Link from 'next/link';
 import { Building2, Mail, MapPin, Phone, Truck } from 'lucide-react';
 import { useSettings } from '../../lib/SettingsContext';
 
+// ponytail: /industries route does not exist — drop the dead link.
 const quickLinks = [
   { href: '/about', label: 'About Us' },
   { href: '/services', label: 'Services' },
-  { href: '/industries', label: 'Industries' },
   { href: '/whyus', label: 'Why Us' },
   { href: '/contact', label: 'Contact' },
 ];

@@ -1,6 +1,7 @@
+import { withAdminRoute } from '@/lib/session';
 import prisma from '@/lib/prisma';
 
-export default async function handler(req, res) {
+export default withAdminRoute(async function updateBookingRoute(req, res) {
     if (req.method !== 'POST') {
         res.setHeader('Allow', ['POST']);
         return res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -13,7 +14,6 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Try to find by bookingId first, then by id
         let booking = await prisma.booking.findFirst({
             where: {
                 OR: [
@@ -36,4 +36,4 @@ export default async function handler(req, res) {
     } catch (error) {
       res.status(500).json({ message: 'Internal Server Error' });
     }
-}
+});

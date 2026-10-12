@@ -6,13 +6,16 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { User, CheckCircle, ArrowRight, MapPin, Box } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { User, CheckCircle, ArrowRight, MapPin, Box, Loader2 } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
+import { SiteMetadata } from '@/components/Layout/Metadata';
 
 const Book = () => {
+  const shouldReduceMotion = useReducedMotion();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmedBookingId, setConfirmedBookingId] = useState(null);
   const [bookingData, setBookingData] = useState({
     // Company Info
     companyName: '',
@@ -120,14 +123,22 @@ const Book = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit booking');
+        let message = 'Failed to submit booking';
+        try {
+          const err = await response.json();
+          if (err?.message) message = err.message;
+        } catch {}
+        throw new Error(message);
       }
 
+      const result = await response.json();
+      // Show the server-confirmed booking ID — never discard it.
+      setConfirmedBookingId(result.bookingId || result.booking?.bookingId);
       setStep(5);
     } catch (error) {
       console.error("Could not save booking:", error);
-      toast.error('Failed to submit booking. Please try again.');
-      return; // Prevent proceeding to the next step
+      toast.error(error.message || 'Failed to submit booking. Please try again.');
+      return;
     } finally {
       setIsSubmitting(false);
     }
@@ -142,26 +153,30 @@ const Book = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SiteMetadata
+        title="Book cargo transport — Tanish Logistic"
+        description="Book a multi-step cargo transport request with Tanish Logistic. Provide cargo details, pickup and drop locations, preferred dates, and company info. We will confirm shortly."
+      />
       <Toaster richColors />
       {/* Header */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-16">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl md:text-5xl font-bold text-center mb-8">
             Book Your Cargo Transport
           </h1>
           
           {/* Progress Steps */}
-          <div className="flex justify-center items-center space-x-4 md:space-x-8">
+<div className="flex justify-center items-center space-x-4 md:space-x-8" role="list" aria-label="Booking progress">
             {steps.map((stepItem, index) => {
               const IconComponent = stepItem.icon;
               const isActive = step === stepItem.number;
               const isCompleted = step > stepItem.number;
-              
+
               return (
                 <React.Fragment key={stepItem.number}>
                   <div className="flex flex-col items-center">
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-2 border-4 ${isCompleted ? 'bg-green-500 border-green-600' : isActive ? 'bg-blue-500 border-blue-600' : 'bg-gray-600 border-gray-700'}`}>
-                      <IconComponent className="h-8 w-8 text-white" />
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-2 border-4 ${isCompleted ? 'bg-green-500 border-green-600' : isActive ? 'bg-blue-500 border-blue-600' : 'bg-gray-600 border-gray-700'}`} role="listitem">
+                      <IconComponent className="h-8 w-8 text-white" aria-hidden="true" />
                     </div>
                     <span className={`text-lg font-semibold ${isActive ? 'text-white' : 'text-gray-400'}`}>
                       {stepItem.title}
@@ -178,7 +193,7 @@ const Book = () => {
       </motion.section>
 
       {/* Form Content */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="py-16">
+      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.2 }} className="py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Card className="shadow-2xl rounded-2xl overflow-hidden">
             <CardHeader className="bg-gray-100 p-8">
@@ -190,15 +205,15 @@ const Book = () => {
               <form onSubmit={handleSubmit}>
                 {/* Step 1: Cargo Info */}
                 {step === 1 && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="space-y-8">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-2">
                         <Label htmlFor="cargoType" className="text-lg">Cargo Type *</Label>
-                        <Input id="cargoType" value={bookingData.cargoType} onChange={(e) => handleInputChange('cargoType', e.target.value)} placeholder="e.g., Electronics, Textiles, Machinery" required className="p-4 text-lg" />
+                        <Input id="cargoType" value={bookingData.cargoType} onChange={(e) => handleInputChange('cargoType', e.target.value)} placeholder="e.g., Electronics, Textiles, Machinery…" required className="p-4 text-lg" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="cargoWeight" className="text-lg">Cargo Weight (kg) *</Label>
-                        <Input id="cargoWeight" type="number" value={bookingData.cargoWeight} onChange={(e) => handleInputChange('cargoWeight', e.target.value)} placeholder="e.g., 500" required className="p-4 text-lg" />
+                        <Input id="cargoWeight" type="number" value={bookingData.cargoWeight} onChange={(e) => handleInputChange('cargoWeight', e.target.value)} placeholder="e.g., 500…" required className="p-4 text-lg" inputMode="decimal" />
                       </div>
                     </div>
                     
@@ -208,46 +223,46 @@ const Book = () => {
                       <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="cargoLength" className="text-sm text-gray-600">Length (ft)</Label>
-                          <Input id="cargoLength" type="number" value={bookingData.cargoLength} onChange={(e) => handleInputChange('cargoLength', e.target.value)} placeholder="e.g., 10" className="p-4 text-lg" />
+                          <Input id="cargoLength" type="number" value={bookingData.cargoLength} onChange={(e) => handleInputChange('cargoLength', e.target.value)} placeholder="e.g., 10…" className="p-4 text-lg" inputMode="decimal" />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="cargoWidth" className="text-sm text-gray-600">Width (ft)</Label>
-                          <Input id="cargoWidth" type="number" value={bookingData.cargoWidth} onChange={(e) => handleInputChange('cargoWidth', e.target.value)} placeholder="e.g., 6" className="p-4 text-lg" />
+                          <Input id="cargoWidth" type="number" value={bookingData.cargoWidth} onChange={(e) => handleInputChange('cargoWidth', e.target.value)} placeholder="e.g., 6…" className="p-4 text-lg" inputMode="decimal" />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="cargoHeight" className="text-sm text-gray-600">Height (ft)</Label>
-                          <Input id="cargoHeight" type="number" value={bookingData.cargoHeight} onChange={(e) => handleInputChange('cargoHeight', e.target.value)} placeholder="e.g., 6" className="p-4 text-lg" />
+                          <Input id="cargoHeight" type="number" value={bookingData.cargoHeight} onChange={(e) => handleInputChange('cargoHeight', e.target.value)} placeholder="e.g., 6…" className="p-4 text-lg" inputMode="decimal" />
                         </div>
                       </div>
                     </div>
                     
                     <div className="space-y-2">
                       <Label htmlFor="cargoDescription" className="text-lg">Cargo Description</Label>
-                      <Textarea id="cargoDescription" value={bookingData.cargoDescription} onChange={(e) => handleInputChange('cargoDescription', e.target.value)} placeholder="Briefly describe the cargo contents" className="p-4 text-lg" />
+                      <Textarea id="cargoDescription" value={bookingData.cargoDescription} onChange={(e) => handleInputChange('cargoDescription', e.target.value)} placeholder="Briefly describe the cargo contents…" className="p-4 text-lg" />
                     </div>
                   </motion.div>
                 )}
 
                 {/* Step 2: Service Details */}
                 {step === 2 && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="space-y-8">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-2">
                         <Label htmlFor="pickupLocation" className="text-lg">Pickup Location *</Label>
-                        <Input id="pickupLocation" value={bookingData.pickupLocation} onChange={(e) => handleInputChange('pickupLocation', e.target.value)} placeholder="e.g., Mumbai, Maharashtra" required className="p-4 text-lg" />
+                        <Input id="pickupLocation" value={bookingData.pickupLocation} onChange={(e) => handleInputChange('pickupLocation', e.target.value)} placeholder="e.g., Mumbai, Maharashtra…" required className="p-4 text-lg" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="dropLocation" className="text-lg">Drop Location *</Label>
-                        <Input id="dropLocation" value={bookingData.dropLocation} onChange={(e) => handleInputChange('dropLocation', e.target.value)} placeholder="e.g., Delhi" required className="p-4 text-lg" />
+                        <Input id="dropLocation" value={bookingData.dropLocation} onChange={(e) => handleInputChange('dropLocation', e.target.value)} placeholder="e.g., Delhi…" required className="p-4 text-lg" />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="pickupAddress" className="text-lg">Pickup Address *</Label>
-                      <Textarea id="pickupAddress" value={bookingData.pickupAddress} onChange={(e) => handleInputChange('pickupAddress', e.target.value)} placeholder="Full pickup address with landmark" required className="p-4 text-lg" />
+                      <Textarea id="pickupAddress" value={bookingData.pickupAddress} onChange={(e) => handleInputChange('pickupAddress', e.target.value)} placeholder="Full pickup address with landmark…" required className="p-4 text-lg" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="dropAddress" className="text-lg">Drop Address *</Label>
-                      <Textarea id="dropAddress" value={bookingData.dropAddress} onChange={(e) => handleInputChange('dropAddress', e.target.value)} placeholder="Full drop-off address with landmark" required className="p-4 text-lg" />
+                      <Textarea id="dropAddress" value={bookingData.dropAddress} onChange={(e) => handleInputChange('dropAddress', e.target.value)} placeholder="Full drop-off address with landmark…" required className="p-4 text-lg" />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-2">
@@ -269,32 +284,32 @@ const Book = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="specialInstructions" className="text-lg">Special Instructions (Optional)</Label>
-                      <Textarea id="specialInstructions" value={bookingData.specialInstructions} onChange={(e) => handleInputChange('specialInstructions', e.target.value)} placeholder="Any special handling requirements, fragile items, etc." className="p-4 text-lg" />
+                      <Textarea id="specialInstructions" value={bookingData.specialInstructions} onChange={(e) => handleInputChange('specialInstructions', e.target.value)} placeholder="Any special handling requirements, fragile items, etc…" className="p-4 text-lg" />
                     </div>
                   </motion.div>
                 )}
 
                 {/* Step 3: Company Info */}
                 {step === 3 && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="space-y-8">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-2">
                         <Label htmlFor="companyName" className="text-lg">Company Name / Customer Name *</Label>
-                        <Input id="companyName" value={bookingData.companyName} onChange={(e) => handleInputChange('companyName', e.target.value)} placeholder="Enter your company or name" required className="p-4 text-lg" />
+                        <Input id="companyName" value={bookingData.companyName} onChange={(e) => handleInputChange('companyName', e.target.value)} placeholder="Enter your company or name…" required className="p-4 text-lg" autoComplete="organization" />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="contactPerson" className="text-lg">Contact Person *</Label>
-                        <Input id="contactPerson" value={bookingData.contactPerson} onChange={(e) => handleInputChange('contactPerson', e.target.value)} placeholder="Contact person name" required className="p-4 text-lg" />
+                        <Input id="contactPerson" value={bookingData.contactPerson} onChange={(e) => handleInputChange('contactPerson', e.target.value)} placeholder="Contact person name…" required className="p-4 text-lg" autoComplete="name" />
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div className="space-y-2">
                         <Label htmlFor="phone" className="text-lg">Phone Number *</Label>
-                         <Input id="phone" type="tel" value={bookingData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} placeholder="+91-XXXXXXXXXX" required className="p-4 text-lg" pattern="[0-9]{10,15}" maxLength={15} />
+                         <Input id="phone" type="tel" value={bookingData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} placeholder="+91-XXXXXXXXXX…" required className="p-4 text-lg" inputMode="tel" autoComplete="tel" pattern="[0-9]{10,15}" maxLength={15} />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email" className="text-lg">Email Address *</Label>
-                        <Input id="email" type="email" value={bookingData.email} onChange={(e) => handleInputChange('email', e.target.value)} placeholder="your@email.com" required className="p-4 text-lg" />
+                        <Input id="email" type="email" value={bookingData.email} onChange={(e) => handleInputChange('email', e.target.value)} placeholder="your@email.com…" required className="p-4 text-lg" autoComplete="email" />
                       </div>
                     </div>
                   </motion.div>
@@ -302,7 +317,7 @@ const Book = () => {
 
                 {/* Step 4: Review */}
                 {step === 4 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="space-y-6">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="space-y-6">
                         <h3 className="text-2xl font-bold text-gray-800 mb-6">Review Your Booking</h3>
                         
                         {/* Cargo Info */}
@@ -362,9 +377,16 @@ const Book = () => {
 
                 {/* Step 5: Success */}
                 {step === 5 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="text-center space-y-4">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="text-center space-y-4">
                         <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
                         <h2 className="text-2xl font-bold">Booking Submitted!</h2>
+                        {confirmedBookingId ? (
+                          <div className="mx-auto max-w-md rounded-lg border border-green-200 bg-green-50 p-4">
+                            <p className="text-sm font-semibold text-green-700">Your booking ID</p>
+                            <p className="mt-1 text-3xl font-extrabold tabular-nums text-green-900">{confirmedBookingId}</p>
+                            <p className="mt-2 text-sm text-green-700">Save this ID and share it with our team for faster tracking.</p>
+                          </div>
+                        ) : null}
                         <p className="text-lg text-gray-600">Thank you for your booking. We will get back to you shortly with a confirmation and further details.</p>
                     </motion.div>
                 )}
@@ -385,8 +407,12 @@ const Book = () => {
                     )}
                     {step === 4 && (
                       <Button type="submit" disabled={isSubmitting} className="ml-auto bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg">
-                          Confirm Booking
+                        {isSubmitting ? (
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        ) : (
                           <CheckCircle className="ml-2 h-5 w-5" />
+                        )}
+                        {isSubmitting ? 'Submitting…' : 'Confirm Booking'}
                       </Button>
                     )}
                   </div>

@@ -1,6 +1,7 @@
+import { withAdminRoute } from '@/lib/session';
 import prisma from '@/lib/prisma';
 
-export default async function handler(req, res) {
+export default withAdminRoute(async function vehiclesIndexRoute(req, res) {
     const { method } = req;
 
     switch(method){
@@ -37,4 +38,4 @@ export default async function handler(req, res) {
             res.setHeader('Allow', ['GET', 'POST']);
             res.status(405).end(`Method ${method} Not Allowed`);
     }
-}
+});

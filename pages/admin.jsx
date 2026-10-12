@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,6 +48,7 @@ const VALID_BOOKING_STATUSES = ['PENDING', 'CONFIRMED', 'IN_TRANSIT', 'DELIVERED
 
 
 const AdminPage = () => {
+  const shouldReduceMotion = useReducedMotion();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [bookings, setBookings] = useState([]);
@@ -287,14 +288,15 @@ const AdminPage = () => {
     return <AccessDenied onLogout={handleLogout} />;
   }
 
-  const renderContent = () => (
-    <AnimatePresence mode="wait">
+  const renderContent = () => {
+    return (
+      <AnimatePresence mode="wait">
       <motion.div
         key={currentSection}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
       >
         {(() => {
           switch (currentSection) {
@@ -385,6 +387,7 @@ const AdminPage = () => {
       </motion.div>
     </AnimatePresence>
   );
+}
 
   return (
     <>

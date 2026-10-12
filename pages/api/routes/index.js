@@ -1,11 +1,11 @@
+import { withAdminRoute } from '@/lib/session';
 import prisma from '@/lib/prisma';
 
-export default async function handler(req, res) {
+export default withAdminRoute(async function routesIndexRoute(req, res) {
   if (req.method === 'GET') {
     try {
       const bookings = await prisma.booking.findMany();
-      
-      // Group bookings by route (pickup -> drop)
+
       const routeCounts = {};
       bookings.forEach(booking => {
         const routeKey = `${booking.pickup} → ${booking.drop}`;
@@ -18,8 +18,7 @@ export default async function handler(req, res) {
         }
         routeCounts[routeKey].count += 1;
       });
-      
-      // Convert to array and sort by count
+
       const formattedRoutes = Object.values(routeCounts)
         .sort((a, b) => b.count - a.count)
         .slice(0, 10);
@@ -33,4 +32,4 @@ export default async function handler(req, res) {
     res.setHeader('Allow', ['GET']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-}
+});
