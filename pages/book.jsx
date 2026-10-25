@@ -10,7 +10,7 @@ import { User, CheckCircle2, ArrowRight, MapPin, Box, Loader2, Phone, ShieldChec
 import { motion, useReducedMotion } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
 import { SiteMetadata } from '@/components/Layout/Metadata';
-import { ClickSuccessButton } from '@/components/animations/ClickSuccessButton';
+import { ClickSuccessButton } from '@/components/Animations/ClickSuccessButton';
 import { PublicPageHero } from '@/components/Layout/PublicPage';
 import { MovingTruckLoader } from '@/components/Animations/MovingTruckLoader';
 

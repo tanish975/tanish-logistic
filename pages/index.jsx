@@ -31,9 +31,9 @@ import {
 } from 'lucide-react';
 import CountUp from 'react-countup';
 import { motion, useReducedMotion } from 'framer-motion';
-import { BentoGrid } from '@/components/animations/BentoGrid';
-import { ProcessDraw } from '@/components/animations/ProcessDraw';
-import { ClickSuccessButton } from '@/components/animations/ClickSuccessButton';
+import { BentoGrid } from '@/components/Animations/BentoGrid';
+import { ProcessDraw } from '@/components/Animations/ProcessDraw';
+import { ClickSuccessButton } from '@/components/Animations/ClickSuccessButton';
 import { mockFaqs } from '../src/faq';
 import { useSettings } from '@/lib/SettingsContext';
 

@@ -6,7 +6,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { SiteMetadata } from '@/components/Layout/Metadata';
 import { PublicPageHero, SectionIntro, FinalCta } from '@/components/Layout/PublicPage';
-import { WordRotator } from '@/components/animations/WordRotator';
+import { WordRotator } from '@/components/Animations/WordRotator';
 
 const serviceDetails = [
   {
