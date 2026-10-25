@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Truck, Users, Award, Target, CheckCircle2, ArrowRight, ShieldCheck, MapPin, Building2, Clock, Check } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { SiteMetadata } from '@/components/Layout/Metadata';
-import { ProcessDraw } from '@/components/animations/ProcessDraw';
+import { ProcessDraw } from '@/components/Animations/ProcessDraw';
 import { PublicPageHero, FinalCta } from '@/components/Layout/PublicPage';
 
 const stats = [
