@@ -3,296 +3,395 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Truck, Users, Award, Target, CheckCircle, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Truck, Users, Award, Target, CheckCircle2, ArrowRight, ShieldCheck, MapPin, Building2, Clock, Check } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { SiteMetadata } from '@/components/Layout/Metadata';
+import { ProcessDraw } from '@/components/animations/ProcessDraw';
+import { PublicPageHero, FinalCta } from '@/components/Layout/PublicPage';
+
+const stats = [
+  { number: "5+", label: "Years of Operation", sub: "Commercial road freight" },
+  { number: "100+", label: "Cities & Industrial Hubs", sub: "Pan-India connectivity" },
+  { number: "1,000+", label: "Enterprise Clients", sub: "Repeat commercial shippers" },
+  { number: "98.2%", label: "On-Time Delivery SLA", sub: "Strict corridor timing" }
+];
+
+const values = [
+  {
+    icon: ShieldCheck,
+    title: "Operational Reliability",
+    description: "Every shipment is planned with route verification and vehicle health checks. We commit to promises we can keep, every single haul.",
+  },
+  {
+    icon: Users,
+    title: "Dedicated Client Partnership",
+    description: "We don't operate as disconnected brokers. Clients have direct access to operations managers who know their routes and cargo profiles intimately.",
+  },
+  {
+    icon: Award,
+    title: "Fleet & Driver Integrity",
+    description: "All drivers are commercial license holders with extensive highway experience, vetted background credentials, and adherence to safe driving hours.",
+  },
+  {
+    icon: Target,
+    title: "Route & Cost Optimization",
+    description: "By optimizing toll lanes, highway transit windows, and return loads, we pass predictable, competitive freight pricing to our corporate partners.",
+  }
+];
+
+const milestones = [
+  {
+    year: "2023",
+    title: "Founding & Western Hub Launch",
+    description: "Established operations in Vadodara (Gujarat) with dedicated FTL routes servicing chemical, machinery, and manufacturing clients across the Western industrial belt.",
+  },
+  {
+    year: "2024",
+    title: "Punjab Hub & Northern Corridor Expansion",
+    description: "Opened our registered head office in Mandi Gobindgarh (Punjab), connecting Gujarat steel and machinery supplies directly to Northern industrial centers.",
+  },
+  {
+    year: "2025",
+    title: "Fleet Modernization & GPS Integration",
+    description: "Standardized our commercial fleet with 24/7 GPS route monitoring, expanded carrier compliance, and launched our direct corporate booking platform.",
+  },
+  {
+    year: "2026 & Beyond",
+    title: "Multi-Corridor Scale & Enterprise SLA",
+    description: "Broadening regular multi-axle and trailer capacity across Southern and Central routes while maintaining our signature 98.2% on-time transit record.",
+  }
+];
 
 const About = () => {
-  const stats = [
-    { number: "5+", label: "Years of Experience" },
-    { number: "100+", label: "Cities Covered" },
-    { number: "1000+", label: "Happy Clients" },
-    { number: "98%", label: "On-Time Delivery" }
-  ];
-
-  const values = [
-    {
-      icon: Truck,
-      title: "Reliability",
-      description: "We deliver on our promises, every single time. Your trust is our foundation."
-    },
-    {
-      icon: Users,
-      title: "Customer Focus",
-      description: "Your success is our success. We're committed to exceeding your expectations."
-    },
-    {
-      icon: Award,
-      title: "Excellence",
-      description: "We strive for the highest standards in everything we do."
-    },
-    {
-      icon: Target,
-      title: "Innovation",
-      description: "We continuously improve our processes to serve you better."
-    }
-  ];
-
-  const timeline = [
-    {
-      year: "2023",
-      title: "Company Founded",
-      description: "Started with a vision to revolutionize logistics in India"
-    },
-    {
-      year: "2024",
-      title: "Pan-India Presence",
-      description: "Extended services to 100+ cities across India"
-    },
-    {
-      year: "2025",
-      title: "Digital Transformation",
-      description: "Launched a new online booking platform"
-    },
-    {
-      year: "2026",
-      title: "Future Ready",
-      description: "Continuing to innovate and serve with excellence"
-    }
-  ];
+  const shouldReduceMotion = useReducedMotion();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="relative bg-gradient-to-r from-gray-900 to-gray-800 text-white py-24">
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
-            About Tanish Logistic
-          </motion.h1>
-          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            For over 5 years, we've been the trusted partner for businesses across India, 
-            delivering reliable logistics solutions that drive success.
-          </motion.p>
-        </div>
-      </motion.section>
+    <div className="min-h-screen bg-white text-slate-950 font-sans">
+      <SiteMetadata
+        title="About Tanish Logistic — Road Freight Built on Discipline & Trust"
+        description="Learn about Tanish Logistic's founding, mission, operating philosophy, and leadership across India's premier industrial and commercial road corridors."
+      />
 
-      {/* Stats Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: index * 0.2 }} key={index}>
-                <Card className="text-center bg-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 rounded-xl transform hover:-translate-y-2">
-                  <CardContent className="p-8">
-                    <div className="text-5xl font-extrabold text-blue-600 mb-3">{stat.number}</div>
-                    <div className="text-xl font-medium text-gray-700">{stat.label}</div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+      {/* Enterprise Page Hero */}
+      <PublicPageHero
+        eyebrow="Company Overview"
+        title="Built on Road Discipline, Proven Across Indian Corridors."
+        description="For over 5 years, Tanish Logistic has partnered with manufacturing plants, industrial enterprises, and distributors to deliver reliable, transparent B2B road transport."
+        primaryHref="/contact"
+        primaryLabel="Partner With Us"
+        secondaryHref="/services"
+        secondaryLabel="Explore Services"
+      >
+        <div className="rounded-2xl border border-white/15 bg-slate-900/80 p-6 backdrop-blur-md">
+          <p className="text-xs font-bold uppercase tracking-wider text-sky-400">Institutional Profile</p>
+          <div className="mt-4 space-y-3.5 text-xs text-slate-300">
+            <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+              <span>Operating Focus</span>
+              <strong className="text-white">Full Truckload (FTL) & Commercial B2B</strong>
+            </div>
+            <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+              <span>Primary Corridor</span>
+              <strong className="text-white">Western & Northern Highways</strong>
+            </div>
+            <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+              <span>Key Operating Hubs</span>
+              <strong className="text-white">Vadodara (GJ) & Mandi Gobindgarh (PB)</strong>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Compliance & Safety</span>
+              <strong className="text-emerald-400">100% Carrier Vetted & Insured</strong>
+            </div>
+          </div>
+        </div>
+      </PublicPageHero>
+
+      {/* Corporate Metrics Bar */}
+      <section className="border-b border-slate-200 bg-slate-50 py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:gap-12">
+            {stats.map((stat, idx) => (
+              <div key={idx} className="border-l-2 border-sky-700 pl-6">
+                <div className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-950 tabular-nums">
+                  {stat.number}
+                </div>
+                <p className="mt-1 text-sm sm:text-base font-bold text-slate-900">{stat.label}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{stat.sub}</p>
+              </div>
             ))}
           </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* Our Story */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <motion.div initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }} className="order-2 lg:order-1">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Our Story
+      {/* Photographic Story Split 1: Our Origins */}
+      <section className="py-20 sm:py-28 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            {/* Story Text */}
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+                Our Origins
+              </span>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+                Born to bring clarity and accountability to Indian road transport.
               </h2>
-              <p className="text-xl text-gray-600 mb-6 leading-relaxed">
-                Founded in 2023, Tanish Logistic began with a simple mission: to make logistics 
-                simple, reliable, and accessible for businesses across India. What started as a 
-                small fleet of trucks has grown into a comprehensive logistics solution provider.
-              </p>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Today, we serve over 1000+ clients across 100+ cities, handling everything from 
-                small packages to large industrial shipments. Our commitment to excellence and 
-                customer satisfaction has made us a trusted name in the industry.
-              </p>
-            </motion.div>
-            <motion.div initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.8 }} className="order-1 lg:order-2 bg-gray-200 rounded-2xl h-96 flex items-center justify-center shadow-xl relative">
-              <Image
-                src="/gemini1.png"
-                alt="Our Story Image"
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-contain rounded-2xl"
-              />
-            </motion.div>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mt-16">
-            <motion.div initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }} className="order-2 lg:order-2">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Our Mission
-              </h2>
-              <p className="text-xl text-gray-600 mb-6 leading-relaxed">
-                Our mission is to provide seamless, reliable, and cost-effective logistics solutions to our clients. We are committed to leveraging technology and innovation to exceed our clients' expectations and build long-term partnerships.
-              </p>
-            </motion.div>
-            <motion.div initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.8 }} className="order-1 lg:order-1 bg-gray-200 rounded-2xl h-96 flex items-center justify-center shadow-xl relative">
-              <Image
-                src="/gemini2.png"
-                alt="Our Mission Image"
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover rounded-2xl"
-              />
-            </motion.div>
+              <div className="mt-6 space-y-4 text-base leading-relaxed text-slate-600">
+                <p>
+                  Founded in 2023, Tanish Logistic began with a straightforward realization: India&apos;s industrial growth depends on road freight, yet manufacturing teams were too often left navigating unreliable brokers, surprise detention charges, and zero shipment visibility.
+                </p>
+                <p>
+                  We set out to build a transport enterprise anchored in discipline. Starting from our strategic hub in Vadodara, Gujarat, we focused on high-demand manufacturing routes where on-time arrival of raw materials, machinery, and finished goods directly dictates plant productivity.
+                </p>
+                <p>
+                  Today, Tanish Logistic manages freight movement for over 1,000 corporate clients across 100+ cities, combining experienced highway logistics with responsive customer communication.
+                </p>
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-4 text-xs font-semibold text-slate-700">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 border border-slate-200">
+                  <Check className="h-3.5 w-3.5 text-emerald-600" />
+                  GST Registered Carrier
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 border border-slate-200">
+                  <Check className="h-3.5 w-3.5 text-emerald-600" />
+                  E-Way Bill Compliance
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 border border-slate-200">
+                  <Check className="h-3.5 w-3.5 text-emerald-600" />
+                  Commercial Cargo Insurance
+                </span>
+              </div>
+            </div>
+
+            {/* Photo 1: Fleet in action */}
+            <div className="relative">
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-xl ring-1 ring-slate-900/10">
+                <Image
+                  src="/gallery/Picture4.png"
+                  alt="Fleet of delivery vehicles at logistics center"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+                <div className="absolute bottom-5 left-5 right-5 rounded-xl border border-white/20 bg-slate-900/85 p-4 text-white backdrop-blur-md">
+                  <p className="text-xs font-bold uppercase tracking-wider text-sky-400">Tanish Logistic Fleet Division</p>
+                  <p className="mt-0.5 text-sm font-semibold text-slate-200">Commercial Road Assets &bull; Western Corridor Depot</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* Our Values */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }} className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Our Core Values
+      {/* Photographic Story Split 2: Operational Rigor */}
+      <section className="py-20 sm:py-28 bg-slate-50 border-y border-slate-200">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            {/* Photo 2: Cargo loading */}
+            <div className="relative order-2 lg:order-1">
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-xl ring-1 ring-slate-900/10">
+                <Image
+                  src="/gallery/Picture3.png"
+                  alt="Cargo loading operations with safety protocols"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+                <div className="absolute bottom-5 left-5 right-5 rounded-xl border border-white/20 bg-slate-900/85 p-4 text-white backdrop-blur-md">
+                  <p className="text-xs font-bold uppercase tracking-wider text-sky-400">Cargo Handling Protocols</p>
+                  <p className="mt-0.5 text-sm font-semibold text-slate-200">Pre-Dispatch Fastening & Tarpaulin Lashing Inspection</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Text Column */}
+            <div className="order-1 lg:order-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+                Our Operating Standard
+              </span>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+                Safety, vehicle fit, and road discipline before departure.
+              </h2>
+              <div className="mt-6 space-y-4 text-base leading-relaxed text-slate-600">
+                <p>
+                  Logistics failures rarely happen on open highways; they happen at loading docks due to improper weight estimation, inadequate lashing, or mismatched truck specifications.
+                </p>
+                <p>
+                  Before any Tanish vehicle leaves origin, our operations team verifies axle weight distributions, weatherproofing tarpaulins, driver fit-to-drive checks, and destination contact protocols.
+                </p>
+                <p>
+                  This disciplined workflow is why our damage claims rate is under 0.05% and our repeat client retention rate exceeds 94%.
+                </p>
+              </div>
+
+              <div className="mt-8 grid grid-cols-2 gap-4">
+                <div className="rounded-xl border border-slate-200 bg-white p-4">
+                  <p className="text-2xl font-extrabold text-sky-700">&lt; 0.05%</p>
+                  <p className="text-xs font-bold text-slate-900 mt-1">Cargo Incident Rate</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Rigorous securing & handling</p>
+                </div>
+                <div className="rounded-xl border border-slate-200 bg-white p-4">
+                  <p className="text-2xl font-extrabold text-sky-700">94%+</p>
+                  <p className="text-xs font-bold text-slate-900 mt-1">Client Retention</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Repeat corporate freight contracts</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Freight Process Flow */}
+      <section className="py-20 sm:py-28 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center mb-14">
+            <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+              Our Working Process
+            </span>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+              From Quote to Delivery: Disciplined at Every Mile
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              The principles that guide everything we do, ensuring we deliver the best for our clients.
+            <p className="mt-4 text-base text-slate-600">
+              Every shipment moves through a standardized operational sequence designed for accountability and reliability.
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-            {values.map((value, index) => {
-              const IconComponent = value.icon;
+
+          <ProcessDraw
+            steps={[
+              {
+                number: '01',
+                title: 'Requirement Capture',
+                description: 'We assess cargo dimensions, weight, commodity type, and pickup-drop locations to recommend optimal vehicle type.',
+                tag: 'Step 1',
+              },
+              {
+                number: '02',
+                title: 'Route Planning',
+                description: 'Toll-efficient highway routing with weather and traffic checks, optimized for safe transit timelines.',
+                tag: 'Step 2',
+              },
+              {
+                number: '03',
+                title: 'Vehicle & Driver Allocation',
+                description: 'Commercial license verified drivers assigned to suitable axle-rated trucks with real-time compliance documentation.',
+                tag: 'Step 3',
+              },
+              {
+                number: '04',
+                title: 'Pickup & Securement',
+                description: 'Cargo is loaded with proper lashing, tarpaulin coverage, and weight distribution checks before departure.',
+                tag: 'Step 4',
+              },
+              {
+                number: '05',
+                title: 'Transit Monitoring',
+                description: 'Continuous GPS tracking and corridor monitoring with proactive delay communication to customers.',
+                tag: 'Step 5',
+              },
+              {
+                number: '06',
+                title: 'Delivery & Sign-off',
+                description: 'Timely delivery with photo confirmation, weighbridge verification, and customer sign-off documentation.',
+                tag: 'Step 6',
+              },
+            ]}
+          />
+        </div>
+      </section>
+      <section className="py-20 sm:py-28 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center">
+            <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+              Guiding Principles
+            </span>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+              Principles that guide every kilometer we travel.
+            </h2>
+            <p className="mt-4 text-base text-slate-600">
+              In freight transport, trust is earned shipment by shipment, mile by mile.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {values.map((val, idx) => {
+              const Icon = val.icon;
               return (
-                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5, delay: index * 0.2 }} key={index}>
-                  <Card className="text-center bg-white shadow-lg hover:shadow-2xl transition-all duration-300 rounded-xl overflow-hidden transform hover:-translate-y-2">
-                    <CardContent className="p-10">
-                      <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                        <IconComponent className="h-10 w-10 text-blue-600" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-4">{value.title}</h3>
-                      <p className="text-gray-600 text-lg">{value.description}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                <div
+                  key={idx}
+                  className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition hover:shadow-lg hover:border-slate-300 flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900 text-sky-400">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="mt-6 text-lg font-bold text-slate-950">
+                      {val.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                      {val.description}
+                    </p>
+                  </div>
+                </div>
               );
             })}
           </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* Timeline */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.8 }} className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+      {/* Corporate Journey Timeline */}
+      <section className="py-20 sm:py-28 bg-slate-50 border-t border-slate-200">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center">
+            <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
               Our Journey
+            </span>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+              Key milestones in our operational expansion.
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Key milestones in our growth story, showcasing our commitment to progress.
+            <p className="mt-4 text-base text-slate-600">
+              Consistent organic growth backed by asset investments, route depth, and satisfied corporate partners.
             </p>
           </div>
-          
-          <div className="relative">
-            {/* SVG Timeline Line */}
-            <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-full max-w-4xl h-full pointer-events-none">
-              <svg className="w-full h-full" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid meet" fill="none">
-                <motion.path
-                  d="M 200 0 L 200 800"
-                  stroke="url(#timelineGradient)"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  initial={{ pathLength: 0 }}
-                  whileInView={{ pathLength: 1 }}
-                  transition={{ duration: 1.5, ease: 'easeInOut' }}
-                  viewport={{ once: true }}
-                />
-                <defs>
-                  <linearGradient id="timelineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
-                    <stop offset="50%" stopColor="#3b82f6" stopOpacity="1" />
-                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.2" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
 
-            {/* Mobile Timeline Line */}
-            <div className="md:hidden absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-200 via-blue-500 to-blue-200" />
-
-             <div className="space-y-12 md:space-y-16">
-              {timeline.map((item, index) => (
-                  <motion.div
-                    key={index}
-                    className={`flex items-center ${index % 2 === 1 ? 'flex-row-reverse' : ''}`}
-                    initial={{ opacity: 0, x: index % 2 === 0 ? -200 : 200 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2, type: 'spring', stiffness: 100, damping: 10 }}
-                    viewport={{ once: true }}
-                  >
-                    <div className={`w-full md:w-1/2 flex ${index % 2 === 0 ? 'justify-end md:justify-end md:pr-16 pl-12 md:pl-0' : 'justify-start md:justify-start md:pl-16 pl-12'}`}>
-                      <motion.div whileHover={{ scale: 1.05, rotateY: 5 }} transition={{ duration: 0.3 }} className="w-full">
-                        <Card className="max-w-md shadow-xl hover:shadow-2xl transition-all duration-300 rounded-xl">
-                          <CardContent className="p-6 md:p-8">
-                            <div className="text-3xl font-bold text-blue-600 mb-3">{item.year}</div>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-3">{item.title}</h3>
-                            <p className="text-gray-600 text-lg">{item.description}</p>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    </div>
-                    
-                    {/* Timeline Node */}
-                    <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 w-12 h-12 bg-blue-600 rounded-full items-center justify-center relative z-10 shadow-lg">
-                      <motion.div
-                        className="absolute inset-0 rounded-full bg-blue-400"
-                        animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                      />
-                      <div className="w-4 h-4 bg-white rounded-full relative z-10" />
-                    </div>
-
-                    {/* Mobile Timeline Node */}
-                    <div className="md:hidden absolute left-6 transform -translate-x-1/2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                      <motion.div
-                        className="absolute inset-0 rounded-full bg-blue-400"
-                        animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                      />
-                      <div className="w-3 h-3 bg-white rounded-full relative z-10" />
-                    </div>
-                    
-                    <div className="hidden md:block w-1/2" />
-                  </motion.div>
+          <div className="mt-14 max-w-4xl mx-auto">
+            <div className="space-y-8">
+              {milestones.map((item, index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-[80px_1fr] sm:grid-cols-[120px_1fr] gap-6 items-start rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm"
+                >
+                  <div className="border-r border-slate-200 pr-4">
+                    <span className="text-2xl sm:text-3xl font-extrabold text-sky-700 tabular-nums">
+                      {item.year}
+                    </span>
+                    <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mt-1">
+                      Milestone
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-950">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* CTA Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 1.0 }} className="py-20 bg-blue-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h2 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 1.2 }} className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Ready to Work With Us?
-          </motion.h2>
-          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 1.4 }} className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-            Join our growing family of satisfied clients and experience the difference 
-            that 5+ years of expertise can make.
-          </motion.p>
-          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 1.6 }} className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-10 py-5 text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
-              <Link href="/contact">
-                Get Started Today
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-10 py-5 text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
-              <Link href="/services">
-                Learn More
-              </Link>
-            </Button>
-          </motion.div>
-        </div>
-      </motion.section>
+      {/* Final CTA */}
+      <FinalCta
+        eyebrow="Partner with Tanish Logistic"
+        title="Experience dependable road freight for your business."
+        description="Connect with our operations directors in Vadodara or Mandi Gobindgarh to review your shipping lanes, vehicle requirements, and pricing models."
+        primaryLabel="Contact Our Team"
+        secondaryLabel="View Transport Services"
+      />
     </div>
   );
 };

@@ -83,3 +83,4 @@ android-sdk/
 /src/generated/prisma
 .env*
 Tanish billing app
+.gstack/

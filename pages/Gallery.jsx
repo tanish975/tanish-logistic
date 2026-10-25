@@ -1,227 +1,326 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card.js';
-import { Button } from '@/components/ui/button.js';
-import { Badge } from '@/components/ui/badge.js';
-import { X, ChevronLeft, ChevronRight, ZoomIn, Download } from 'lucide-react';
-import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { X, ChevronLeft, ChevronRight, ZoomIn, Truck, Package, ArrowRight, ShieldCheck, Check } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { SiteMetadata } from '@/components/Layout/Metadata';
+import { PublicPageHero, FinalCta } from '@/components/Layout/PublicPage';
+
+const galleryImages = [
+  {
+    id: 1,
+    url: "/gallery/Picture1.jpg",
+    alt: "Commercial logistics truck traversing national highway corridor",
+    title: "Long-Haul Multi-Axle Carrier",
+    category: "Long-Haul Trucks",
+    location: "Western Expressway Corridor",
+    spec: "Heavy Freight Transit &bull; Interstate FTL",
+  },
+  {
+    id: 3,
+    url: "/gallery/Picture3.png",
+    alt: "Professional cargo loading and dock securing operation",
+    title: "Pre-Dispatch Cargo Securing",
+    category: "Cargo Operations",
+    location: "Manufacturing Loading Dock",
+    spec: "Tarpaulin Lashing & Weight Balance",
+  },
+  {
+    id: 4,
+    url: "/gallery/Picture4.png",
+    alt: "Modern fleet of commercial transport vehicles staged at depot",
+    title: "Dedicated Commercial Fleet",
+    category: "Fleet Staging",
+    location: "Regional Transport Yard",
+    spec: "Scheduled Highway Departure Fleet",
+  },
+  {
+    id: 5,
+    url: "/gallery/Picture5.jpg",
+    alt: "Tanish Logistic driver and dispatch team coordination",
+    title: "Professional Operations Crew",
+    category: "Fleet Staging",
+    location: "Dispatch Coordination Desk",
+    spec: "Commercial Driver Briefing & Checkpoints",
+  },
+  {
+    id: 6,
+    url: "/gallery/Picture6.jpg",
+    alt: "Modern transport truck undergoing mechanical safety checks",
+    title: "Pre-Trip Inspection Protocol",
+    category: "Long-Haul Trucks",
+    location: "Fleet Maintenance Bay",
+    spec: "Brake & Tire Pressure Verification",
+  },
+  {
+    id: 7,
+    url: "/gallery/Picture7.jpg",
+    alt: "Secured commercial pallets and goods ready for highway haulage",
+    title: "Industrial Palletized Staging",
+    category: "Cargo Operations",
+    location: "Factory Departure Terminal",
+    spec: "Full Truckload High-Density Cargo",
+  },
+  {
+    id: 8,
+    url: "/gallery/Picture8.jpg",
+    alt: "Interstate highway freight vehicle on north-west corridor",
+    title: "Express Highway Transit",
+    category: "Long-Haul Trucks",
+    location: "National Highway 48 Belt",
+    spec: "Non-Stop Corridor Haulage",
+  },
+  {
+    id: 10,
+    url: "/gallery/Picture10.jpg",
+    alt: "Heavy commercial carrier en route across interstate boundary",
+    title: "Interstate Corridor Dispatch",
+    category: "Long-Haul Trucks",
+    location: "Gujarat-Rajasthan Border Route",
+    spec: "Scheduled Commercial Highway Transit",
+  },
+  {
+    id: 11,
+    url: "/gallery/Picture11.jpg",
+    alt: "Tanish Logistic transport vehicle on active delivery route",
+    title: "Client Dock Arrival & Delivery",
+    category: "Fleet Staging",
+    location: "Destination Industrial Facility",
+    spec: "Safe Unloading & POD Verification",
+  },
+];
+
+const categories = [
+  "All Fleet Assets",
+  "Long-Haul Trucks",
+
+  "Cargo Operations",
+  "Fleet Staging"
+];
 
 const Gallery = () => {
+  const shouldReduceMotion = useReducedMotion();
+  const [activeCategory, setActiveCategory] = useState("All Fleet Assets");
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
+  const filteredImages = activeCategory === "All Fleet Assets"
+    ? galleryImages
+    : galleryImages.filter((img) => img.category === activeCategory);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        setSelectedImage(null);
-      }
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowRight') navigateImage('next');
+      if (e.key === 'ArrowLeft') navigateImage('prev');
     };
 
     if (selectedImage) {
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
     }
-
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
     };
-  }, [selectedImage]);
-
-  const galleryImages = [
-    {
-      id: 1,
-      url: "/gallery/Picture1.jpg",
-      alt: "Logistics truck on highway",
-      category: "All"
-    },
-    {
-      id: 2,
-      url: "/gallery/Picture2.jpg",
-      alt: "Warehouse storage facility",
-      category: "All"
-    },
-    {
-      id: 3,
-      url: "/gallery/Picture3.png",
-      alt: "Cargo loading operation",
-      category: "All"
-    },
-    {
-      id: 4,
-      url: "/gallery/Picture4.png",
-      alt: "Fleet of delivery vehicles",
-      category: "All"
-    },
-    {
-      id: 5,
-      url: "/gallery/Picture5.jpg",
-      alt: "Professional logistics team",
-      category: "All"
-    },
-    {
-      id: 6,
-      url: "/gallery/Picture6.jpg",
-      alt: "Modern transport truck",
-      category: "All"
-    },
-    {
-      id: 7,
-      url: "/gallery/Picture7.jpg",
-      alt: "Packages ready for delivery",
-      category: "All"
-    },
-    {
-      id: 8,
-      url: "/gallery/Picture8.jpg",
-      alt: "Intercity freight transport",
-      category: "All"
-    },
-    {
-      id: 9,
-      url: "/gallery/Picture9.jpg",
-      alt: "Logistics warehouse interior",
-      category: "All"
-    },
-    {
-      id: 10,
-      url: "/gallery/Picture10.jpg",
-      alt: "Commercial vehicle on route",
-      category: "All"
-    },
-    {
-      id: 11,
-      url: "/gallery/Picture11.jpg",
-      alt: "Tanish Logistic fleet operations",
-      category: "All"
-    }
-  ];
+  }, [selectedImage, selectedIndex, filteredImages]);
 
   const openLightbox = (image, index) => {
-    setSelectedImage({ ...image, index });
+    setSelectedImage(image);
+    setSelectedIndex(index);
   };
 
   const closeLightbox = () => {
     setSelectedImage(null);
+    setSelectedIndex(null);
   };
 
   const navigateImage = (direction) => {
-    if (!selectedImage) return;
-    
-    const currentIndex = selectedImage.index;
-    let newIndex;
-    
-    if (direction === 'prev') {
-      newIndex = currentIndex > 0 ? currentIndex - 1 : galleryImages.length - 1;
-    } else {
-      newIndex = currentIndex < galleryImages.length - 1 ? currentIndex + 1 : 0;
-    }
-    
-    setSelectedImage({ ...galleryImages[newIndex], index: newIndex });
+    if (selectedIndex === null) return;
+    const newIndex = direction === 'prev'
+      ? (selectedIndex - 1 + filteredImages.length) % filteredImages.length
+      : (selectedIndex + 1) % filteredImages.length;
+    setSelectedImage(filteredImages[newIndex]);
+    setSelectedIndex(newIndex);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="relative bg-gradient-to-r from-gray-900 to-gray-800 text-white py-24">
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
-            Our Fleet
-          </motion.h1>
-          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Take a look at our modern fleet, professional operations, and state-of-the-art 
-            facilities that make us India's trusted logistics partner.
-          </motion.p>
-        </div>
-      </motion.section>
+    <div className="min-h-screen bg-white text-slate-950 font-sans">
+      <SiteMetadata
+        title="Fleet & Infrastructure Gallery — Tanish Logistic"
+        description="View Tanish Logistic's commercial fleet, commercial vehicle fleet, cargo securing procedures, and highway transport operations across India."
+      />
 
-      {/* Gallery Grid */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {galleryImages.map((image, index) => (
-              <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5, delay: index * 0.1 }} key={image.id}>
-                <Card 
-                  className="overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 group rounded-xl transform hover:-translate-y-2"
-                  onClick={() => openLightbox(image, index)}>
-                  <CardContent className="p-0 relative">
-                    <div className="relative overflow-hidden h-64">
-                                            <Image
-                                              src={image.url}
-                                               alt={image.alt}
-                                              fill
-                                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                              className="object-cover transition-transform duration-300 group-hover:scale-110"
-                                            />                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-                        <ZoomIn className="h-12 w-12 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+      {/* Enterprise Page Hero */}
+      <PublicPageHero
+        eyebrow="Fleet & Operations"
+        title="Our Transport Assets & Highway Operations in Action."
+        description="Take an inside look at our modern commercial carriers, cargo fastening protocols, and disciplined road transit across India."
+        primaryLabel="Inquire About Fleet"
+        secondaryHref="/book"
+        secondaryLabel="Book Transport Online"
+      >
+        <div className="rounded-2xl border border-white/15 bg-slate-900/80 p-6 backdrop-blur-md">
+          <p className="text-xs font-bold uppercase tracking-wider text-sky-400">Fleet Quality Standards</p>
+          <div className="mt-4 space-y-3.5 text-xs text-slate-300">
+            <div className="flex items-center gap-3">
+              <Check className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span>Multi-axle, container, and open-body commercial vehicles</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Check className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span>Mandatory pre-trip mechanical and tarpaulin waterproofing audit</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Check className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span>Pan-India GPS tracking on active highway corridors</span>
+            </div>
+          </div>
+        </div>
+      </PublicPageHero>
+
+      {/* Gallery Filter & Grid Section */}
+      <section className="py-20 sm:py-28 bg-slate-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Category Filter Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2 pb-10">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setActiveCategory(cat)}
+                className={`rounded-full px-5 py-2 text-xs sm:text-sm font-semibold transition ${
+                  activeCategory === cat
+                    ? 'bg-slate-900 text-white shadow-md'
+                    : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 hover:text-slate-950'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Photo Bento / Grid */}
+          <div className="mt-6 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredImages.map((image, index) => (
+              <motion.article
+                key={image.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.35, delay: shouldReduceMotion ? 0 : index * 0.05 }}
+                className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:border-slate-300 flex flex-col justify-between"
+              >
+                <div
+                  onClick={() => openLightbox(image, index)}
+                  className="relative aspect-[16/11] cursor-pointer overflow-hidden bg-slate-100"
+                >
+                  <Image
+                    src={image.url}
+                    alt={image.alt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="rounded-full bg-slate-900/80 p-3 text-white backdrop-blur shadow-lg">
+                      <ZoomIn className="h-5 w-5" />
+                    </span>
+                  </div>
+                  <div className="absolute top-3 left-3 rounded-md bg-slate-900/80 px-2.5 py-1 text-[11px] font-bold text-sky-300 backdrop-blur">
+                    {image.category}
+                  </div>
+                </div>
+
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-slate-950 leading-snug">
+                    {image.title}
+                  </h3>
+                  <p className="mt-1.5 text-xs text-slate-500 font-medium">
+                    {image.location}
+                  </p>
+                  <div className="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-600 font-medium">
+                    <span dangerouslySetInnerHTML={{ __html: image.spec }} />
+                  </div>
+                </div>
+              </motion.article>
             ))}
           </div>
         </div>
-      </motion.section>
+      </section>
 
       {/* Lightbox Modal */}
       {selectedImage && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="relative w-full max-w-4xl max-h-full">
-            {/* Close Button */}
-            <button
-              onClick={closeLightbox}
-              className="absolute -top-12 right-0 text-white bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full w-12 h-12 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:rotate-90 z-10"
-              aria-label="Close lightbox">
-              <X className="h-6 w-6" />
-            </button>
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Image preview modal"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md"
+        >
+          <button
+            type="button"
+            onClick={closeLightbox}
+            aria-label="Close image preview"
+            className="absolute top-6 right-6 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition"
+          >
+            <X className="h-6 w-6" />
+          </button>
 
-            {/* Navigation Buttons */}
-            <button
-              onClick={() => navigateImage('prev')}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white bg-black/50 rounded-full p-3 hover:bg-black/70 transition-all z-10">
-              <ChevronLeft className="h-8 w-8" />
-            </button>
-            
-            <button
-              onClick={() => navigateImage('next')}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white bg-black/50 rounded-full p-3 hover:bg-black/70 transition-all z-10">
-              <ChevronRight className="h-8 w-8" />
-            </button>
+          <button
+            type="button"
+            onClick={() => navigateImage('prev')}
+            aria-label="Previous image"
+            className="absolute left-4 sm:left-8 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
 
-            {/* Image */}
-            <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.3 }} className="w-full h-full flex items-center justify-center">
-                            <Image
-                              src={selectedImage.url}
-                               alt={selectedImage.alt}
-                              fill
-                              sizes="100vw"
-                              className="object-contain rounded-lg shadow-2xl"
-                            />            </motion.div>
+          <button
+            type="button"
+            onClick={() => navigateImage('next')}
+            aria-label="Next image"
+            className="absolute right-4 sm:right-8 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
 
-            {/* Image Info */}
-            <div className="absolute bottom-4 left-4 right-4 text-white bg-black/60 rounded-lg p-4">
-              <div className="flex justify-between items-center">
+          <div className="relative max-h-[85vh] max-w-4xl overflow-hidden rounded-2xl bg-slate-900 border border-white/15 shadow-2xl">
+            <div className="relative h-[60vh] w-[80vw] max-w-3xl">
+              <Image
+                src={selectedImage.url}
+                alt={selectedImage.alt}
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+            <div className="bg-slate-950/90 p-5 text-white border-t border-white/10">
+              <div className="flex items-center justify-between">
                 <div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span className="text-lg">
-                    {selectedImage.index + 1} / {galleryImages.length}
+                  <span className="text-xs font-bold uppercase tracking-wider text-sky-400">
+                    {selectedImage.category} &bull; {selectedImage.location}
                   </span>
-                  <a
-                    href={selectedImage.url}
-                    download
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-white/20 rounded-full p-3 hover:bg-white/30 transition-all">
-                    <Download className="h-6 w-6" />
-                  </a>
+                  <h3 className="text-lg font-bold text-white mt-0.5">
+                    {selectedImage.title}
+                  </h3>
                 </div>
+                <span className="text-xs text-slate-400 font-mono">
+                  {selectedIndex + 1} of {filteredImages.length}
+                </span>
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
+
+      {/* Final CTA */}
+      <FinalCta
+        eyebrow="Fleet Deployment"
+        title="Ready to deploy dedicated commercial vehicles for your freight?"
+        description="Tell us your cargo requirements and shipping frequency. Our fleet operations team will configure the right chassis and schedule."
+        primaryLabel="Contact Fleet Dispatch"
+        secondaryLabel="Book Transport Online"
+      />
     </div>
   );
 };

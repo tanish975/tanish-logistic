@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import Papa from 'papaparse';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 
 const ReportsView = () => {
+  const shouldReduceMotion = useReducedMotion();
     const [bookings, setBookings] = useState([]);
     const [filteredBookings, setFilteredBookings] = useState([]);
     const [startDate, setStartDate] = useState('');
@@ -70,7 +71,7 @@ const ReportsView = () => {
     };
 
     return (
-        <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} id="reports-section">
+        <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} id="reports-section">
             <div className="mb-8">
                 <h2 className="text-3xl font-bold text-gray-800 mb-2">Reports & Export</h2>
                 <p className="text-gray-600">Generate and export booking reports.</p>

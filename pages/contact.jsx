@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Phone, Mail, MapPin, Clock, Send, Loader2, Star, ThumbsUp } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Phone, Mail, MapPin, Clock, Send, Loader2, Star, ThumbsUp, Building2, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { SiteMetadata } from '@/components/Layout/Metadata';
+import { PublicPageHero, FinalCta } from '@/components/Layout/PublicPage';
+import { MovingTruckLoader } from '@/components/Animations/MovingTruckLoader';
 
 const Contact = () => {
+  const shouldReduceMotion = useReducedMotion();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,49 +24,16 @@ const Contact = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const contactInfo = [
-    {
-      icon: Phone,
-      title: "Phone",
-      details: ["+91 6351255716", "+91 9924204744"],
-      color: "text-blue-500"
-    },
-    {
-      icon: Mail,
-      title: "Email",
-      details: ["tanishlogistic744@gmail.com"],
-      color: "text-green-500"
-    },
-    {
-      icon: MapPin,
-      title: "Head Office",
-      details: ["House No. 393, Sector 2, Block B", "Adarsh Nagar, Nr. Mata Rani Mandir", "Mandi Gobind Garh, FGS, Punjab"],
-      color: "text-red-500"
-    },
-    {
-      icon: MapPin,
-      title: "Branch Office",
-      details: ["Shop No. 04, Udandeep Complex", "B/h. Nityanand Complex, Opp. Essar Petrol Pump", "Tarsali, Sussen Road", "Vadodara - 390009, India"],
-      color: "text-orange-500"
-    },
-    {
-      icon: Clock,
-      title: "Business Hours",
-      details: ["Mon - Sat: 9:00 AM - 6:00 PM", "Sun: 9:00 AM - 2:00 PM"],
-      color: "text-purple-500"
-    }
-  ];
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
   const handleSelectChange = (value) => {
-    setFormData(prev => ({ ...prev, service: value }));
+    setFormData((prev) => ({ ...prev, service: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -92,10 +62,10 @@ const Contact = () => {
     });
 
     toast.promise(promise, {
-      loading: 'Sending your message...',
-      success: (data) => {
+      loading: 'Sending freight inquiry...',
+      success: () => {
         setFormData({ name: '', email: '', phone: '', company: '', service: '', message: '', newsletter: false });
-        return 'Message sent successfully!';
+        return 'Inquiry sent! Our operations desk will respond shortly.';
       },
       error: (err) => err.message || 'Failed to send message. Please try again.',
     }).finally(() => {
@@ -104,153 +74,278 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Toaster position="top-center" reverseOrder={false} />
-      {/* Hero Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="relative bg-gradient-to-r from-gray-900 to-gray-800 text-white py-24">
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
-            Contact Us
-          </motion.h1>
-          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Get in touch with our team for any logistics needs, quotes, or inquiries. 
-            We're here to help you succeed.
-          </motion.p>
-        </div>
-      </motion.section>
+    <div className="min-h-screen bg-white text-slate-950 font-sans">
+      <SiteMetadata
+        title="Contact & Operating Hubs — Tanish Logistic | Freight Support"
+        description="Contact Tanish Logistic. Direct dispatch lines in Vadodara (Gujarat) and Mandi Gobindgarh (Punjab). Request a freight quote or track your shipment."
+      />
+      <Toaster position="top-right" reverseOrder={false} />
+      {isSubmitting && (
+        <MovingTruckLoader
+          text="Dispatching Freight Inquiry..."
+          subtext="Connecting to Tanish Logistic operations desk..."
+        />
+      )}
 
-      {/* Contact Information */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Get in Touch
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Multiple ways to reach us for your convenience.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-20">
-            {contactInfo.map((info, index) => {
-              const IconComponent = info.icon;
-              return (
-                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5, delay: index * 0.2 }} key={index}>
-                  <Card className="text-center bg-white shadow-lg hover:shadow-2xl transition-all duration-300 rounded-xl overflow-hidden transform hover:-translate-y-2 h-full">
-                    <CardContent className="p-6">
-                      <div className={`w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner`}>
-                        <IconComponent className={`h-8 w-8 ${info.color}`} />
-                      </div>
-                       <h3 className="text-xl font-bold text-gray-900 mb-3">{info.title}</h3>
-                       <div className="space-y-1">
-                         {info.details.map((detail, idx) => (
-                           info.title === "Phone" ? (
-                             <a key={idx} href={`tel:${detail.replace(/\s+/g, '')}`} className="block text-gray-600 text-sm hover:text-blue-600 transition-colors">
-                               {detail}
-                             </a>
-                           ) : (
-                             <p key={idx} className="text-gray-600 text-sm">{detail}</p>
-                           )
-                         ))}
-                       </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
+      {/* Enterprise Page Hero */}
+      <PublicPageHero
+        eyebrow="Direct Communications"
+        title="Connect With Our Transport Operations & Dispatch Desks."
+        description="Whether booking new lane capacity, requesting a tailored freight quote, or coordinating an active highway shipment, our leadership team is readily accessible."
+        primaryLabel="Call Dispatch Desk"
+        primaryHref="tel:+919924204744"
+        secondaryHref="/book"
+        secondaryLabel="Book Transport Online"
+      >
+        <div className="rounded-2xl border border-white/15 bg-slate-900/80 p-6 backdrop-blur-md">
+          <p className="text-xs font-bold uppercase tracking-wider text-sky-400">Response Standards</p>
+          <div className="mt-4 space-y-3.5 text-xs text-slate-300">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span>Quotes delivered within 2 hours of inquiry</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span>Direct lines to commercial operations managers</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span>Dedicated dispatch hotline active 24/7 for shipments</span>
+            </div>
           </div>
         </div>
-      </motion.section>
+      </PublicPageHero>
 
-      {/* Contact Form */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }}>
-            <Card className="shadow-2xl rounded-2xl overflow-hidden">
-              <CardHeader className="text-center bg-gray-800 text-white p-10">
-                <CardTitle className="text-4xl font-bold">Send us a Message</CardTitle>
-                <p className="text-gray-300 text-lg mt-2">We'll get back to you within 24 hours</p>
-              </CardHeader>
-              <CardContent className="p-10">
-                <form onSubmit={handleSubmit} className="space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="text-lg font-medium">Full Name *</Label>
-                      <Input id="name" name="name" type="text" required value={formData.name} onChange={handleChange} className="p-4 text-lg" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-lg font-medium">Email Address *</Label>
-                      <Input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} className="p-4 text-lg" />
+      {/* Main Contact Section: Hubs & Form Split */}
+      <section className="py-20 sm:py-28 bg-slate-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-start">
+            {/* Left: Operating Hubs & Direct Channels */}
+            <div className="space-y-8">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-widest text-sky-700">Operating Offices</span>
+                <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+                  Strategic Hub Locations in Punjab & Gujarat.
+                </h2>
+                <p className="mt-3 text-base text-slate-600 leading-relaxed">
+                  Our dual hub structure connects the northern industrial heartland directly with western manufacturing and port corridors.
+                </p>
+              </div>
+
+              {/* Head Office Card */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-sky-400">
+                    <Building2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700">Registered Corporate Head Office</span>
+                    <h3 className="mt-1 text-lg font-bold text-slate-950">Mandi Gobindgarh (Punjab)</h3>
+                    <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+                      House No. 393, Sector 2, Block B, Adarsh Nagar, Near Mata Rani Mandir, Mandi Gobind Garh, FGS, Punjab, India
+                    </p>
+                    <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-4 text-xs font-bold text-slate-700">
+                      <a href="tel:+919924204744" className="inline-flex items-center gap-1.5 hover:text-sky-700">
+                        <Phone className="h-3.5 w-3.5 text-sky-600" />
+                        +91 9924204744
+                      </a>
                     </div>
                   </div>
+                </div>
+              </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-lg font-medium">Phone Number</Label>
-                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} className="p-4 text-lg" pattern="[0-9]{10,15}" maxLength={15} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="company" className="text-lg font-medium">Company Name</Label>
-                      <Input id="company" name="company" type="text" value={formData.company} onChange={handleChange} className="p-4 text-lg" />
+              {/* Branch Office Card */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-emerald-400">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Western Operations & Logistics Branch</span>
+                    <h3 className="mt-1 text-lg font-bold text-slate-950">Vadodara (Gujarat)</h3>
+                    <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+                      Shop No. 04, Udandeep Complex, B/h. Nityanand Complex, Opp. Essar Petrol Pump, Tarsali, Sussen Road, Vadodara - 390009, India
+                    </p>
+                    <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-4 text-xs font-bold text-slate-700">
+                      <a href="tel:+919924204744" className="inline-flex items-center gap-1.5 hover:text-sky-700">
+                        <Phone className="h-3.5 w-3.5 text-sky-600" />
+                        +91 9924204744
+                      </a>
+                      <a href="mailto:tanishlogistic744@gmail.com" className="inline-flex items-center gap-1.5 hover:text-sky-700">
+                        <Mail className="h-3.5 w-3.5 text-sky-600" />
+                        tanishlogistic744@gmail.com
+                      </a>
                     </div>
                   </div>
+                </div>
+              </div>
 
+              {/* Operating Hours & Dispatch Notice */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-950">Operating Hours & Support</h3>
+                    <div className="mt-2 text-sm text-slate-600 space-y-1">
+                      <p><strong>Commercial Desk:</strong> Mon &ndash; Sat: 9:00 AM &ndash; 6:00 PM</p>
+                      <p><strong>Sunday Dispatch:</strong> 9:00 AM &ndash; 2:00 PM</p>
+                      <p className="text-xs text-sky-700 font-semibold pt-1">
+                        &bull; Active Highway Fleet Monitoring: Open 24 Hours / 7 Days
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Clean Enterprise Inquiry Form */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 sm:p-10 shadow-sm">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-sky-700">Inquiry Form</span>
+                <h3 className="mt-1 text-2xl font-extrabold text-slate-950">Send a Commercial Freight Request</h3>
+                <p className="mt-1.5 text-sm text-slate-600">Fill in your requirements and our route coordinators will follow up with competitive pricing.</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-2">
-                    <Label htmlFor="service" className="text-lg font-medium">Service Interested In</Label>
-                    <Select name="service" value={formData.service} onValueChange={handleSelectChange}>
-                      <SelectTrigger className="p-4 text-lg">
-                        <SelectValue placeholder="Select a service" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="intercity">Intercity Freight</SelectItem>
-                        <SelectItem value="b2b">B2B Cargo Movement</SelectItem>
-                        <SelectItem value="fleet">Fleet Transport</SelectItem>
-                        <SelectItem value="contract">Contract Logistics</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="name" className="text-sm font-bold text-slate-900">Full Name *</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="e.g. John Doe"
+                      className="h-12 border-slate-300"
+                    />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="message" className="text-lg font-medium">Message *</Label>
-                    <Textarea id="message" name="message" rows={6} required value={formData.message} onChange={handleChange} placeholder="Tell us about your logistics needs..." className="p-4 text-lg" />
+                    <Label htmlFor="email" className="text-sm font-bold text-slate-900">Email Address *</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="you@company.com"
+                      className="h-12 border-slate-300"
+                    />
                   </div>
+                </div>
 
-                  <div className="flex items-center space-x-3">
-                    <input type="checkbox" id="newsletter" name="newsletter" checked={formData.newsletter} onChange={handleChange} className="h-5 w-5 rounded text-blue-600 focus:ring-blue-500" />
-                    <Label htmlFor="newsletter" className="text-lg text-gray-600">
-                      Subscribe to our newsletter for logistics updates and tips
-                    </Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-sm font-bold text-slate-900">Phone Number *</Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      required
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="+91 98765 43210"
+                      className="h-12 border-slate-300"
+                    />
                   </div>
-                  
-                  <Button type="submit" size="lg" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-700 text-white p-5 text-xl font-bold shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                    {isSubmitting ? (
-                      <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-                    ) : (
-                      <Send className="mr-3 h-6 w-6" />
-                    )}
-                    {isSubmitting ? 'Sending...' : 'Send Message'}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </motion.div>
+                  <div className="space-y-2">
+                    <Label htmlFor="company" className="text-sm font-bold text-slate-900">Company Name</Label>
+                    <Input
+                      id="company"
+                      name="company"
+                      type="text"
+                      value={formData.company}
+                      onChange={handleChange}
+                      placeholder="e.g. Acme Industrial Ltd."
+                      className="h-12 border-slate-300"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="service" className="text-sm font-bold text-slate-900">Service Category</Label>
+                  <Select name="service" value={formData.service} onValueChange={handleSelectChange}>
+                    <SelectTrigger className="h-12 border-slate-300">
+                      <SelectValue placeholder="Select freight service" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Full Truck Load (FTL)">Full Truckload (FTL) Transport</SelectItem>
+                      <SelectItem value="B2B Industrial Cargo">B2B Industrial & Bulk Cargo</SelectItem>
+                      <SelectItem value="Dedicated Contract Fleet">Dedicated Contract Fleet</SelectItem>
+                      <SelectItem value="Express Highway Dispatch">Express Highway Dispatch</SelectItem>
+                      <SelectItem value="Other Logistics Request">Other Transport Inquiry</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="message" className="text-sm font-bold text-slate-900">Freight Requirements & Route Details *</Label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    rows={4}
+                    required
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder="Origin, destination, cargo type, tonnage, expected dispatch timeline..."
+                    className="border-slate-300"
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={isSubmitting}
+                  className="w-full h-12 bg-sky-700 hover:bg-sky-800 text-white font-bold text-base shadow-sm transition"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      <span>Transmitting Inquiry...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      <span>Submit Freight Inquiry</span>
+                    </>
+                  )}
+                </Button>
+
+                <p className="text-center text-xs text-slate-500">
+                  We treat all shipping and pricing data strictly confidentially.
+                </p>
+              </form>
+            </div>
+          </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* Public Review Form - Rate Our Service */}
+      {/* Clean Corporate Review Form Section */}
       <ReviewForm />
+
+      {/* Final CTA */}
+      <FinalCta
+        eyebrow="Immediate Transport Assistance"
+        title="Prefer to speak directly with an operations coordinator?"
+        description="Call our Vadodara or Punjab hub desks to discuss immediate capacity, recurring routes, or corporate contract terms."
+        primaryLabel="Call +91 9924204744"
+        secondaryLabel="Book Transport Online"
+      />
     </div>
   );
 };
 
-// Public Review Form Component
+// Clean Corporate Review Form Component
 const ReviewForm = () => {
+  const shouldReduceMotion = useReducedMotion();
   const [reviewData, setReviewData] = useState({
     name: '',
     rating: 5,
-    comment: ''
+    comment: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -266,14 +361,14 @@ const ReviewForm = () => {
         body: JSON.stringify({
           ...reviewData,
           isPublic: true,
-          platform: 'Site'
-        })
+          platform: 'Site',
+        }),
       });
 
       if (!response.ok) throw new Error('Failed to submit review');
 
       setSubmitted(true);
-      toast.success('Thank you for your review! It helps us improve our service.');
+      toast.success('Thank you for your rating & feedback!');
     } catch (error) {
       toast.error('Failed to submit review. Please try again.');
     } finally {
@@ -283,102 +378,95 @@ const ReviewForm = () => {
 
   if (submitted) {
     return (
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-20 bg-gradient-to-r from-green-50 to-blue-50">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Card className="shadow-2xl rounded-2xl overflow-hidden">
-            <CardContent className="p-12">
-              <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <ThumbsUp className="h-12 w-12 text-green-600" />
-              </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-4">Thank You!</h3>
-              <p className="text-xl text-gray-600 mb-6">Your review has been submitted successfully.</p>
-              <p className="text-gray-500">We appreciate your feedback and it helps us serve you better.</p>
-            </CardContent>
-          </Card>
+      <section className="py-16 bg-white border-t border-slate-200">
+        <div className="max-w-xl mx-auto px-4 text-center">
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-8">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 mx-auto mb-4">
+              <ThumbsUp className="h-7 w-7" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-950">Feedback Received</h3>
+            <p className="mt-2 text-sm text-slate-600">Thank you for rating our road freight service. Your feedback helps maintain our high SLA standards.</p>
+          </div>
         </div>
-      </motion.section>
+      </section>
     );
   }
 
   return (
-    <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-20 bg-gradient-to-r from-blue-50 to-purple-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }}>
-          <Card className="shadow-2xl rounded-2xl overflow-hidden border-2 border-blue-200">
-            <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8">
-              <CardTitle className="text-3xl font-bold">Rate Our Service</CardTitle>
-              <p className="text-blue-100 text-lg mt-2">Share your experience with Tanish Logistic</p>
-            </CardHeader>
-            <CardContent className="p-10">
-              <form onSubmit={handleSubmitReview} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="reviewName" className="text-lg font-medium">Your Name</Label>
-                  <Input 
-                    id="reviewName" 
-                    type="text" 
-                    required 
-                    value={reviewData.name} 
-                    onChange={(e) => setReviewData({...reviewData, name: e.target.value})} 
-                    placeholder="Enter your name" 
-                    className="p-4 text-lg border-2 border-gray-200 focus:border-blue-500" 
-                  />
-                </div>
+    <section className="py-20 bg-white border-t border-slate-200">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 sm:p-10 shadow-sm">
+          <div className="text-center">
+            <span className="text-xs font-bold uppercase tracking-widest text-sky-700">Client Feedback</span>
+            <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-950">Rate Your Experience With Us</h2>
+            <p className="mt-2 text-sm text-slate-600">We appreciate insights from our corporate partners and shippers.</p>
+          </div>
 
-                <div className="space-y-2">
-                  <Label className="text-lg font-medium">Your Rating *</Label>
-                  <div className="flex items-center gap-2 py-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setReviewData({...reviewData, rating: star})}
-                        className={`p-2 transition-transform hover:scale-110 ${star <= reviewData.rating ? 'text-yellow-400' : 'text-gray-300'}`}
-                      >
-                        <Star className="h-10 w-10 fill-current" />
-                      </button>
-                    ))}
-                    <span className="ml-4 text-2xl font-bold text-gray-700">
-                      {reviewData.rating}/5
-                    </span>
-                  </div>
-                </div>
+          <form onSubmit={handleSubmitReview} className="mt-8 space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="reviewName" className="text-sm font-bold text-slate-900">Your Name / Organization *</Label>
+              <Input
+                id="reviewName"
+                type="text"
+                required
+                value={reviewData.name}
+                onChange={(e) => setReviewData({ ...reviewData, name: e.target.value })}
+                placeholder="e.g. Ramesh Patel, Shreenath Metals"
+                className="h-12 border-slate-300"
+              />
+            </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="reviewComment" className="text-lg font-medium">Your Review *</Label>
-                  <Textarea 
-                    id="reviewComment" 
-                    rows={5} 
-                    required 
-                    value={reviewData.comment} 
-                    onChange={(e) => setReviewData({...reviewData, comment: e.target.value})} 
-                    placeholder="Tell us about your experience with our logistics services..." 
-                    className="p-4 text-lg border-2 border-gray-200 focus:border-blue-500" 
-                  />
-                </div>
-                
-                <Button 
-                  type="submit" 
-                  size="lg" 
-                  disabled={isSubmitting} 
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-5 text-xl font-bold shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-                  ) : (
-                    <ThumbsUp className="mr-3 h-6 w-6" />
-                  )}
-                  {isSubmitting ? 'Submitting...' : 'Submit Review'}
-                </Button>
+            <div className="space-y-2">
+              <Label className="text-sm font-bold text-slate-900">Your Service Rating *</Label>
+              <div className="flex items-center gap-1.5 py-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setReviewData({ ...reviewData, rating: star })}
+                    aria-label={`Rate ${star} out of 5 stars`}
+                    className={`p-1.5 transition ${star <= reviewData.rating ? 'text-amber-400' : 'text-slate-200 hover:text-amber-300'}`}
+                  >
+                    <Star className="h-8 w-8 fill-current" />
+                  </button>
+                ))}
+                <span className="ml-3 text-lg font-bold text-slate-800 tabular-nums">
+                  {reviewData.rating} / 5 Stars
+                </span>
+              </div>
+            </div>
 
-                <p className="text-center text-gray-500 text-sm">
-                  Your review will help us improve our services and help other customers make informed decisions.
-                </p>
-              </form>
-            </CardContent>
-          </Card>
-        </motion.div>
+            <div className="space-y-2">
+              <Label htmlFor="reviewComment" className="text-sm font-bold text-slate-900">Feedback or Review Comments *</Label>
+              <Textarea
+                id="reviewComment"
+                rows={4}
+                required
+                value={reviewData.comment}
+                onChange={(e) => setReviewData({ ...reviewData, comment: e.target.value })}
+                placeholder="Share your experience regarding driver discipline, on-time delivery, route communication..."
+                className="border-slate-300"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base transition"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <span>Submitting Review...</span>
+                </>
+              ) : (
+                <span>Submit Service Review</span>
+              )}
+            </Button>
+          </form>
+        </div>
       </div>
-    </motion.section>
+    </section>
   );
 };
 

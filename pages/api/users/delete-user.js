@@ -1,11 +1,7 @@
-import { withSessionRoute } from '@/lib/session';
+import { withAdminRoute } from '@/lib/session';
 import prisma from '@/lib/prisma';
 
-export default withSessionRoute(async function deleteUserRoute(req, res) {
-    if (!req.session.user) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-
+export default withAdminRoute(async function deleteUserRoute(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).end();
     }
@@ -15,8 +11,7 @@ export default withSessionRoute(async function deleteUserRoute(req, res) {
     if (!id) {
         return res.status(400).json({ message: 'User ID is required.' });
     }
-    
-    // Prevent admin from deleting themselves
+
     if (id === req.session.user.id) {
         return res.status(403).json({ message: 'You cannot delete your own account.' });
     }

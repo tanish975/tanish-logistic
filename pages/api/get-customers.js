@@ -1,6 +1,7 @@
+import { withAdminRoute } from '@/lib/session';
 import prisma from '@/lib/prisma';
 
-export default async function handler(req, res) {
+export default withAdminRoute(async function getCustomersRoute(req, res) {
     if (req.method !== 'GET') {
         res.setHeader('Allow', ['GET']);
         return res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -28,10 +29,10 @@ export default async function handler(req, res) {
             }
 
             customers[key].totalBookings += 1;
-            
+
             const bookingDate = new Date(booking.createdAt || booking.date);
             const lastDateString = customers[key].lastBookingDate;
-            
+
             if (lastDateString === 'N/A' || bookingDate > new Date(lastDateString)) {
                 customers[key].lastBookingDate = bookingDate.toISOString().split('T')[0];
             }
@@ -44,4 +45,4 @@ export default async function handler(req, res) {
     } catch (error) {
         res.status(500).json({ message: 'Internal Server Error' });
     }
-}
+});

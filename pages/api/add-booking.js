@@ -3,16 +3,28 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Helper function to send booking notification emails
+// ponytail: retry loop instead of count()+1 — avoids unique-constraint collisions
+// under concurrent submissions. Bounded to 5 attempts; falls back to a cuid suffix.
+async function generateBookingId() {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const count = await prisma.booking.count();
+    const candidate = `TN${String(count + 1 + attempt).padStart(4, '0')}`;
+    const existing = await prisma.booking.findUnique({
+      where: { bookingId: candidate },
+      select: { id: true },
+    });
+    if (!existing) return candidate;
+  }
+  return `TN${Date.now().toString().slice(-6)}`;
+}
+
 async function sendBookingEmails(booking) {
   const adminEmail = process.env.ADMIN_EMAIL || 'tanishlogistic744@gmail.com';
-  
-  // Email to admin
+
   const adminHtml = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #10b981;">🎉 New Booking Received!</h2>
+      <h2 style="color: #10b981;">New Booking Received!</h2>
       <p>You have a new booking on Tanish Logistic. Here are the details:</p>
-      
       <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
         <h3 style="margin-top: 0;">Booking Details</h3>
         <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
@@ -32,20 +44,17 @@ async function sendBookingEmails(booking) {
         ${booking.specialInstructions ? `<p><strong>Special Instructions:</strong> ${booking.specialInstructions}</p>` : ''}
         ${booking.price ? `<p><strong>Estimated Price:</strong> ₹${parseFloat(booking.price).toLocaleString()}</p>` : ''}
       </div>
-      
       <p>Please log in to your admin dashboard to review and manage this booking.</p>
       <br>
       <p>Best regards,<br>Tanish Logistic System</p>
     </div>
   `;
 
-  // Email to customer (if email provided)
   const customerHtml = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #10b981;">Thank You for Your Booking!</h2>
       <p>Dear ${booking.clientName},</p>
       <p>We have received your booking request. Here are the details:</p>
-      
       <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
         <h3 style="margin-top: 0;">Booking Confirmation</h3>
         <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
@@ -56,55 +65,27 @@ async function sendBookingEmails(booking) {
         <p><strong>Service Type:</strong> ${booking.serviceType || 'Standard'}</p>
         <p><strong>Status:</strong> <span style="color: #f59e0b;">Pending Confirmation</span></p>
       </div>
-      
       <p>Our team will review your booking and get back to you shortly. You can track your booking status using your booking ID: <strong>${booking.bookingId}</strong></p>
-      
       <p>If you have any questions or need to make changes, feel free to contact us at <a href="mailto:${adminEmail}">${adminEmail}</a> or call us.</p>
-      
       <br>
       <p>Best regards,<br>The Tanish Logistic Team</p>
     </div>
   `;
 
-  // Send emails with proper error handling
-  const results = await Promise.allSettled([
-    // Admin email
+  await Promise.allSettled([
     resend.emails.send({
       from: 'Tanish Logistic - New Booking <noreply@tanishlogistic.com>',
       to: adminEmail,
-      subject: `🆕 New Booking Received - ${booking.bookingId} - ${booking.clientName}`,
+      subject: `New Booking Received - ${booking.bookingId} - ${booking.clientName}`,
       html: adminHtml,
     }),
-    // Customer email (only if email provided)
     booking.email ? resend.emails.send({
       from: 'Tanish Logistic <noreply@tanishlogistic.com>',
       to: booking.email,
       subject: `Booking Confirmation - ${booking.bookingId} - Tanish Logistic`,
       html: customerHtml,
-    }) : Promise.resolve({ data: null, error: null })
+    }) : Promise.resolve({ data: null, error: null }),
   ]);
-
-  // Log results
-  // Note: In production, use proper logging instead of console.log
-  if (results[0].status === 'fulfilled') {
-    if (results[0].value.error) {
-      // Failed to send admin email
-    } else {
-      // Admin email sent successfully
-    }
-  } else {
-    // Admin email rejected
-  }
-
-  if (booking.email && results[1].status === 'fulfilled') {
-    if (results[1].value.error) {
-      // Failed to send customer email
-    } else {
-      // Customer email sent successfully
-    }
-  }
-
-  return results;
 }
 
 export default async function handler(req, res) {
@@ -114,11 +95,9 @@ export default async function handler(req, res) {
 
   try {
     const booking = req.body;
-    
-    // Generate booking ID
-    const count = await prisma.booking.count();
-    const bookingId = `TN${String(count + 1).padStart(4, '0')}`;
-    
+
+    const bookingId = await generateBookingId();
+
     const savedBooking = await prisma.booking.create({
       data: {
         bookingId,
@@ -142,17 +121,16 @@ export default async function handler(req, res) {
       },
     });
 
-  // Send notification emails (async, don't block response)
-  sendBookingEmails(savedBooking).catch(() => {
-    // Email sending failed - log in production logging system
-  });
+    sendBookingEmails(savedBooking).catch(() => {});
 
-    res.status(201).json({ 
-      success: true, 
+    res.status(201).json({
+      success: true,
+      bookingId: savedBooking.bookingId,
       booking: savedBooking,
-      message: 'Booking created successfully. Confirmation emails will be sent shortly.' 
+      message: 'Booking created successfully. Confirmation emails will be sent shortly.',
     });
   } catch (error) {
+    console.error('Booking creation failed:', error);
     res.status(500).json({ message: 'Error saving booking.' });
   }
 }

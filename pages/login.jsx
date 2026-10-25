@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SiteMetadata } from '@/components/Layout/Metadata';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -35,7 +36,11 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4 pt-24 pb-12">
+      <SiteMetadata
+        title="Admin login — Tanish Logistic"
+        description="Sign in to the Tanish Logistic admin dashboard to manage bookings, routes, customers, reviews, and settings."
+      />
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Admin Login</CardTitle>
@@ -49,7 +54,8 @@ const LoginPage = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@example.com"
+                placeholder="admin@example.com…"
+                autoComplete="email"
                 required
               />
             </div>
@@ -60,7 +66,8 @@ const LoginPage = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="adminpassword"
+                placeholder="adminpassword…"
+                autoComplete="current-password"
                 required
               />
             </div>

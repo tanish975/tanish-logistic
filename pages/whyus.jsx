@@ -1,199 +1,305 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Shield, Clock, Award, DollarSign, Truck, Headphones, 
-  CheckCircle, ArrowRight 
+import {
+  ShieldCheck, Clock, Award, DollarSign, Truck, Headphones,
+  CheckCircle2, ArrowRight, Check, X, Shield, MapPin, Building2
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+import { SiteMetadata } from '@/components/Layout/Metadata';
+import { PublicPageHero, FinalCta } from '@/components/Layout/PublicPage';
+
+const coreAdvantages = [
+  {
+    icon: Clock,
+    title: '98.2% On-Time Transit SLA',
+    description: 'We calculate realistic road transit hours based on actual highway conditions, toll checkpoints, and driver rest cycles — then deliver to schedule with discipline.',
+    benefit: 'Eliminates factory production delays & missed receiving windows',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Vetted Commercial Drivers',
+    description: 'Every driver undergoes background verification, commercial license validation, and adherence to highway safety protocols. Zero unauthorized crew handoffs.',
+    benefit: 'Ensures cargo security & professional dock interactions',
+  },
+  {
+    icon: DollarSign,
+    title: 'Transparent Fixed Invoicing',
+    description: 'Quoted rates are comprehensive. No sudden toll add-ons, unexpected detention surcharges, or hidden loading fees. Clean GST-compliant invoices with audit trails.',
+    benefit: 'Predictable logistics budgeting with full accounting clarity',
+  },
+  {
+    icon: Headphones,
+    title: '24/7 Dedicated Operations Desk',
+    description: 'Direct phone and email contact with assigned operations coordinators who monitor active highway miles. No generic call center tiers or automated answering bots.',
+    benefit: 'Instant issue escalation & proactive milestone updates',
+  },
+  {
+    icon: Truck,
+    title: 'Road-Fit Commercial Fleet',
+    description: 'From 14ft city feeders to 40ft multi-axle trailers, our vehicles undergo pre-trip mechanical checks, tire pressure monitoring, and weatherproof tarp inspections.',
+    benefit: 'Prevents in-transit mechanical breakdowns & cargo spoilage',
+  },
+  {
+    icon: Award,
+    title: 'Pan-India Lane Density',
+    description: 'Strong lane presence connecting Western manufacturing powerhouses (Gujarat, Maharashtra) to Northern and Central consumption zones with daily departures.',
+    benefit: 'Guaranteed vehicle availability even during peak shipping cycles',
+  },
+];
+
+const comprehensiveComparison = [
+  {
+    parameter: 'Route & Lane Planning',
+    tanish: 'Pre-trip route survey, designated highway corridors, verified toll passes',
+    traditional: 'Unplanned transit, drivers picking ad-hoc routes with frequent stops',
+  },
+  {
+    parameter: 'Driver Accountability',
+    tanish: 'Verified commercial license, background checked, monitored driving hours',
+    traditional: 'Casual subcontracted drivers with zero institutional vetting',
+  },
+  {
+    parameter: 'Transit Communication',
+    tanish: 'Proactive milestone updates from a dedicated 24/7 dispatch desk',
+    traditional: 'Unresponsive phone lines; updates only after a delay has occurred',
+  },
+  {
+    parameter: 'Invoicing & Rate Structure',
+    tanish: 'All-inclusive written quotation upfront; GST compliant; zero hidden fees',
+    traditional: 'Low initial quotes followed by surprise detention, toll, and unloading surcharges',
+  },
+  {
+    parameter: 'Cargo Protection & Lashing',
+    tanish: 'Multi-point lashing, heavy-duty tarpaulins, mandatory dock inspection',
+    traditional: 'Minimal lashing, torn canvas tarpaulins, high risk of weather damage',
+  },
+  {
+    parameter: 'Delivery SLA Commitment',
+    tanish: '98.2% on-time delivery record backed by institutional commitments',
+    traditional: 'No firm ETA guarantee; frequent rollover of delivery dates',
+  },
+  {
+    parameter: 'Account Management',
+    tanish: 'Single point of contact coordinator for your company’s shipments',
+    traditional: 'Different broker for every leg, leading to finger-pointing during delays',
+  },
+];
 
 const WhyUs = () => {
-  const advantages = [
-    {
-      icon: Shield,
-      title: 'Trusted & Reliable',
-      description: '5+ years of proven track record with 98% on-time delivery rate',
-      color: 'from-blue-500 to-blue-600'
-    },
-    {
-      icon: Clock,
-      title: 'On-Time Delivery',
-      description: 'Guaranteed delivery schedules and proactive updates',
-      color: 'from-green-500 to-green-600'
-    },
-    {
-      icon: Award,
-      title: 'Pan-India Network',
-      description: 'Comprehensive coverage across 100+ cities with strategic hub locations',
-      color: 'from-orange-500 to-orange-600'
-    },
-    {
-      icon: DollarSign,
-      title: 'Transparent Pricing',
-      description: 'No hidden costs, competitive rates with clear quotations upfront',
-      color: 'from-purple-500 to-purple-600'
-    },
-    {
-      icon: Truck,
-      title: 'Modern Fleet',
-      description: 'vehicles with professional drivers and regular maintenance',
-      color: 'from-yellow-500 to-yellow-600'
-    },
-    {
-      icon: Headphones,
-      title: '24/7 Support',
-      description: 'Round-the-clock customer support with dedicated account managers',
-      color: 'from-red-500 to-red-600'
-    }
-  ];
-
-  const comparisons = [
-    { feature: 'Pan-India Coverage', us: true, others: 'Limited' },
-
-    { feature: '24/7 Support', us: true, others: 'Business Hours' },
-    { feature: 'Transparent Pricing', us: true, others: 'Hidden Costs' },
-    { feature: 'Professional Drivers', us: true, others: 'Varies' },
-    { feature: 'Modern Fleet', us: true, others: 'Mixed' },
-    { feature: 'On-time Guarantee', us: '98%', others: '80-85%' }
-  ];
+  const shouldReduceMotion = useReducedMotion();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="relative bg-gradient-to-r from-gray-900 to-gray-800 text-white py-24">
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
-            Why Choose Tanish Logistic?
-          </motion.h1>
-          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed mb-8">
-            Discover what makes us India's most trusted logistics partner. 
-            From reliability to innovation, we deliver excellence in every shipment.
-          </motion.p>
-          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }} className="flex justify-center space-x-8 text-lg">
-            <div className="flex items-center">
-              <CheckCircle className="h-6 w-6 text-green-400 mr-2" />
-              <span>5+ Years Experience</span>
-            </div>
-            <div className="flex items-center">
-              <CheckCircle className="h-6 w-6 text-green-400 mr-2" />
-              <span>2,500+ Deliveries</span>
-            </div>
-            <div className="flex items-center">
-              <CheckCircle className="h-6 w-6 text-green-400 mr-2" />
-              <span>98% On-time Rate</span>
-            </div>
-          </motion.div>
-        </div>
-      </motion.section>
+    <div className="min-h-screen bg-white text-slate-950 font-sans">
+      <SiteMetadata
+        title="Why Choose Tanish Logistic — The Enterprise Difference in B2B Freight"
+        description="Discover why manufacturing leaders and distributors choose Tanish Logistic: 98.2% on-time SLA, verified commercial drivers, transparent billing, and 24/7 operations."
+      />
 
-      {/* Key Advantages */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Our Competitive Advantages
+      {/* Enterprise Page Hero */}
+      <PublicPageHero
+        eyebrow="The Tanish Advantage"
+        title="Why Leading Enterprises Trust Tanish Logistic With Their Freight."
+        description="In commercial supply chains, a late shipment costs more than freight. Explore the operating disciplines, verified fleet standards, and institutional accountability that set us apart."
+        primaryLabel="Request a Route Quote"
+        secondaryHref="/book"
+        secondaryLabel="Book Transport Online"
+      >
+        <div className="rounded-2xl border border-white/15 bg-slate-900/80 p-6 backdrop-blur-md">
+          <p className="text-xs font-bold uppercase tracking-wider text-sky-400">Institutional Commitments</p>
+          <div className="mt-4 space-y-3.5 text-xs text-slate-300">
+            <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+              <span>On-Time Delivery SLA</span>
+              <strong className="text-emerald-400">98.2% Verified</strong>
+            </div>
+            <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+              <span>Driver Compliance</span>
+              <strong className="text-white">100% Background Vetted</strong>
+            </div>
+            <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+              <span>Operations Desk</span>
+              <strong className="text-white">24/7 Active Transit Support</strong>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Billing Integrity</span>
+              <strong className="text-white">Zero Hidden Charges Guarantee</strong>
+            </div>
+          </div>
+        </div>
+      </PublicPageHero>
+
+      {/* 6 Core Institutional Advantages */}
+      <section className="py-20 sm:py-28 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
+            <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+              Core Strengths
+            </span>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+              Engineered around the priorities of procurement and plant managers.
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Six reasons why businesses across India trust us with their logistics needs.
+            <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">
+              We built our operating model specifically to eliminate the unpredictability that plagues unorganized road transport.
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {advantages.map((advantage, index) => {
-              const IconComponent = advantage.icon;
+
+          <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {coreAdvantages.map((adv, idx) => {
+              const Icon = adv.icon;
               return (
-                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5, delay: index * 0.2 }} whileHover={{ scale: 1.03 }} key={index}>
-                  <Card className="group bg-white shadow-lg hover:shadow-2xl transition-all duration-300 rounded-xl overflow-hidden transform hover:-translate-y-2">
-                    <div className={`bg-gradient-to-br ${advantage.color} p-8`}>
-                      <IconComponent className="h-12 w-12 text-white mx-auto" />
+                <div
+                  key={idx}
+                  className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition hover:shadow-xl hover:border-slate-300 flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900 text-sky-400">
+                      <Icon className="h-6 w-6" />
                     </div>
-                    <CardContent className="p-8 text-center">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-4">{advantage.title}</h3>
-                      <p className="text-gray-600 text-lg">{advantage.description}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                    <h3 className="mt-6 text-xl font-bold text-slate-950">
+                      {adv.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                      {adv.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-slate-100">
+                    <p className="text-xs font-bold text-sky-700 flex items-center gap-1.5">
+                      <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                      <span>{adv.benefit}</span>
+                    </p>
+                  </div>
+                </div>
               );
             })}
           </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* Comparison Table */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="py-20 bg-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              How We Compare
+      {/* Full-Bleed Photographic Split Section: Fleet Maintenance & Inspection */}
+      <section className="py-20 sm:py-28 bg-slate-50 border-y border-slate-200">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            {/* Photo Column */}
+            <div className="relative">
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-100 shadow-xl ring-1 ring-slate-900/10">
+                <Image
+                  src="/gallery/Picture6.jpg"
+                  alt="Modern commercial transport vehicle maintained by Tanish Logistic"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+                <div className="absolute bottom-5 left-5 right-5 rounded-xl border border-white/20 bg-slate-900/85 p-4 text-white backdrop-blur-md">
+                  <p className="text-xs font-bold uppercase tracking-wider text-sky-400">Pre-Trip Departure Protocol</p>
+                  <p className="mt-0.5 text-sm font-semibold text-slate-200">Brake, Tire Pressure & Chassis Safety Verification</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Content Column */}
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+                Mechanical Readiness
+              </span>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+                Preventive vehicle maintenance that prevents highway breakdowns.
+              </h2>
+              <div className="mt-6 space-y-4 text-base leading-relaxed text-slate-600">
+                <p>
+                  Unscheduled roadside repairs are the leading cause of delivery delays in Indian logistics. At Tanish Logistic, we operate on a strict preventative maintenance schedule rather than waiting for breakdowns.
+                </p>
+                <p>
+                  Before rolling onto the highway, every vehicle completes a certified pre-trip checklist: brake pad thickness, steering play, tire tread depth, electrical harness, and tarpaulin waterproofing.
+                </p>
+                <p>
+                  This relentless attention to mechanical integrity guarantees that your cargo arrives safely and on time, even through monsoon downpours and challenging highway conditions.
+                </p>
+              </div>
+
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <Button asChild className="h-12 rounded-xl px-7 text-sm sm:text-base font-bold text-white bg-sky-700 hover:bg-sky-800 shadow-md shadow-sky-900/20 transition-all duration-200 active:scale-[0.98]">
+                  <Link href="/services" className="inline-flex items-center justify-center whitespace-nowrap">
+                    View Fleet Capabilities
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="h-12 rounded-xl border border-slate-300 px-6 text-sm sm:text-base font-semibold text-slate-800 hover:bg-slate-100 transition-all duration-200 active:scale-[0.98]">
+                  <Link href="/Gallery" className="inline-flex items-center justify-center whitespace-nowrap">
+                    Explore Fleet Gallery
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Comprehensive Enterprise Comparison Matrix */}
+      <section className="py-20 sm:py-28 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center">
+            <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+              Direct Comparison
+            </span>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+              Tanish Logistic vs Traditional Transporters.
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              See the difference that sets us apart from other logistics providers.
+            <p className="mt-4 text-base text-slate-600">
+              See the exact operational differences that translate into peace of mind for your supply chain.
             </p>
           </div>
-          
-          <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }}>
-             <Card className="shadow-2xl rounded-2xl overflow-hidden">
-               <div className="table-wrapper overflow-x-auto">
-                 <table className="w-full text-lg min-w-[500px]">
-                  <thead className="bg-gray-800 text-white">
-                    <tr>
-                      <th className="px-8 py-5 text-left font-semibold">Features</th>
-                      <th className="px-8 py-5 text-center font-semibold bg-blue-600">
-                        Tanish Logistic
-                      </th>
-                      <th className="px-8 py-5 text-center font-semibold">Others</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {comparisons.map((item, index) => (
-                      <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                        <td className="px-8 py-5 font-medium text-gray-900">{item.feature}</td>
-                        <td className="px-8 py-5 text-center">
-                          {item.us === true ? (
-                            <CheckCircle className="h-7 w-7 text-green-500 mx-auto" />
-                          ) : (
-                            <Badge className="bg-green-100 text-green-800 text-base px-3 py-1 rounded-full">{item.us}</Badge>
-                          )}
-                        </td>
-                        <td className="px-8 py-5 text-center text-gray-600">{item.others}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          </motion.div>
-        </div>
-      </motion.section>
 
-      {/* CTA Section */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }} className="py-20 bg-blue-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h2 initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 0.8 }} className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Experience the Tanish Logistic Difference
-          </motion.h2>
-          <motion.p initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 1.0 }} className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-            Join thousands of satisfied customers who trust us with their logistics needs. 
-            Get your free quote today and see why we're India's preferred logistics partner.
-          </motion.p>
-          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, delay: 1.2 }} className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-10 py-5 text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
-              <Link href="/contact">
-                Get Free Quote
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-10 py-5 text-lg shadow-lg transform hover:scale-105 transition-all duration-300">
-              <Link href="/services">
-                Explore Services
-              </Link>
-            </Button>
-          </motion.div>
+          <div className="mt-14 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50 text-slate-900">
+                    <th className="p-4 sm:p-5 font-bold w-1/4">Operational Dimension</th>
+                    <th className="p-4 sm:p-5 font-bold w-3/8 bg-sky-50 text-sky-950 border-x border-sky-100">
+                      Tanish Logistic Standard
+                    </th>
+                    <th className="p-4 sm:p-5 font-bold w-3/8 text-slate-500">
+                      Traditional Unorganized Carrier
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {comprehensiveComparison.map((row, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50/50 transition">
+                      <td className="p-4 sm:p-5 font-bold text-slate-900">
+                        {row.parameter}
+                      </td>
+                      <td className="p-4 sm:p-5 bg-sky-50/40 border-x border-sky-100/70 text-slate-900 font-medium">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                          <span>{row.tanish}</span>
+                        </div>
+                      </td>
+                      <td className="p-4 sm:p-5 text-slate-500">
+                        <div className="flex items-start gap-2">
+                          <X className="h-4 w-4 text-rose-500 shrink-0 mt-0.5" />
+                          <span>{row.traditional}</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      </motion.section>
+      </section>
+
+      {/* Final CTA */}
+      <FinalCta
+        eyebrow="Upgrade Your Freight Partner"
+        title="Switch to road transport you can actually rely on."
+        description="Contact our dispatch leadership in Vadodara or Mandi Gobindgarh to audit your current route lanes, reduce transit friction, and secure dedicated capacity."
+        primaryLabel="Schedule a Call"
+        secondaryLabel="Book Transport Online"
+      />
     </div>
   );
 };

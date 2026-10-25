@@ -1,13 +1,8 @@
-import { withSessionRoute } from '@/lib/session';
+import { withAdminRoute } from '@/lib/session';
 import prisma from '@/lib/prisma';
 
-// This API route is protected, only logged-in admins can access it
-export default withSessionRoute(async function getUsersRoute(req, res) {
-    // Check if the user is authenticated
-    if (!req.session.user) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-
+// This API route is protected: only logged-in admins can access it
+export default withAdminRoute(async function getUsersRoute(req, res) {
     if (req.method !== 'GET') {
         res.setHeader('Allow', ['GET']);
         return res.status(405).end(`Method ${req.method} Not Allowed`);

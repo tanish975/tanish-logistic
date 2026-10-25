@@ -1,9 +1,10 @@
 
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 
 const CustomersView = () => {
+  const shouldReduceMotion = useReducedMotion();
     const [customers, setCustomers] = useState([]);
     const [filteredCustomers, setFilteredCustomers] = useState([]);
     const [searchInput, setSearchInput] = useState('');
@@ -40,7 +41,7 @@ const CustomersView = () => {
     }, [searchInput, customers]);
 
     return (
-        <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} id="customers-section">
+        <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} id="customers-section">
             <div className="mb-8">
                 <h2 className="text-3xl font-bold text-gray-800 mb-2">Customer Directory</h2>
                 <p className="text-gray-600">View and search all your clients.</p>

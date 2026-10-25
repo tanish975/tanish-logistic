@@ -77,7 +77,7 @@
     "dev:https": "next dev --https",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "export": "next build && next export",
     "test": "jest"
   },
@@ -108,6 +108,7 @@
     "babel-jest": "^30.2.0",
     "eslint": "^9.39.2",
     "eslint-config-next": "latest",
+    "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react": "7.37.4",

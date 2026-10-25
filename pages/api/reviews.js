@@ -48,8 +48,10 @@ export default async function reviewsRoute(req, res) {
 
   try {
     if (req.method === 'GET') {
-      const { status } = req.query;
-      const where = status ? { status } : {};
+      const { status, all } = req.query;
+      // admin.jsx calls /api/reviews?all=true to see pending+rejected reviews.
+      // Without this, the admin view silently shows only public reviews.
+      const where = all === 'true' ? {} : (status ? { status } : { isPublic: true });
 
       const reviews = await prisma.review.findMany({
         where,

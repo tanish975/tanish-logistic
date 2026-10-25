@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Admin endpoints must not be crawled or indexed.
+Disallow: /admin
+Disallow: /api/
+
+# Sitemap location for search engines.
+Sitemap: https://tanishlogistic.com/sitemap.xml

@@ -1,9 +1,10 @@
 
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 const PaymentsView = () => {
-    const [payments, setPayments] = useState([]);
+  const shouldReduceMotion = useReducedMotion();
+  const [payments, setPayments] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -26,7 +27,7 @@ const PaymentsView = () => {
     }, []);
 
     return (
-        <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} id="payments-section">
+        <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} id="payments-section">
             <div className="mb-8">
                 <h2 className="text-3xl font-bold text-gray-800 mb-2">Payments</h2>
                 <p className="text-gray-600">View all payment records.</p>
