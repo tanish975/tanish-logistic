@@ -8,7 +8,7 @@ const NotFound = () => (
       title="Page not found — Tanish Logistic"
       description="The page you were looking for could not be found. Return to the Tanish Logistic home page, services, or booking form."
     />
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 py-16 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 pt-28 pb-16 text-center">
       <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-sky-100 text-sky-700">
         <Truck className="h-10 w-10" aria-hidden="true" />
       </div>

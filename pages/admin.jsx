@@ -1,12 +1,14 @@
+'use client';
+
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -14,7 +16,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   LayoutDashboard,
   Package,
@@ -22,7 +24,23 @@ import {
   LineChart,
   Settings,
   Map,
-} from "lucide-react"
+  Search,
+  RefreshCw,
+  Trash2,
+  LogOut,
+  ChevronLeft,
+  Menu,
+  X,
+  ShieldCheck,
+  ArrowRight,
+  BarChart2,
+  MapPin,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Plus,
+  Truck,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import LoginForm from '@/components/ui/LoginForm';
@@ -35,17 +53,48 @@ import RoutesView from '@/components/admin/RoutesView';
 import SettingsPage from './settings';
 
 const AccessDenied = ({ onLogout }) => (
-  <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-    <div className="bg-white p-8 rounded-lg shadow-md text-center">
-      <h2 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h2>
-      <p className="text-gray-700 mb-6">You do not have permissions to view this page.</p>
-      <button onClick={onLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg">Logout</button>
+  <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
+    <div className="bg-white p-8 rounded-xl shadow-lg text-center max-w-md mx-4">
+      <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+        <svg className="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3h13.856z" />
+        </svg>
+      </div>
+      <h2 className="text-2xl font-bold text-slate-950 mb-4">Access Denied</h2>
+      <p className="text-slate-600 mb-6">You do not have permissions to view this page.</p>
+      <Button onClick={onLogout} variant="destructive" className="w-full">
+        Logout
+      </Button>
     </div>
   </div>
 );
 
 const VALID_BOOKING_STATUSES = ['PENDING', 'CONFIRMED', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'];
 
+const STATUS_VARIANTS = {
+  PENDING: 'outline',
+  CONFIRMED: 'default',
+  IN_TRANSIT: 'secondary',
+  DELIVERED: 'success',
+  CANCELLED: 'destructive',
+};
+
+const STATUS_LABELS = {
+  PENDING: 'Pending',
+  CONFIRMED: 'Confirmed',
+  IN_TRANSIT: 'In Transit',
+  DELIVERED: 'Delivered',
+  CANCELLED: 'Cancelled',
+};
+
+const SIDEBAR_NAV = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'bookings', label: 'Bookings', icon: Package },
+  { id: 'routes', label: 'Routes', icon: Map },
+  { id: 'customers', label: 'Customers', icon: Users },
+  { id: 'reviews', label: 'Reviews', icon: LineChart },
+  { id: 'settings', label: 'Settings', icon: Settings },
+];
 
 const AdminPage = () => {
   const shouldReduceMotion = useReducedMotion();

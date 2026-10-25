@@ -4,150 +4,213 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useSettings } from '../../lib/SettingsContext';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
 import { Button } from '../ui/button';
-import { ChevronDown, Menu, Truck, X } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 
-const navLinks = [
+const mainNavLinks = [
   { href: '/', label: 'Home' },
   { href: '/services', label: 'Services' },
-  { href: '/book', label: 'Book' },
-  { href: '/Gallery', label: 'Gallery' },
-];
-
-// ponytail: /industries route does not exist — drop the dead link instead of
-// shipping a 404. Re-add once the page is built.
-const baseMoreLinks = [
   { href: '/whyus', label: 'Why Us' },
+  { href: '/Gallery', label: 'Fleet & Gallery' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ];
+
+const darkHeroRoutes = ['/', '/services', '/whyus', '/Gallery', '/about', '/contact', '/book'];
 
 export const Header = () => {
   const shouldReduceMotion = useReducedMotion();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const settings = useSettings();
-
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if current page starts with a white background instead of a dark hero
+  const isLightPage = !darkHeroRoutes.includes(router.pathname);
+  const showElevatedNavbar = isScrolled || isLightPage;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const checkSession = async () => {
       try {
         const response = await fetch('/api/user');
         const data = await response.json();
-        if (data.isLoggedIn && data.user?.role === 'ADMIN') {
+        if (data.user?.role === 'ADMIN') {
           setIsAdmin(true);
         }
       } catch (error) {
-        console.error('Session check failed', error);
+        // Silently ignore session check failure
       }
     };
     checkSession();
   }, []);
-
-  const moreLinks = isAdmin ? [...baseMoreLinks, { href: '/admin', label: 'Admin' }] : baseMoreLinks;
 
   const siteName = settings.siteName ?? 'Tanish Logistic';
   const logoUrl = settings.logoUrl ?? '/icon.png';
   const primaryColor = settings.primaryColor || '#0369A1';
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 text-slate-900 shadow-sm backdrop-blur">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          <div className="min-w-0 flex-shrink-0">
-            <Link href="/" className="flex min-h-11 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-200">
-              <img src={logoUrl} alt={`${siteName} Logo`} className="h-11 w-11 rounded-md object-contain" />
-              <span className="max-w-[12rem] truncate text-xl font-extrabold text-slate-950 sm:max-w-none sm:text-2xl">{siteName}</span>
-            </Link>
-          </div>
-          <nav className="hidden md:flex items-center gap-1" aria-label="Primary navigation">
-            {navLinks.map((link) => (
-              <div
-                key={link.href}
-                className="relative flex items-center justify-center"
-              >
-                <Link href={link.href} className={`inline-flex h-11 items-center rounded-md px-4 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-200 ${router.pathname === link.href ? 'bg-sky-50 text-sky-700' : 'text-slate-700 hover:bg-slate-100 hover:text-slate-950'}`}>
-                  <span>
-                    {link.label}
-                  </span>
-                </Link>
-              </div>
-            ))}
+    <header className="fixed top-0 inset-x-0 z-50 pointer-events-none transition-all duration-300 pt-3 sm:pt-4 px-3 sm:px-6 lg:px-8">
+      {/* Floating Glassmorphic Capsule */}
+      <div
+        className={`pointer-events-auto mx-auto max-w-7xl rounded-full border transition-all duration-300 ${
+          showElevatedNavbar
+            ? 'bg-slate-950/90 backdrop-blur-2xl border-white/20 shadow-2xl shadow-black/40 py-2 sm:py-2.5 px-5 sm:px-8'
+            : 'bg-slate-950/[0.05] backdrop-blur-md border-white/15 shadow-md shadow-black/10 py-2.5 sm:py-3.5 px-5 sm:px-8'
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          {/* Logo & Brand Identity */}
+          <Link
+            href="/"
+            className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-full"
+          >
+            <div className="relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-full bg-slate-900/60 p-2 shadow-inner border border-white/15 backdrop-blur-sm">
+              <img
+                src={logoUrl}
+                alt={`${siteName} Logo`}
+                className="h-full w-full object-contain"
+              />
+            </div>
+            <div>
+              <span className="block text-lg sm:text-xl font-extrabold tracking-tight text-white leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                {siteName}
+              </span>
+              <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                Road Freight &bull; Enterprise Logistics
+              </span>
+            </div>
+          </Link>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-11 gap-1 rounded-md px-4 text-sm font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-950">
-                  More
-                  <ChevronDown className="h-4 w-4" aria-hidden="true" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="mt-2 rounded-lg border-slate-200 bg-white p-1 shadow-xl">
-                {moreLinks.map((link) => (
-                  <DropdownMenuItem key={link.href} asChild>
-                    <Link href={link.href} className={`block rounded-md px-4 py-2.5 text-sm font-semibold ${router.pathname === link.href ? 'bg-sky-50 text-sky-700' : 'text-slate-700'} hover:bg-slate-100`}>
-                      {link.label}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+          {/* Desktop Nav Items */}
+          <nav className="hidden md:flex items-center gap-1 lg:gap-1.5" aria-label="Primary navigation">
+            {mainNavLinks.map((link) => {
+              const isActive = router.pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative rounded-full px-4 py-1.5 text-sm font-semibold transition-all duration-200 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] ${
+                    isActive
+                      ? 'bg-white/20 text-white font-bold border border-white/30 shadow-sm backdrop-blur-sm'
+                      : 'text-slate-100 hover:text-white hover:bg-white/15'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="rounded-full px-4 py-1.5 text-sm font-semibold text-amber-300 hover:bg-amber-500/20 border border-amber-400/30 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
+              >
+                Admin
+              </Link>
+            )}
           </nav>
-          <div className="md:hidden flex items-center">
-            <button 
-              onClick={() => setIsOpen(!isOpen)} 
-              className="inline-flex h-11 w-11 items-center justify-center rounded-md text-slate-800 transition hover:bg-slate-100 hover:text-sky-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-200"
+
+          {/* Action CTAs */}
+          <div className="hidden lg:flex items-center gap-3">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="h-10 rounded-full border-white/25 bg-white/10 text-white font-semibold hover:bg-white/20 hover:text-white backdrop-blur-sm transition-all duration-200 active:scale-[0.98] drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
+            >
+              <Link href="/book" className="whitespace-nowrap">
+                Book Transport
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="sm"
+              className="group h-10 px-5 rounded-full bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-500 hover:to-sky-600 text-white text-sm font-bold shadow-lg shadow-sky-950/50 border border-sky-400/30 transition-all duration-200 active:scale-[0.98]"
+            >
+              <Link href="/contact" className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                <span>Get Quote</span>
+                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="flex md:hidden items-center gap-2">
+            <Button
+              asChild
+              size="sm"
+              className="h-9 px-3.5 rounded-full text-xs font-bold text-white bg-sky-600 hover:bg-sky-500 shadow-md"
+            >
+              <Link href="/book">Book</Link>
+            </Button>
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
               aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isOpen}
-              aria-controls="mobile-menu"
             >
-              {isOpen ? <X size={28} /> : <Menu size={28} />}
+              {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Drawer (Floating directly below the capsule) */}
       {isOpen && (
         <motion.div
           id="mobile-menu"
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="border-t border-slate-200 bg-white shadow-lg md:hidden"
+          initial={{ opacity: 0, y: -8, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -8, scale: 0.98 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
+          className="pointer-events-auto mx-auto mt-2 max-w-7xl rounded-3xl border border-white/20 bg-slate-950/95 backdrop-blur-2xl shadow-2xl p-4 sm:p-5 text-white md:hidden"
         >
-          <div className="space-y-1 px-4 py-4">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Navigation</span>
-              <button 
+          <div className="space-y-1">
+            {mainNavLinks.map((link) => {
+              const isActive = router.pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`flex items-center justify-between rounded-full px-4 py-2.5 text-base font-semibold transition ${
+                    isActive ? 'bg-sky-500/20 text-sky-300 font-bold border border-sky-400/20' : 'text-slate-200 hover:bg-white/10'
+                  }`}
+                >
+                  <span>{link.label}</span>
+                  <ArrowRight className="h-4 w-4 text-slate-400" />
+                </Link>
+              );
+            })}
+            {isAdmin && (
+              <Link
+                href="/admin"
                 onClick={() => setIsOpen(false)}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-200"
-                aria-label="Close menu"
+                className="flex items-center justify-between rounded-full px-4 py-2.5 text-base font-semibold text-amber-300 hover:bg-amber-500/20"
               >
-                <X size={20} />
-              </button>
-            </div>
-            {[...navLinks, ...moreLinks].map((link) => (
-              <Link 
-                key={link.href} 
-                href={link.href}
-                onClick={() => setIsOpen(false)}
-              >
-                <span className={`flex min-h-11 items-center rounded-md px-3 py-2 text-base font-bold ${router.pathname === link.href ? 'bg-sky-50 text-sky-700' : 'text-slate-800'} hover:bg-slate-100`}>
-                  {link.label}
-                </span>
+                <span>Admin Dashboard</span>
+                <ArrowRight className="h-4 w-4 text-amber-400" />
               </Link>
-            ))}
-            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <div className="flex items-center gap-3">
-                <Truck className="h-5 w-5" style={{ color: primaryColor }} aria-hidden="true" />
-                <p className="text-sm font-semibold text-slate-700">Need transport support?</p>
-              </div>
-              <Button asChild className="mt-3 h-11 w-full rounded-md font-bold text-white" style={{ backgroundColor: primaryColor }}>
-                <Link href="/contact" onClick={() => setIsOpen(false)}>Get a quote</Link>
+            )}
+            <div className="pt-3 mt-2 border-t border-white/10 flex flex-col gap-2">
+              <Button asChild className="h-11 w-full rounded-full text-white font-bold bg-sky-600 hover:bg-sky-500 shadow-lg">
+                <Link href="/contact" onClick={() => setIsOpen(false)}>
+                  Get a Free Freight Quote
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="h-11 w-full rounded-full border-white/20 bg-white/10 text-white font-semibold hover:bg-white/20">
+                <Link href="/book" onClick={() => setIsOpen(false)}>
+                  Book Transport Online
+                </Link>
               </Button>
             </div>
           </div>
@@ -156,3 +219,5 @@ export const Header = () => {
     </header>
   );
 };
+
+export default Header;

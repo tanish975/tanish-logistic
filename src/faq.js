@@ -7,7 +7,7 @@ export const mockFaqs = [
   {
     question: "How do I book a shipment with Tanish Logistic?",
     answer:
-      "You can book a shipment easily through our website by visiting the 'Book' page and filling out the booking form. Alternatively, you can call us at +91 6351255716 or email us at tanishlogistic744@gmail.com and our team will assist you.",
+      "You can book a shipment easily through our website by visiting the 'Book' page and filling out the booking form. Alternatively, you can call us at +91 9924204744 or email us at tanishlogistic744@gmail.com and our team will assist you.",
   },
   {
     question: "Which cities and routes do you cover?",
@@ -32,6 +32,6 @@ export const mockFaqs = [
   {
     question: "Can I cancel or modify my booking?",
     answer:
-      "Yes, you can cancel or modify your booking by contacting us at least 24 hours before the scheduled pickup. Please call +91 6351255716 or email tanishlogistic744@gmail.com with your Booking ID and we will assist you.",
+      "Yes, you can cancel or modify your booking by contacting us at least 24 hours before the scheduled pickup. Please call +91 9924204744 or email tanishlogistic744@gmail.com with your Booking ID and we will assist you.",
   },
 ];

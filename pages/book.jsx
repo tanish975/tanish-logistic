@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { User, CheckCircle, ArrowRight, MapPin, Box, Loader2 } from 'lucide-react';
+import { User, CheckCircle2, ArrowRight, MapPin, Box, Loader2, Phone, ShieldCheck, Truck, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
 import { SiteMetadata } from '@/components/Layout/Metadata';
+import { ClickSuccessButton } from '@/components/animations/ClickSuccessButton';
+import { PublicPageHero } from '@/components/Layout/PublicPage';
+import { MovingTruckLoader } from '@/components/Animations/MovingTruckLoader';
+
+const steps = [
+  { number: 1, title: 'Cargo Profile', icon: Box, sub: 'Weight & dimensions' },
+  { number: 2, title: 'Route & Schedule', icon: MapPin, sub: 'Pickup & drop details' },
+  { number: 3, title: 'Shipper Info', icon: User, sub: 'Company & contacts' },
+  { number: 4, title: 'Review & Confirm', icon: CheckCircle2, sub: 'Verify dispatch request' }
+];
 
 const Book = () => {
   const shouldReduceMotion = useReducedMotion();
@@ -50,7 +60,7 @@ const Book = () => {
   const nextStep = () => {
     if (step === 1) {
       if (!bookingData.cargoType.trim() || !bookingData.cargoWeight.trim()) {
-        toast.error('Please fill in all required cargo fields.');
+        toast.error('Please enter cargo type and weight.');
         return;
       }
     } else if (step === 2) {
@@ -62,7 +72,7 @@ const Book = () => {
         !bookingData.preferredDate ||
         !bookingData.serviceType
       ) {
-        toast.error('Please fill in all required service details.');
+        toast.error('Please complete all required route and service fields.');
         return;
       }
     } else if (step === 3) {
@@ -73,7 +83,7 @@ const Book = () => {
         !bookingData.phone.trim() ||
         !bookingData.email.trim()
       ) {
-        toast.error('Please fill in all required company info fields.');
+        toast.error('Please fill in your company and contact information.');
         return;
       }
       if (!phoneRegex.test(bookingData.phone.replace(/\D/g, ''))) {
@@ -132,296 +142,600 @@ const Book = () => {
       }
 
       const result = await response.json();
-      // Show the server-confirmed booking ID — never discard it.
       setConfirmedBookingId(result.bookingId || result.booking?.bookingId);
       setStep(5);
     } catch (error) {
       console.error("Could not save booking:", error);
       toast.error(error.message || 'Failed to submit booking. Please try again.');
-      return;
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const steps = [
-    { number: 1, title: 'Cargo Info', icon: Box },
-    { number: 2, title: 'Service Details', icon: MapPin },
-    { number: 3, title: 'Company Info', icon: User },
-    { number: 4, title: 'Review', icon: CheckCircle }
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50 text-slate-950 font-sans">
       <SiteMetadata
-        title="Book cargo transport — Tanish Logistic"
-        description="Book a multi-step cargo transport request with Tanish Logistic. Provide cargo details, pickup and drop locations, preferred dates, and company info. We will confirm shortly."
+        title="Book Cargo Transport — Tanish Logistic | Commercial Road Freight"
+        description="Submit your commercial cargo shipment details online. Select cargo weight, pickup origin, drop destination, and company info for fast vehicle placement."
       />
-      <Toaster richColors />
-      {/* Header */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-center mb-8">
-            Book Your Cargo Transport
-          </h1>
-          
-          {/* Progress Steps */}
-<div className="flex justify-center items-center space-x-4 md:space-x-8" role="list" aria-label="Booking progress">
-            {steps.map((stepItem, index) => {
-              const IconComponent = stepItem.icon;
-              const isActive = step === stepItem.number;
-              const isCompleted = step > stepItem.number;
+      <Toaster richColors position="top-right" />
+      {isSubmitting && (
+        <MovingTruckLoader
+          text="Verifying Vehicle Placement & Booking..."
+          subtext="Transmitting shipment details to commercial dispatch..."
+        />
+      )}
 
-              return (
-                <React.Fragment key={stepItem.number}>
-                  <div className="flex flex-col items-center">
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-2 border-4 ${isCompleted ? 'bg-green-500 border-green-600' : isActive ? 'bg-blue-500 border-blue-600' : 'bg-gray-600 border-gray-700'}`} role="listitem">
-                      <IconComponent className="h-8 w-8 text-white" aria-hidden="true" />
-                    </div>
-                    <span className={`text-lg font-semibold ${isActive ? 'text-white' : 'text-gray-400'}`}>
-                      {stepItem.title}
-                    </span>
-                  </div>
-                  {index < steps.length - 1 && (
-                    <div className={`hidden md:block w-24 h-1 ${step > stepItem.number ? 'bg-green-500' : 'bg-gray-600'}`}></div>
-                  )}
-                </React.Fragment>
-              );
-            })}
+      {/* Enterprise Page Hero */}
+      <PublicPageHero
+        eyebrow="Commercial Cargo Booking"
+        title="Schedule Your Freight Movement in 4 Simple Steps."
+        description="Provide your cargo specifications, pickup and delivery addresses, and preferred dispatch date. Our operations directors verify vehicle fit and confirm schedule."
+        primaryHref="/contact"
+        primaryLabel="Speak With Dispatch"
+        secondaryHref="/services"
+        secondaryLabel="View Vehicle Specs"
+      >
+        <div className="rounded-2xl border border-white/15 bg-slate-900/80 p-6 backdrop-blur-md">
+          <p className="text-xs font-bold uppercase tracking-wider text-sky-400">Booking Commitments</p>
+          <div className="mt-4 space-y-3.5 text-xs text-slate-300">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span>Vehicle confirmation within 2 hours of review</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span>Direct highway dispatch from verified carrier fleet</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+              <span>No advance booking fees required for preliminary quote</span>
+            </div>
           </div>
         </div>
-      </motion.section>
+      </PublicPageHero>
 
-      {/* Form Content */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : 0.2 }} className="py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Card className="shadow-2xl rounded-2xl overflow-hidden">
-            <CardHeader className="bg-gray-100 p-8">
-              <CardTitle className="text-3xl font-bold text-gray-800">
-                Step {step}: {steps[step - 1]?.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-8">
+      {/* Main 2-Column Booking Section */}
+      <section className="py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Progress Stepper Bar */}
+          {step < 5 && (
+            <div className="mb-10 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {steps.map((s) => {
+                  const Icon = s.icon;
+                  const isActive = step === s.number;
+                  const isDone = step > s.number;
+                  return (
+                    <div
+                      key={s.number}
+                      className={`flex items-center gap-3 rounded-xl p-3 transition ${
+                        isActive
+                          ? 'bg-sky-50 border border-sky-200'
+                          : isDone
+                          ? 'bg-emerald-50/60 border border-emerald-100'
+                          : 'opacity-60'
+                      }`}
+                    >
+                      <div
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-bold text-sm ${
+                          isActive
+                            ? 'bg-sky-700 text-white'
+                            : isDone
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-slate-200 text-slate-700'
+                        }`}
+                      >
+                        {isDone ? <CheckCircle2 className="h-5 w-5" /> : s.number}
+                      </div>
+                      <div className="min-w-0">
+                        <p className={`text-xs font-bold truncate ${isActive ? 'text-sky-950' : 'text-slate-900'}`}>
+                          {s.title}
+                        </p>
+                        <p className="text-[11px] text-slate-500 truncate">{s.sub}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="grid gap-10 lg:grid-cols-[1fr_380px] lg:items-start">
+            {/* Form Column */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-10 shadow-sm">
               <form onSubmit={handleSubmit}>
                 {/* Step 1: Cargo Info */}
                 {step === 1 && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
+                    className="space-y-6"
+                  >
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-sky-700">Step 01 / 04</span>
+                      <h2 className="mt-1 text-2xl font-bold text-slate-950">Cargo Specifications & Dimensions</h2>
+                      <p className="mt-1 text-sm text-slate-600">Provide load weight and character to match the ideal chassis and payload capacity.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
                       <div className="space-y-2">
-                        <Label htmlFor="cargoType" className="text-lg">Cargo Type *</Label>
-                        <Input id="cargoType" value={bookingData.cargoType} onChange={(e) => handleInputChange('cargoType', e.target.value)} placeholder="e.g., Electronics, Textiles, Machinery…" required className="p-4 text-lg" />
+                        <Label htmlFor="cargoType" className="text-sm font-bold text-slate-900">Cargo Type / Commodity *</Label>
+                        <Input
+                          id="cargoType"
+                          value={bookingData.cargoType}
+                          onChange={(e) => handleInputChange('cargoType', e.target.value)}
+                          placeholder="e.g. Industrial Machinery, Steel Coils, Chemicals..."
+                          required
+                          className="h-12 border-slate-300 text-slate-900"
+                        />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="cargoWeight" className="text-lg">Cargo Weight (kg) *</Label>
-                        <Input id="cargoWeight" type="number" value={bookingData.cargoWeight} onChange={(e) => handleInputChange('cargoWeight', e.target.value)} placeholder="e.g., 500…" required className="p-4 text-lg" inputMode="decimal" />
+                        <Label htmlFor="cargoWeight" className="text-sm font-bold text-slate-900">Approx. Weight (kg) *</Label>
+                        <Input
+                          id="cargoWeight"
+                          type="number"
+                          value={bookingData.cargoWeight}
+                          onChange={(e) => handleInputChange('cargoWeight', e.target.value)}
+                          placeholder="e.g. 5000 (for 5 MT)..."
+                          required
+                          className="h-12 border-slate-300 text-slate-900"
+                        />
                       </div>
                     </div>
-                    
-                    {/* Cargo Dimensions */}
-                    <div className="space-y-2">
-                      <Label className="text-lg">Cargo Dimensions (L x W x H) in feet</Label>
+
+                    <div className="space-y-2 pt-2">
+                      <Label className="text-sm font-bold text-slate-900">Dimensions in Feet (Length x Width x Height)</Label>
                       <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="cargoLength" className="text-sm text-gray-600">Length (ft)</Label>
-                          <Input id="cargoLength" type="number" value={bookingData.cargoLength} onChange={(e) => handleInputChange('cargoLength', e.target.value)} placeholder="e.g., 10…" className="p-4 text-lg" inputMode="decimal" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="cargoWidth" className="text-sm text-gray-600">Width (ft)</Label>
-                          <Input id="cargoWidth" type="number" value={bookingData.cargoWidth} onChange={(e) => handleInputChange('cargoWidth', e.target.value)} placeholder="e.g., 6…" className="p-4 text-lg" inputMode="decimal" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="cargoHeight" className="text-sm text-gray-600">Height (ft)</Label>
-                          <Input id="cargoHeight" type="number" value={bookingData.cargoHeight} onChange={(e) => handleInputChange('cargoHeight', e.target.value)} placeholder="e.g., 6…" className="p-4 text-lg" inputMode="decimal" />
-                        </div>
+                        <Input
+                          id="cargoLength"
+                          type="number"
+                          value={bookingData.cargoLength}
+                          onChange={(e) => handleInputChange('cargoLength', e.target.value)}
+                          placeholder="Length (ft)"
+                          className="h-12 border-slate-300"
+                        />
+                        <Input
+                          id="cargoWidth"
+                          type="number"
+                          value={bookingData.cargoWidth}
+                          onChange={(e) => handleInputChange('cargoWidth', e.target.value)}
+                          placeholder="Width (ft)"
+                          className="h-12 border-slate-300"
+                        />
+                        <Input
+                          id="cargoHeight"
+                          type="number"
+                          value={bookingData.cargoHeight}
+                          onChange={(e) => handleInputChange('cargoHeight', e.target.value)}
+                          placeholder="Height (ft)"
+                          className="h-12 border-slate-300"
+                        />
                       </div>
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="cargoDescription" className="text-lg">Cargo Description</Label>
-                      <Textarea id="cargoDescription" value={bookingData.cargoDescription} onChange={(e) => handleInputChange('cargoDescription', e.target.value)} placeholder="Briefly describe the cargo contents…" className="p-4 text-lg" />
+
+                    <div className="space-y-2 pt-2">
+                      <Label htmlFor="cargoDescription" className="text-sm font-bold text-slate-900">Cargo Description & Packaging</Label>
+                      <Textarea
+                        id="cargoDescription"
+                        value={bookingData.cargoDescription}
+                        onChange={(e) => handleInputChange('cargoDescription', e.target.value)}
+                        placeholder="e.g. Palletized wooden crates, fragile glass items, tarpaulin required..."
+                        rows={3}
+                        className="border-slate-300"
+                      />
                     </div>
                   </motion.div>
                 )}
 
-                {/* Step 2: Service Details */}
+                {/* Step 2: Route & Service Details */}
                 {step === 2 && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
+                    className="space-y-6"
+                  >
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-sky-700">Step 02 / 04</span>
+                      <h2 className="mt-1 text-2xl font-bold text-slate-950">Origin, Destination & Service Type</h2>
+                      <p className="mt-1 text-sm text-slate-600">Enter pickup and delivery points to estimate highway routing and transit timing.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
                       <div className="space-y-2">
-                        <Label htmlFor="pickupLocation" className="text-lg">Pickup Location *</Label>
-                        <Input id="pickupLocation" value={bookingData.pickupLocation} onChange={(e) => handleInputChange('pickupLocation', e.target.value)} placeholder="e.g., Mumbai, Maharashtra…" required className="p-4 text-lg" />
+                        <Label htmlFor="pickupLocation" className="text-sm font-bold text-slate-900">Pickup City / Hub *</Label>
+                        <Input
+                          id="pickupLocation"
+                          value={bookingData.pickupLocation}
+                          onChange={(e) => handleInputChange('pickupLocation', e.target.value)}
+                          placeholder="e.g. Vadodara, Gujarat"
+                          required
+                          className="h-12 border-slate-300"
+                        />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="dropLocation" className="text-lg">Drop Location *</Label>
-                        <Input id="dropLocation" value={bookingData.dropLocation} onChange={(e) => handleInputChange('dropLocation', e.target.value)} placeholder="e.g., Delhi…" required className="p-4 text-lg" />
+                        <Label htmlFor="dropLocation" className="text-sm font-bold text-slate-900">Drop City / Destination *</Label>
+                        <Input
+                          id="dropLocation"
+                          value={bookingData.dropLocation}
+                          onChange={(e) => handleInputChange('dropLocation', e.target.value)}
+                          placeholder="e.g. Mandi Gobindgarh, Punjab"
+                          required
+                          className="h-12 border-slate-300"
+                        />
                       </div>
                     </div>
+
                     <div className="space-y-2">
-                      <Label htmlFor="pickupAddress" className="text-lg">Pickup Address *</Label>
-                      <Textarea id="pickupAddress" value={bookingData.pickupAddress} onChange={(e) => handleInputChange('pickupAddress', e.target.value)} placeholder="Full pickup address with landmark…" required className="p-4 text-lg" />
+                      <Label htmlFor="pickupAddress" className="text-sm font-bold text-slate-900">Detailed Pickup Address & Landmark *</Label>
+                      <Textarea
+                        id="pickupAddress"
+                        value={bookingData.pickupAddress}
+                        onChange={(e) => handleInputChange('pickupAddress', e.target.value)}
+                        placeholder="Plant number, industrial estate, landmark, pin code..."
+                        rows={2}
+                        required
+                        className="border-slate-300"
+                      />
                     </div>
+
                     <div className="space-y-2">
-                      <Label htmlFor="dropAddress" className="text-lg">Drop Address *</Label>
-                      <Textarea id="dropAddress" value={bookingData.dropAddress} onChange={(e) => handleInputChange('dropAddress', e.target.value)} placeholder="Full drop-off address with landmark…" required className="p-4 text-lg" />
+                      <Label htmlFor="dropAddress" className="text-sm font-bold text-slate-900">Detailed Drop Address & Receiving Contact *</Label>
+                      <Textarea
+                        id="dropAddress"
+                        value={bookingData.dropAddress}
+                        onChange={(e) => handleInputChange('dropAddress', e.target.value)}
+                        placeholder="Warehouse gate number, receiver name, contact number, pin code..."
+                        rows={2}
+                        required
+                        className="border-slate-300"
+                      />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
                       <div className="space-y-2">
-                        <Label htmlFor="preferredDate" className="text-lg">Preferred Date *</Label>
-                        <Input id="preferredDate" type="date" value={bookingData.preferredDate} onChange={(e) => handleInputChange('preferredDate', e.target.value)} required className="p-4 text-lg" />
+                        <Label htmlFor="preferredDate" className="text-sm font-bold text-slate-900">Preferred Loading Date *</Label>
+                        <Input
+                          id="preferredDate"
+                          type="date"
+                          value={bookingData.preferredDate}
+                          onChange={(e) => handleInputChange('preferredDate', e.target.value)}
+                          required
+                          className="h-12 border-slate-300"
+                        />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="serviceType" className="text-lg">Service Type *</Label>
-                        <Select onValueChange={(value) => handleInputChange('serviceType', value)} value={bookingData.serviceType}>
-                          <SelectTrigger className="p-4 text-lg"><SelectValue placeholder="Select a service type" /></SelectTrigger>
+                        <Label htmlFor="serviceType" className="text-sm font-bold text-slate-900">Service Category *</Label>
+                        <Select onValueChange={(val) => handleInputChange('serviceType', val)} value={bookingData.serviceType}>
+                          <SelectTrigger className="h-12 border-slate-300">
+                            <SelectValue placeholder="Select service category" />
+                          </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="intercity-interstate-freight">Intercity & Interstate Freight</SelectItem>
-                            <SelectItem value="b2b-cargo-movement">B2B Cargo Movement</SelectItem>
-                            <SelectItem value="fleet-based-transport">Fleet-based Transport</SelectItem>
-                            <SelectItem value="contract-logistics">Contract Logistics</SelectItem>
+                            <SelectItem value="Full Truck Load (FTL)">Full Truckload (FTL) Dedicated</SelectItem>
+                            <SelectItem value="B2B Industrial Cargo">B2B Industrial Cargo</SelectItem>
+                            <SelectItem value="Fleet-based Transport">Dedicated Contract Fleet</SelectItem>
+                            <SelectItem value="Express Highway Transit">Express Highway Transit</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="specialInstructions" className="text-lg">Special Instructions (Optional)</Label>
-                      <Textarea id="specialInstructions" value={bookingData.specialInstructions} onChange={(e) => handleInputChange('specialInstructions', e.target.value)} placeholder="Any special handling requirements, fragile items, etc…" className="p-4 text-lg" />
+
+                    <div className="space-y-2 pt-2">
+                      <Label htmlFor="specialInstructions" className="text-sm font-bold text-slate-900">Special Handling Instructions (Optional)</Label>
+                      <Textarea
+                        id="specialInstructions"
+                        value={bookingData.specialInstructions}
+                        onChange={(e) => handleInputChange('specialInstructions', e.target.value)}
+                        placeholder="e.g. Loading by overhead crane only, strict morning delivery window..."
+                        rows={2}
+                        className="border-slate-300"
+                      />
                     </div>
                   </motion.div>
                 )}
 
                 {/* Step 3: Company Info */}
                 {step === 3 && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
+                    className="space-y-6"
+                  >
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-sky-700">Step 03 / 04</span>
+                      <h2 className="mt-1 text-2xl font-bold text-slate-950">Company & Contact Credentials</h2>
+                      <p className="mt-1 text-sm text-slate-600">We use these details for billing, driver coordination, and dispatch status updates.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
                       <div className="space-y-2">
-                        <Label htmlFor="companyName" className="text-lg">Company Name / Customer Name *</Label>
-                        <Input id="companyName" value={bookingData.companyName} onChange={(e) => handleInputChange('companyName', e.target.value)} placeholder="Enter your company or name…" required className="p-4 text-lg" autoComplete="organization" />
+                        <Label htmlFor="companyName" className="text-sm font-bold text-slate-900">Company Name / Registered Entity *</Label>
+                        <Input
+                          id="companyName"
+                          value={bookingData.companyName}
+                          onChange={(e) => handleInputChange('companyName', e.target.value)}
+                          placeholder="e.g. Apex Industrial Solutions Ltd."
+                          required
+                          className="h-12 border-slate-300"
+                        />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="contactPerson" className="text-lg">Contact Person *</Label>
-                        <Input id="contactPerson" value={bookingData.contactPerson} onChange={(e) => handleInputChange('contactPerson', e.target.value)} placeholder="Contact person name…" required className="p-4 text-lg" autoComplete="name" />
+                        <Label htmlFor="contactPerson" className="text-sm font-bold text-slate-900">Contact Person Name *</Label>
+                        <Input
+                          id="contactPerson"
+                          value={bookingData.contactPerson}
+                          onChange={(e) => handleInputChange('contactPerson', e.target.value)}
+                          placeholder="e.g. Rajesh Kumar"
+                          required
+                          className="h-12 border-slate-300"
+                        />
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
                       <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-lg">Phone Number *</Label>
-                         <Input id="phone" type="tel" value={bookingData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} placeholder="+91-XXXXXXXXXX…" required className="p-4 text-lg" inputMode="tel" autoComplete="tel" pattern="[0-9]{10,15}" maxLength={15} />
+                        <Label htmlFor="phone" className="text-sm font-bold text-slate-900">Phone Number (with WhatsApp/SMS) *</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={bookingData.phone}
+                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          placeholder="+91 98765 43210"
+                          required
+                          className="h-12 border-slate-300"
+                        />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="email" className="text-lg">Email Address *</Label>
-                        <Input id="email" type="email" value={bookingData.email} onChange={(e) => handleInputChange('email', e.target.value)} placeholder="your@email.com…" required className="p-4 text-lg" autoComplete="email" />
+                        <Label htmlFor="email" className="text-sm font-bold text-slate-900">Official Email Address *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={bookingData.email}
+                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          placeholder="logistics@company.com"
+                          required
+                          className="h-12 border-slate-300"
+                        />
                       </div>
                     </div>
                   </motion.div>
                 )}
 
-                {/* Step 4: Review */}
+                {/* Step 4: Review Summary */}
                 {step === 4 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="space-y-6">
-                        <h3 className="text-2xl font-bold text-gray-800 mb-6">Review Your Booking</h3>
-                        
-                        {/* Cargo Info */}
-                        <div className="p-4 border rounded-lg bg-blue-50">
-                            <div className="flex items-center justify-between mb-3">
-                                <h4 className="font-bold text-lg text-blue-800">Cargo Information</h4>
-                                <Button type="button" variant="outline" size="sm" onClick={() => setStep(1)} className="text-blue-600 border-blue-600 hover:bg-blue-50">
-                                    Edit
-                                </Button>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                <div><Label className="font-semibold">Type:</Label><p className="text-gray-700">{bookingData.cargoType}</p></div>
-                                <div><Label className="font-semibold">Weight:</Label><p className="text-gray-700">{bookingData.cargoWeight} kg</p></div>
-                                {(bookingData.cargoLength || bookingData.cargoWidth || bookingData.cargoHeight) && (
-                                  <div className="col-span-2"><Label className="font-semibold">Dimensions:</Label><p className="text-gray-700">{bookingData.cargoLength || '-'} x {bookingData.cargoWidth || '-'} x {bookingData.cargoHeight || '-'} ft</p></div>
-                                )}
-                                <div className="col-span-2"><Label className="font-semibold">Description:</Label><p className="text-gray-700">{bookingData.cargoDescription || 'N/A'}</p></div>
-                            </div>
-                        </div>
-                        
-                        {/* Service Details */}
-                        <div className="p-4 border rounded-lg bg-green-50">
-                            <div className="flex items-center justify-between mb-3">
-                                <h4 className="font-bold text-lg text-green-800">Service Details</h4>
-                                <Button type="button" variant="outline" size="sm" onClick={() => setStep(2)} className="text-green-600 border-green-600 hover:bg-green-50">
-                                    Edit
-                                </Button>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                <div><Label className="font-semibold">Pickup:</Label><p className="text-gray-700">{bookingData.pickupLocation}</p></div>
-                                <div><Label className="font-semibold">Drop-off:</Label><p className="text-gray-700">{bookingData.dropLocation}</p></div>
-                                <div className="col-span-2"><Label className="font-semibold">Pickup Address:</Label><p className="text-gray-700">{bookingData.pickupAddress}</p></div>
-                                <div className="col-span-2"><Label className="font-semibold">Drop-off Address:</Label><p className="text-gray-700">{bookingData.dropAddress}</p></div>
-                                <div><Label className="font-semibold">Service Type:</Label><p className="text-gray-700">{bookingData.serviceType}</p></div>
-                                <div><Label className="font-semibold">Preferred Date:</Label><p className="text-gray-700">{bookingData.preferredDate}</p></div>
-                                {bookingData.specialInstructions && <div className="col-span-2"><Label className="font-semibold">Instructions:</Label><p className="text-gray-700">{bookingData.specialInstructions}</p></div>}
-                            </div>
-                        </div>
-                        
-                        {/* Company Info */}
-                        <div className="p-4 border rounded-lg bg-purple-50">
-                            <div className="flex items-center justify-between mb-3">
-                                <h4 className="font-bold text-lg text-purple-800">Company Information</h4>
-                                <Button type="button" variant="outline" size="sm" onClick={() => setStep(3)} className="text-purple-600 border-purple-600 hover:bg-purple-50">
-                                    Edit
-                                </Button>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                <div><Label className="font-semibold">Company:</Label><p className="text-gray-700">{bookingData.companyName}</p></div>
-                                <div><Label className="font-semibold">Contact:</Label><p className="text-gray-700">{bookingData.contactPerson}</p></div>
-                                <div><Label className="font-semibold">Phone:</Label><p className="text-gray-700">{bookingData.phone}</p></div>
-                                <div><Label className="font-semibold">Email:</Label><p className="text-gray-700">{bookingData.email}</p></div>
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
+                    className="space-y-6"
+                  >
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-sky-700">Step 04 / 04</span>
+                      <h2 className="mt-1 text-2xl font-bold text-slate-950">Review Your Dispatch Request</h2>
+                      <p className="mt-1 text-sm text-slate-600">Please verify details before submitting to our commercial dispatch team.</p>
+                    </div>
 
-                {/* Step 5: Success */}
-                {step === 5 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} className="text-center space-y-4">
-                        <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-                        <h2 className="text-2xl font-bold">Booking Submitted!</h2>
-                        {confirmedBookingId ? (
-                          <div className="mx-auto max-w-md rounded-lg border border-green-200 bg-green-50 p-4">
-                            <p className="text-sm font-semibold text-green-700">Your booking ID</p>
-                            <p className="mt-1 text-3xl font-extrabold tabular-nums text-green-900">{confirmedBookingId}</p>
-                            <p className="mt-2 text-sm text-green-700">Save this ID and share it with our team for faster tracking.</p>
+                    {/* Cargo Overview Card */}
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                        <p className="text-xs font-bold uppercase tracking-wider text-sky-700">01. Cargo Specifications</p>
+                        <button type="button" onClick={() => setStep(1)} className="text-xs font-bold text-sky-700 hover:underline">
+                          Edit
+                        </button>
+                      </div>
+                      <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:text-sm">
+                        <div><span className="text-slate-500">Commodity:</span> <strong className="text-slate-900">{bookingData.cargoType}</strong></div>
+                        <div><span className="text-slate-500">Weight:</span> <strong className="text-slate-900">{bookingData.cargoWeight} kg</strong></div>
+                        {(bookingData.cargoLength || bookingData.cargoWidth || bookingData.cargoHeight) && (
+                          <div className="col-span-2">
+                            <span className="text-slate-500">Dimensions:</span> <strong className="text-slate-900">{bookingData.cargoLength || '-'} x {bookingData.cargoWidth || '-'} x {bookingData.cargoHeight || '-'} ft</strong>
                           </div>
-                        ) : null}
-                        <p className="text-lg text-gray-600">Thank you for your booking. We will get back to you shortly with a confirmation and further details.</p>
-                    </motion.div>
+                        )}
+                        {bookingData.cargoDescription && (
+                          <div className="col-span-2"><span className="text-slate-500">Notes:</span> <span className="text-slate-700">{bookingData.cargoDescription}</span></div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Route Details Card */}
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                        <p className="text-xs font-bold uppercase tracking-wider text-sky-700">02. Route & Schedule</p>
+                        <button type="button" onClick={() => setStep(2)} className="text-xs font-bold text-sky-700 hover:underline">
+                          Edit
+                        </button>
+                      </div>
+                      <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:text-sm">
+                        <div><span className="text-slate-500">Origin:</span> <strong className="text-slate-900">{bookingData.pickupLocation}</strong></div>
+                        <div><span className="text-slate-500">Destination:</span> <strong className="text-slate-900">{bookingData.dropLocation}</strong></div>
+                        <div className="col-span-2"><span className="text-slate-500">Pickup Address:</span> <span className="text-slate-700">{bookingData.pickupAddress}</span></div>
+                        <div className="col-span-2"><span className="text-slate-500">Drop Address:</span> <span className="text-slate-700">{bookingData.dropAddress}</span></div>
+                        <div><span className="text-slate-500">Loading Date:</span> <strong className="text-slate-900">{bookingData.preferredDate}</strong></div>
+                        <div><span className="text-slate-500">Service:</span> <strong className="text-slate-900">{bookingData.serviceType}</strong></div>
+                      </div>
+                    </div>
+
+                    {/* Company Info Card */}
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                        <p className="text-xs font-bold uppercase tracking-wider text-sky-700">03. Shipper Entity</p>
+                        <button type="button" onClick={() => setStep(3)} className="text-xs font-bold text-sky-700 hover:underline">
+                          Edit
+                        </button>
+                      </div>
+                      <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:text-sm">
+                        <div><span className="text-slate-500">Company:</span> <strong className="text-slate-900">{bookingData.companyName}</strong></div>
+                        <div><span className="text-slate-500">Contact:</span> <strong className="text-slate-900">{bookingData.contactPerson}</strong></div>
+                        <div><span className="text-slate-500">Phone:</span> <strong className="text-slate-900">{bookingData.phone}</strong></div>
+                        <div><span className="text-slate-500">Email:</span> <strong className="text-slate-900">{bookingData.email}</strong></div>
+                      </div>
+                    </div>
+                  </motion.div>
                 )}
 
-                {/* Navigation Buttons */}
+                {/* Step 5: Success Screen */}
+                {step === 5 && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center py-8 space-y-5"
+                  >
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 mx-auto">
+                      <CheckCircle2 className="h-10 w-10" />
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950">
+                      Freight Booking Submitted Successfully
+                    </h2>
+                    <p className="text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+                      Our commercial operations desk has received your dispatch request. A dedicated coordinator will review vehicle fit and verify pricing with you shortly.
+                    </p>
+
+                    {confirmedBookingId && (
+                      <div className="my-6 mx-auto max-w-md rounded-2xl border border-emerald-200 bg-emerald-50/70 p-6">
+                        <p className="text-xs font-bold uppercase tracking-wider text-emerald-800">Your Booking Reference</p>
+                        <p className="mt-1 text-3xl font-extrabold tracking-tight text-emerald-950 tabular-nums">
+                          {confirmedBookingId}
+                        </p>
+                        <p className="mt-2 text-xs text-emerald-700">
+                          Please save this reference for tracking and invoice reconciliation.
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
+                      <Button asChild className="h-11 rounded-xl bg-sky-700 px-6 font-bold text-white hover:bg-sky-800 shadow-sm transition-all duration-200 active:scale-[0.98]">
+                        <Link href="/" className="inline-flex items-center justify-center whitespace-nowrap">Return to Home</Link>
+                      </Button>
+                      <Button asChild variant="outline" className="h-11 rounded-xl border border-slate-300 px-6 font-semibold text-slate-800 hover:bg-slate-100 transition-all duration-200 active:scale-[0.98]">
+                        <Link href="/contact" className="inline-flex items-center justify-center whitespace-nowrap">Contact Dispatch Office</Link>
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Form Buttons */}
                 {step < 5 && (
-                  <div className="flex justify-between mt-12 pt-8 border-t">
-                    {step > 1 && (
-                      <Button type="button" variant="outline" onClick={prevStep} size="lg" className="px-8 py-4 text-lg">
+                  <div className="mt-10 pt-6 border-t border-slate-100 flex items-center justify-between">
+                    {step > 1 ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={prevStep}
+                        className="h-11 px-5 border-slate-300 font-semibold text-slate-700 hover:bg-slate-100"
+                      >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
                         Previous
                       </Button>
+                    ) : (
+                      <div />
                     )}
-                    {step < 4 && (
-                      <Button type="button" onClick={nextStep} className="ml-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg">
-                        Next Step
-                        <ArrowRight className="ml-2 h-5 w-5" />
+
+                    {step < 4 ? (
+                      <Button
+                        type="button"
+                        onClick={nextStep}
+                        className="h-11 px-7 font-bold text-white bg-sky-700 hover:bg-sky-800 ml-auto"
+                      >
+                        <span>Continue</span>
+                        <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
-                    )}
-                    {step === 4 && (
-                      <Button type="submit" disabled={isSubmitting} className="ml-auto bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg">
+                    ) : (
+<ClickSuccessButton
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="h-11 px-8 font-bold text-white bg-emerald-600 hover:bg-emerald-700 ml-auto shadow-md"
+                      >
                         {isSubmitting ? (
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <span>Confirming Booking...</span>
+                          </>
                         ) : (
-                          <CheckCircle className="ml-2 h-5 w-5" />
+                          <>
+                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                            <span>Submit Freight Booking</span>
+                          </>
                         )}
-                        {isSubmitting ? 'Submitting…' : 'Confirm Booking'}
-                      </Button>
+                      </ClickSuccessButton>
                     )}
                   </div>
                 )}
               </form>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Right Sticky Booking Summary & SLA Column */}
+            <div className="space-y-6">
+              {/* Dynamic Live Shipment Summary Card */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-wider text-sky-700">Live Shipment Preview</p>
+                <div className="mt-4 space-y-3.5 text-xs">
+                  <div>
+                    <span className="text-slate-400">Route:</span>
+                    <p className="font-bold text-slate-900 mt-0.5">
+                      {bookingData.pickupLocation || 'Origin Hub'} &rarr; {bookingData.dropLocation || 'Destination Hub'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400">Cargo & Weight:</span>
+                    <p className="font-bold text-slate-900 mt-0.5">
+                      {bookingData.cargoType || 'Not specified'} {bookingData.cargoWeight ? `(${bookingData.cargoWeight} kg)` : ''}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400">Service Category:</span>
+                    <p className="font-bold text-slate-900 mt-0.5">
+                      {bookingData.serviceType || 'Standard FTL'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400">Loading Date:</span>
+                    <p className="font-bold text-slate-900 mt-0.5">
+                      {bookingData.preferredDate || 'To be selected'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Institutional Transport Guarantees */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-900">Enterprise SLA Guarantees</p>
+                <div className="mt-4 space-y-3 text-xs text-slate-600">
+                  <div className="flex items-start gap-2.5">
+                    <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>Commercial carrier verified driver & vehicle documentation</span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <Clock className="h-4 w-4 text-sky-700 shrink-0 mt-0.5" />
+                    <span>98.2% on-time transit SLA along primary national highway corridors</span>
+                  </div>
+                  <div className="flex items-start gap-2.5">
+                    <Truck className="h-4 w-4 text-sky-700 shrink-0 mt-0.5" />
+                    <span>Pre-trip mechanical inspection and cargo tarpaulin lashing</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Direct Dispatch Support Contact */}
+              <div className="rounded-2xl border border-sky-100 bg-sky-50/70 p-6">
+                <p className="text-xs font-bold uppercase tracking-wider text-sky-900">Need Immediate Booking Help?</p>
+                <p className="mt-1 text-xs text-slate-600 leading-relaxed">
+                  Have unique dimensional cargo or urgent departure requirements? Call our dispatch desk directly:
+                </p>
+                <a
+                  href="tel:+919924204744"
+                  className="mt-3 inline-flex items-center gap-2 font-bold text-sky-800 text-sm hover:underline"
+                >
+                  <Phone className="h-4 w-4 text-sky-600" />
+                  <span>+91 9924204744</span>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
-      </motion.section>
+      </section>
     </div>
   );
 };

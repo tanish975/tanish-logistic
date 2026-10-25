@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 const withAuth = (WrappedComponent, allowedRoles = []) => {
-  return (props) => {
+  const AuthenticatedComponent = (props) => {
     const router = useRouter();
     const [isVerified, setIsVerified] = useState(false);
 
@@ -45,6 +45,10 @@ const withAuth = (WrappedComponent, allowedRoles = []) => {
         </div>
     ); // Or a loading spinner
   };
+
+  AuthenticatedComponent.displayName = `withAuth(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
+
+  return AuthenticatedComponent;
 };
 
 export default withAuth;

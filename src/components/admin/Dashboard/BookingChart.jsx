@@ -1,23 +1,18 @@
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 const BookingChart = ({ bookings }) => {
-  // In a real app, you'd process bookings to get monthly data.
-  // For now, we'll use some sample data.
-  const data = [
-    { name: "Jan", total: Math.floor(Math.random() * 5000) + 1000 },
-    { name: "Feb", total: Math.floor(Math.random() * 5000) + 1000 },
-    { name: "Mar", total: Math.floor(Math.random() * 5000) + 1000 },
-    { name: "Apr", total: Math.floor(Math.random() * 5000) + 1000 },
-    { name: "May", total: Math.floor(Math.random() * 5000) + 1000 },
-    { name: "Jun", total: Math.floor(Math.random() * 5000) + 1000 },
-    { name: "Jul", total: Math.floor(Math.random() * 5000) + 1000 },
-    { name: "Aug", total: Math.floor(Math.random() * 5000) + 1000 },
-    { name: "Sep", total: Math.floor(Math.random() * 5000) + 1000 },
-    { name: "Oct", total: Math.floor(Math.random() * 5000) + 1000 },
-    { name: "Nov", total: Math.floor(Math.random() * 5000) + 1000 },
-    { name: "Dec", total: Math.floor(Math.random() * 5000) + 1000 },
-  ];
+  const data = MONTHS.map((name, index) => ({
+    name,
+    total: Array.isArray(bookings)
+      ? bookings.filter((booking) => {
+        const date = new Date(booking.createdAt || booking.date || booking.pickupDate);
+        return !Number.isNaN(date.valueOf()) && date.getMonth() === index;
+      }).length
+      : 0,
+  }));
 
   const CHART_COLORS = {
     brand: '#2563EB',
@@ -46,7 +41,7 @@ const BookingChart = ({ bookings }) => {
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => `$${value / 1000}K`}
+              allowDecimals={false}
             />
             <Bar dataKey="total" fill={CHART_COLORS.brand} radius={[4, 4, 0, 0]} />
           </BarChart>

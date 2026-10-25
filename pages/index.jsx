@@ -10,7 +10,6 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import {
-  Activity,
   ArrowRight,
   BadgeCheck,
   CheckCircle2,
@@ -25,9 +24,16 @@ import {
   ShieldCheck,
   Truck,
   Warehouse,
+  Building2,
+  Phone,
+  Check,
+  Sliders,
 } from 'lucide-react';
 import CountUp from 'react-countup';
 import { motion, useReducedMotion } from 'framer-motion';
+import { BentoGrid } from '@/components/animations/BentoGrid';
+import { ProcessDraw } from '@/components/animations/ProcessDraw';
+import { ClickSuccessButton } from '@/components/animations/ClickSuccessButton';
 import { mockFaqs } from '../src/faq';
 import { useSettings } from '@/lib/SettingsContext';
 
@@ -35,81 +41,123 @@ const heroContent = [
   {
     video: '/hero-videos/mixkit-52428-video-52428-full-hd.mp4',
     poster: '/hero-posters/mixkit-52428-video-52428-full-hd.jpg',
-    title: 'Road freight built for serious business',
+    title: 'Road Freight Built for Serious Business',
   },
   {
     video: '/hero-videos/mixkit-cars-and-trucks-crossing-on-a-highway-in-nature-44284-full-hd.mp4',
     poster: '/hero-posters/mixkit-cars-and-trucks-crossing-on-a-highway-in-nature-44284-full-hd.jpg',
-    title: 'Dependable movement across India',
+    title: 'Dependable Movement Across India',
   },
   {
     video: '/hero-videos/mixkit-large-truck-driving-along-a-rural-highway-45488-hd-ready.mp4',
     poster: '/hero-posters/mixkit-large-truck-driving-along-a-rural-highway-45488-hd-ready.jpg',
-    title: 'Your cargo, handled with discipline',
+    title: 'Your Cargo, Handled with Discipline',
   },
   {
     video: '/hero-videos/mixkit-various-vehicles-traverse-the-asphalt-highway-beside-the-breathtaking-desert-52014-full-hd.mp4',
     poster: '/hero-posters/mixkit-various-vehicles-traverse-the-asphalt-highway-beside-the-breathtaking-desert-52014-full-hd.jpg',
-    title: 'Pan-India coverage, every route',
+    title: 'Pan-India Coverage, Every Route',
   },
 ];
 
 const stats = [
-  { value: 5, suffix: '+', label: 'Years moving freight' },
-  { value: 100, suffix: '+', label: 'Cities covered' },
-  { value: 1000, suffix: '+', label: 'Clients supported' },
-  { value: 98, suffix: '%', label: 'On-time delivery' },
-];
-
-const heroSignals = [
-  { label: 'ETA discipline', value: '98% on-time' },
-  { label: 'Primary lanes', value: 'North + West' },
-  { label: 'Quote mode', value: 'Route-first' },
+  { value: 5, suffix: '+', label: 'Years Moving Freight', sub: 'Proven commercial track record' },
+  { value: 100, suffix: '+', label: 'Cities & Hubs Connected', sub: 'Across major industrial belts' },
+  { value: 1000, suffix: '+', label: 'Corporate Clients', sub: 'Manufacturers & distributors' },
+  { value: 98, suffix: '.2%', label: 'On-Time SLA Delivery', sub: 'Disciplined road transit' },
 ];
 
 const serviceHighlights = [
   {
-    title: 'Full truck load',
-    description: 'Dedicated vehicles for production, distribution, and industrial shipments.',
+    title: 'Full Truck Load (FTL)',
+    description: 'Dedicated commercial vehicles for bulk manufacturing, distribution, and heavy industrial shipments.',
     icon: Truck,
+    badge: 'Dedicated Fleet',
+    features: ['Single-point loading & unloading', 'Vehicle sizing for exact load', 'Direct non-stop highway transit'],
+    href: '/services',
   },
   {
-    title: 'Route planning',
-    description: 'Practical road-route coordination for predictable ETAs and fewer handoffs.',
-    icon: Route,
-  },
-  {
-    title: 'Warehouse support',
-    description: 'Pickup and dispatch workflows that stay aligned with your operating rhythm.',
+    title: 'B2B Industrial Cargo',
+    description: 'Scheduled freight coordination for factories, raw material suppliers, packaging, and commercial goods.',
     icon: Warehouse,
+    badge: 'Industrial Movement',
+    features: ['Tarpaulin & closed container security', 'Material safety handling protocols', 'Commercial documentation ready'],
+    href: '/services',
   },
   {
-    title: 'Reliable updates',
-    description: 'Clear communication from booking to delivery, so teams can plan ahead.',
+    title: 'Interstate Highway Freight',
+    description: 'Connecting western manufacturing corridors (Gujarat, Maharashtra) to northern consumer markets (NCR, Punjab).',
+    icon: Route,
+    badge: 'Major Corridors',
+    features: ['Daily scheduled departures', 'Toll & route optimization', 'Dedicated corridor tracking'],
+    href: '/services',
+  },
+  {
+    title: 'Contract Logistics Partnerships',
+    description: 'Long-term corporate transport agreements with committed vehicle availability and predictable lane pricing.',
     icon: ShieldCheck,
+    badge: 'Enterprise SLA',
+    features: ['Dedicated account manager', 'Guaranteed monthly vehicle quota', 'Consolidated monthly billing'],
+    href: '/services',
   },
 ];
 
-const routeSteps = [
-  { label: 'Request', detail: 'Pickup, drop, load type', icon: PackageCheck },
-  { label: 'Match', detail: 'Vehicle and lane planning', icon: Navigation },
-  { label: 'Move', detail: 'Dispatch with route updates', icon: Truck },
-  { label: 'Deliver', detail: 'Proof and closure', icon: BadgeCheck },
+const majorCorridors = [
+  {
+    corridor: 'Vadodara (Gujarat) ↔ Mandi Gobindgarh (Punjab)',
+    distance: '1,280 km',
+    duration: '36 - 44 hrs',
+    cargo: 'Steel, Heavy Industrial Machinery, Equipment',
+    frequency: 'Daily Dispatches',
+    image: '/gallery/Picture1.jpg',
+    status: 'High Volume Lane',
+  },
+  {
+    corridor: 'Ahmedabad / Surat ↔ Delhi NCR Belts',
+    distance: '950 km',
+    duration: '28 - 34 hrs',
+    cargo: 'Textiles, Chemicals, FMCG & Consumer Goods',
+    frequency: 'Daily Dispatches',
+    image: '/gallery/Picture8.jpg',
+    status: 'Express Highway Route',
+  },
+  {
+    corridor: 'Mumbai / Pune ↔ Central India & Indore',
+    distance: '580 km',
+    duration: '18 - 22 hrs',
+    cargo: 'Automotive Parts, Engineering Goods, Packaging',
+    frequency: 'Scheduled Multi-Axle',
+    image: '/gallery/Picture10.jpg',
+    status: 'Direct Route',
+  },
 ];
 
-const laneMetrics = [
-  { label: 'Active route lanes', value: '24', sub: 'monitored corridors' },
-  { label: 'Dispatch window', value: '2h', sub: 'typical coordination' },
-  { label: 'Industrial focus', value: 'B2B', sub: 'factory to destination' },
-];
-
-const hubStations = [
-  { name: 'Mumbai', region: 'Maharashtra', image: 'https://images.pexels.com/photos/2234638/pexels-photo-2234638.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop', description: 'Main western hub for manufacturing, port, and FMCG freight.' },
-  { name: 'Delhi NCR', region: 'North India', image: 'https://images.pexels.com/photos/931007/pexels-photo-931007.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop', description: 'Capital-region access for high-volume commercial lanes.' },
-  { name: 'Bengaluru', region: 'Karnataka', image: 'https://images.pexels.com/photos/38326/pexels-photo-38326.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop', description: 'Southern network support for technology and industrial clients.' },
-  { name: 'Jaipur', region: 'Rajasthan', image: 'https://images.pexels.com/photos/1007427/pexels-photo-1007427.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop', description: 'Strategic western route coverage for regional movement.' },
-  { name: 'Kolkata', region: 'West Bengal', image: 'https://images.pexels.com/photos/1007657/pexels-photo-1007657.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop', description: 'Eastern corridor access for distribution and port-linked freight.' },
-  { name: 'Chennai', region: 'Tamil Nadu', image: 'https://images.pexels.com/photos/1007657/pexels-photo-1007657.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop', description: 'Gateway to southern ports, factories, and industrial belts.' },
+const comparisonPoints = [
+  {
+    feature: 'Corridor Route Planning',
+    tanish: 'Route-first planning with verified toll & road condition checks',
+    traditional: 'Unplanned transit with frequent unnotified halts',
+  },
+  {
+    feature: 'Driver Verification & Vetting',
+    tanish: 'Commercial license verified, background vetted, disciplined driving hours',
+    traditional: 'Casual subcontracted drivers with varied accountability',
+  },
+  {
+    feature: 'Transit Visibility & Support',
+    tanish: '24/7 dedicated dispatch desk with live corridor updates',
+    traditional: 'Difficult to reach during transit, updates only after delay',
+  },
+  {
+    feature: 'Pricing & Invoicing',
+    tanish: 'Transparent quotation upfront, GST compliant, zero surprise charges',
+    traditional: 'Hidden detention fees, unexpected loading surcharges',
+  },
+  {
+    feature: 'SLA & On-Time Guarantee',
+    tanish: '98.2% on-time delivery commitment with proactive delay mitigation',
+    traditional: 'No firm ETA guarantee, frequent delivery rollover',
+  },
 ];
 
 const containerVariants = {
@@ -121,7 +169,7 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { y: 18, opacity: 0 },
+  hidden: { y: 16, opacity: 0 },
   visible: {
     y: 0,
     opacity: 1,
@@ -149,11 +197,13 @@ const Home = () => {
   }, [isPaused, shouldReduceMotion]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-950">
+    <div className="min-h-screen bg-white text-slate-950 font-sans">
       <SiteMetadata
-        title="Tanish Logistic — Road freight built for serious business"
-        description="Tanish Logistic delivers reliable B2B road freight across India. Explore services, book cargo transport, check coverage, and get quotes from a team that treats your shipments with discipline."
+        title="Tanish Logistic — Reliable Pan-India B2B Road Freight & Transport"
+        description="Tanish Logistic delivers dependable B2B road freight across India. Full truckload (FTL), dedicated corporate fleet, and scheduled industrial movement connecting major corridors."
       />
+
+      {/* Hero Section with Video Background */}
       <section
         className="relative isolate min-h-[calc(100dvh-5rem)] overflow-hidden bg-slate-950 text-white"
         onFocus={() => setIsPaused(true)}
@@ -164,7 +214,7 @@ const Home = () => {
           {shouldReduceMotion ? (
             <Image
               src={heroContent[0].poster}
-              alt=""
+              alt="Tanish Logistic fleet on road"
               fill
               priority
               sizes="100vw"
@@ -179,355 +229,417 @@ const Home = () => {
               loop
               playsInline
               className="absolute inset-0 h-full w-full object-cover"
-              initial={{ opacity: 0, scale: 1.02 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
               aria-hidden="true"
             >
               <source src={heroContent[currentHeroIndex].video} type="video/mp4" />
             </motion.video>
           )}
-          <div className="absolute inset-0 bg-slate-950/72" />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950 to-transparent" />
+          <div className="absolute inset-0 bg-slate-950/78" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
         </div>
 
-        <div className="relative mx-auto grid min-h-[calc(100dvh-5rem)] max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+        <div className="relative mx-auto flex min-h-screen max-w-7xl items-center px-4 pt-28 pb-16 sm:px-6 sm:pt-36 sm:pb-24 lg:px-8">
+          {/* Hero Content */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
             className="max-w-3xl"
           >
-            <motion.div variants={itemVariants} className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-sky-100 backdrop-blur">
-              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+<motion.div
+              className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-sky-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-sky-200 backdrop-blur-md"
+            >
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               {slogan}
             </motion.div>
-            <motion.h1 variants={itemVariants} className="max-w-4xl text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
+
+
+            <motion.h1
+              className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-[3.75rem] lg:leading-[1.12]"
+            >
               {heroContent[currentHeroIndex].title}
             </motion.h1>
-            <motion.p variants={itemVariants} className="mt-6 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
-              Reliable B2B transport for manufacturers, distributors, and growing teams that need shipments coordinated with care across Indian road networks.
+
+            <motion.p
+              className="mt-6 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg"
+            >
+              Scheduled Full Truckload (FTL), dedicated corporate fleet, and industrial freight transit connecting India&apos;s primary commercial corridors with route discipline and guaranteed SLAs.
             </motion.p>
-            <motion.div variants={itemVariants} className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="h-12 rounded-md px-6 text-base font-bold text-white shadow-xl shadow-sky-950/30" style={{ backgroundColor: primaryColor }}>
-                <Link href="/contact">
-                  Get a freight quote
-                  <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
+
+            <motion.div
+              className="mt-8 flex flex-wrap items-center gap-4"
+            >
+              <Button
+                asChild
+                size="lg"
+                className="group relative h-12 rounded-xl px-7 text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-950/50 hover:shadow-xl hover:shadow-sky-900/60 border border-white/20 transition-all duration-200 active:scale-[0.98]"
+                style={{ backgroundColor: primaryColor }}
+              >
+                <Link href="/contact" className="inline-flex items-center justify-center gap-2 whitespace-nowrap">
+                  <span>Get Freight Quote</span>
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="h-12 rounded-md border-white/70 bg-white/10 px-6 text-base font-bold text-white backdrop-blur hover:bg-white hover:text-slate-950">
-                <Link href="/services">View services</Link>
+
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="h-12 rounded-xl border border-slate-700/80 bg-slate-900/80 px-6 text-sm sm:text-base font-semibold text-slate-100 shadow-sm backdrop-blur-sm hover:border-slate-500 hover:bg-slate-800 hover:text-white transition-all duration-200 active:scale-[0.98]"
+              >
+                <Link href="/services" className="inline-flex items-center justify-center whitespace-nowrap">
+                  Explore Capabilities
+                </Link>
               </Button>
+            </motion.div>
+
+            {/* Quick Hero Badges */}
+            <motion.div
+              variants={itemVariants}
+              className="mt-10 pt-6 border-t border-white/10 grid grid-cols-3 gap-4 text-xs"
+            >
+              <div>
+                <p className="font-extrabold text-white text-sm">98.2%</p>
+                <p className="text-slate-400 mt-0.5">On-Time SLA</p>
+              </div>
+              <div>
+                <p className="font-extrabold text-white text-sm">100+ Hubs</p>
+                <p className="text-slate-400 mt-0.5">Pan-India Reach</p>
+              </div>
+              <div>
+                <p className="font-extrabold text-white text-sm">24/7 Desk</p>
+                <p className="text-slate-400 mt-0.5">Active Transit Support</p>
+              </div>
             </motion.div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease: 'easeOut' }}
-            className="relative overflow-hidden rounded-lg border border-white/15 bg-white/10 p-5 shadow-2xl shadow-slate-950/40 backdrop-blur-md sm:p-6"
+          {/* Discreet Video Pause/Play Control in Bottom Right */}
+          <button
+            type="button"
+            onClick={() => setIsPaused((paused) => !paused)}
+            className="absolute bottom-8 right-6 sm:right-8 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-slate-900/60 text-white backdrop-blur transition hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            aria-label={isPaused ? 'Resume video rotation' : 'Pause video rotation'}
           >
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.16)_0,rgba(255,255,255,0)_42%)]" />
-            <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-sky-200/70 to-transparent" />
-            <div className="flex items-center justify-between gap-4 border-b border-white/15 pb-5">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-sky-100">Live operations focus</p>
-                <h2 className="mt-2 text-2xl font-bold">Built around timing, routes, and accountability.</h2>
+            {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+          </button>
+        </div>
+      </section>
+
+      {/* Metrics & Operational Track Record */}
+      <section className="border-b border-slate-200/80 bg-white py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:gap-12">
+            {stats.map((stat, idx) => (
+              <div key={idx} className="relative pl-6 border-l-2 border-sky-600">
+                <div className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-950 tabular-nums">
+                  <CountUp end={stat.value} duration={2} enableScrollSpy={!shouldReduceMotion} />
+                  <span>{stat.suffix}</span>
+                </div>
+                <p className="mt-2 text-sm sm:text-base font-bold text-slate-900">{stat.label}</p>
+                <p className="mt-0.5 text-xs text-slate-500">{stat.sub}</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsPaused((paused) => !paused)}
-                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-white/20 bg-white/10 text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-300/70"
-                aria-label={isPaused ? 'Resume hero videos' : 'Pause hero videos'}
-                aria-pressed={isPaused}
-              >
-                {isPaused ? <Play className="h-5 w-5" aria-hidden="true" /> : <Pause className="h-5 w-5" aria-hidden="true" />}
-              </button>
-            </div>
-            <div className="mt-6 rounded-lg border border-white/12 bg-slate-950/35 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-sky-400/15 text-sky-200">
-                    <Activity className="h-5 w-5" aria-hidden="true" />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Photographic Split Section: Built on Road Discipline */}
+      <section className="py-20 sm:py-28 bg-slate-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            {/* Editorial Content Column */}
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+                Operational Discipline
+              </span>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl lg:leading-tight">
+                Engineering road freight for high-value Indian supply chains.
+              </h2>
+              <p className="mt-6 text-base leading-relaxed text-slate-600 sm:text-lg">
+                At Tanish Logistic, we operate with a simple premise: commercial transport succeeds on route planning, vehicle fit, driver integrity, and transparent communication before wheels start turning.
+              </p>
+
+              <div className="mt-8 space-y-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-sky-100 text-sky-700 font-bold text-xs mt-0.5">
+                    01
                   </div>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-300">Lane status</p>
-                    <p className="text-base font-extrabold text-white">Vadodara to NCR</p>
+                    <h3 className="text-base font-bold text-slate-900">Right Vehicle Matching</h3>
+                    <p className="mt-1 text-sm text-slate-600 leading-relaxed">
+                      We match your exact cargo weight, dimensions, and fragility to the proper chassis and axle rating — eliminating over-capacity risks or under-utilized space.
+                    </p>
                   </div>
                 </div>
-                <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-200">On schedule</span>
-              </div>
-              <div className="mt-5 grid grid-cols-[auto_1fr_auto_1fr_auto] items-center gap-2 text-xs font-bold text-slate-300">
-                <span className="h-3 w-3 rounded-full bg-sky-300" />
-                <span className="h-px bg-gradient-to-r from-sky-300 to-white/25" />
-                <span className="h-3 w-3 rounded-full bg-white" />
-                <span className="h-px bg-gradient-to-r from-white/25 to-emerald-300" />
-                <span className="h-3 w-3 rounded-full bg-emerald-300" />
-              </div>
-              <div className="mt-3 grid grid-cols-3 text-xs font-semibold text-slate-300">
-                <span>Booked</span>
-                <span className="text-center">In transit</span>
-                <span className="text-right">Delivery</span>
-              </div>
-            </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {[
-                ['Primary lanes', 'Punjab, Gujarat, Maharashtra, NCR'],
-                ['Best fit', 'B2B freight and industrial movement'],
-                ['Communication', 'Booking-to-delivery coordination'],
-                ['Response', 'Quote-first support for new routes'],
-              ].map(([label, value]) => (
-                <div key={label} className="rounded-md border border-white/12 bg-slate-950/25 p-4">
-                  <p className="text-sm font-medium text-slate-300">{label}</p>
-                  <p className="mt-2 text-base font-bold leading-6 text-white">{value}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              {heroSignals.map((signal) => (
-                <div key={signal.label} className="rounded-md bg-white/10 p-3">
-                  <p className="text-xs font-semibold text-slate-300">{signal.label}</p>
-                  <p className="mt-1 text-sm font-extrabold text-white">{signal.value}</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
 
-      <section className="border-b border-slate-200 bg-white py-8">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 px-px md:grid-cols-4">
-          {stats.map((stat) => (
-            <div key={stat.label} className="bg-white px-4 py-6 text-center sm:px-6">
-              <div className="text-3xl font-extrabold tabular-nums text-slate-950 sm:text-4xl">
-                <CountUp end={stat.value} duration={2.2} enableScrollSpy={!shouldReduceMotion} />
-                {stat.suffix}
-              </div>
-              <p className="mt-2 text-sm font-semibold text-slate-600 sm:text-base">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="relative overflow-hidden bg-slate-950 py-16 text-white sm:py-20">
-        <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(148,163,184,0.2)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.2)_1px,transparent_1px)] [background-size:48px_48px]" aria-hidden="true" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-wide text-sky-300">Route intelligence</p>
-              <h2 className="mt-3 text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">A command-center feel for freight decisions.</h2>
-              <p className="mt-5 max-w-xl text-base leading-8 text-slate-300">
-                The new experience shows buyers that the team thinks in routes, timing, vehicle fit, and delivery confidence before a shipment moves.
-              </p>
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {laneMetrics.map((metric) => (
-                  <div key={metric.label} className="rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur">
-                    <p className="text-3xl font-extrabold text-white">{metric.value}</p>
-                    <p className="mt-1 text-sm font-bold text-sky-200">{metric.label}</p>
-                    <p className="mt-2 text-xs font-medium text-slate-400">{metric.sub}</p>
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-sky-100 text-sky-700 font-bold text-xs mt-0.5">
+                    02
                   </div>
-                ))}
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">Verified Driver & Fleet Integrity</h3>
+                    <p className="mt-1 text-sm text-slate-600 leading-relaxed">
+                      Every commercial driver is verified with background credentials, commercial driving permits, and adherence to safe highway transit hours.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-sky-100 text-sky-700 font-bold text-xs mt-0.5">
+                    03
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">Single Point of Dispatch Coordination</h3>
+                    <p className="mt-1 text-sm text-slate-600 leading-relaxed">
+                      No chasing multiple brokers. A dedicated operations manager coordinates pickup, toll corridors, highway status, and delivery confirmation.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-10 flex flex-wrap items-center gap-4">
+                <Button asChild className="h-11 rounded-xl px-6 text-sm font-bold text-white shadow-sm transition-all duration-200 active:scale-[0.98]" style={{ backgroundColor: primaryColor }}>
+                  <Link href="/about" className="inline-flex items-center justify-center gap-2 whitespace-nowrap">
+                    <span>Our Story & Mission</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="h-11 rounded-xl border border-slate-300 px-6 text-sm font-semibold text-slate-800 hover:bg-slate-100 transition-all duration-200 active:scale-[0.98]">
+                  <Link href="/whyus" className="inline-flex items-center justify-center whitespace-nowrap">Why Choose Us</Link>
+                </Button>
               </div>
             </div>
 
-            <div className="relative min-h-[460px] overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/30 backdrop-blur">
-              <div className="absolute inset-0 [background-image:radial-gradient(circle_at_center,rgba(125,211,252,0.13)_1px,transparent_1px)] [background-size:28px_28px]" aria-hidden="true" />
-              <div className="relative flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Network view</p>
-                  <h3 className="mt-1 text-xl font-extrabold">Western corridor dispatch</h3>
-                </div>
-                <div className="flex h-11 w-11 items-center justify-center rounded-md bg-emerald-400/15 text-emerald-200">
-                  <Gauge className="h-5 w-5" aria-hidden="true" />
-                </div>
-              </div>
-
-              <div className="relative mt-8 h-64 rounded-lg border border-white/10 bg-slate-950/40">
-                <div className="absolute left-[12%] top-[64%] h-4 w-4 rounded-full bg-sky-300 shadow-[0_0_24px_rgba(125,211,252,0.9)]" />
-                <div className="absolute left-[37%] top-[42%] h-4 w-4 rounded-full bg-white shadow-[0_0_22px_rgba(255,255,255,0.75)]" />
-                <div className="absolute left-[68%] top-[24%] h-4 w-4 rounded-full bg-emerald-300 shadow-[0_0_24px_rgba(110,231,183,0.9)]" />
-                <div className="absolute left-[79%] top-[58%] h-4 w-4 rounded-full bg-amber-300 shadow-[0_0_24px_rgba(252,211,77,0.8)]" />
-                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 640 260" role="img" aria-label="Stylized logistics route map">
-                  <path d="M72 172 C180 112 214 118 282 114 C382 108 405 44 532 64" fill="none" stroke="rgba(125,211,252,0.6)" strokeWidth="3" strokeLinecap="round" strokeDasharray="8 10" />
-                  <path d="M282 114 C366 142 414 182 544 152" fill="none" stroke="rgba(251,191,36,0.58)" strokeWidth="3" strokeLinecap="round" strokeDasharray="8 10" />
-                </svg>
-                {!shouldReduceMotion && (
-                  <>
-                    <motion.div
-                      className="absolute left-[12%] top-[64%] h-2.5 w-2.5 rounded-full bg-white"
-                      animate={{ x: [0, 165, 365, 455], y: [0, -76, -126, -108], opacity: [0, 1, 1, 0] }}
-                      transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
-                    />
-                    <motion.div
-                      className="absolute left-[37%] top-[42%] h-2.5 w-2.5 rounded-full bg-amber-100"
-                      animate={{ x: [0, 95, 210], y: [0, 52, 38], opacity: [0, 1, 0] }}
-                      transition={{ duration: 4.2, repeat: Infinity, delay: 0.8, ease: 'easeInOut' }}
-                    />
-                  </>
-                )}
-                <div className="absolute bottom-4 left-4 right-4 grid gap-3 sm:grid-cols-3">
-                  {['Pickup verified', 'Vehicle assigned', 'ETA tracking'].map((label) => (
-                    <div key={label} className="rounded-md border border-white/10 bg-slate-950/70 px-3 py-2 text-xs font-bold text-slate-200 backdrop-blur">
-                      {label}
+            {/* Photographic Right Column */}
+            <div className="relative">
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-200 shadow-xl ring-1 ring-slate-900/10">
+                <Image
+                  src="/gallery/Picture1.jpg"
+                  alt="Tanish Logistic commercial truck moving on highway"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+                
+                {/* Floating Image Badge */}
+                <div className="absolute bottom-6 left-6 right-6 rounded-xl border border-white/20 bg-slate-900/85 p-4 text-white backdrop-blur-md">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <Truck className="h-5 w-5 text-sky-400" />
+                      <div>
+                        <p className="text-xs text-slate-300">Active Freight Asset</p>
+                        <p className="text-sm font-bold text-white">Commercial Long-Haul Carrier</p>
+                      </div>
                     </div>
-                  ))}
+                    <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-bold text-emerald-300 border border-emerald-500/30">
+                      GPS Monitored
+                    </span>
+                  </div>
                 </div>
-              </div>
-
-              <div className="relative mt-5 grid gap-3 sm:grid-cols-4">
-                {routeSteps.map((step, index) => {
-                  const Icon = step.icon;
-                  return (
-                    <motion.div
-                      key={step.label}
-                      initial={{ opacity: 0, y: 12 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: shouldReduceMotion ? 0 : 0.35, delay: shouldReduceMotion ? 0 : index * 0.05 }}
-                      className="rounded-lg border border-white/10 bg-white/5 p-3"
-                    >
-                      <Icon className="h-5 w-5 text-sky-200" aria-hidden="true" />
-                      <p className="mt-3 text-sm font-extrabold text-white">{step.label}</p>
-                      <p className="mt-1 text-xs leading-5 text-slate-400">{step.detail}</p>
-                    </motion.div>
-                  );
-                })}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-slate-50 py-16 sm:py-20">
+      {/* Core Logistics Capabilities Bento Grid */}
+      <section className="py-20 sm:py-28 bg-white border-b border-slate-200/80">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-wide text-sky-700">What we manage</p>
-              <h2 className="mt-3 text-3xl font-extrabold tracking-normal text-slate-950 sm:text-4xl">Freight workflows that stay practical on Indian roads.</h2>
-              <p className="mt-5 text-base leading-8 text-slate-600">
-                The experience is built for buyers who need clarity before they book: what can move, where it can move, and how the team will stay informed.
-              </p>
-              <Button asChild className="mt-7 h-11 rounded-md px-5 font-bold" style={{ backgroundColor: primaryColor }}>
-                <Link href="/book">
-                  Start a booking
-                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-                </Link>
-              </Button>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              {serviceHighlights.map((service) => {
-                const Icon = service.icon;
-                return (
-                  <motion.div
-                    key={service.title}
-                    variants={itemVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: '-80px' }}
-                    className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-                  >
-                    <div className="flex h-11 w-11 items-center justify-center rounded-md bg-sky-50 text-sky-700">
-                      <Icon className="h-5 w-5" aria-hidden="true" />
-                    </div>
-                    <h3 className="mt-5 text-xl font-bold text-slate-950">{service.title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-slate-600">{service.description}</p>
-                  </motion.div>
-                );
-              })}
-            </div>
+          <div className="max-w-3xl">
+            <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+              Service Capabilities
+            </span>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+              Commercial road freight solutions built for predictable supply chains.
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">
+              Each capability is designed around the real demands of plant managers, logistics directors, and procurement teams.
+            </p>
           </div>
+
+          <BentoGrid
+            items={serviceHighlights.map((service, index) => ({
+              id: service.title,
+              icon: service.icon,
+              title: service.title,
+              description: service.description,
+              features: service.features,
+              colSpan: index % 3 === 0 ? 2 : 1,
+            }))}
+          />
         </div>
       </section>
 
-      <section className="bg-white py-16 sm:py-20">
+      {/* Strategic Corridor Showcase with Real Photography */}
+      <section className="py-20 sm:py-28 bg-slate-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
             <div className="max-w-2xl">
-              <p className="text-sm font-bold uppercase tracking-wide text-sky-700">Coverage network</p>
-              <h2 className="mt-3 text-3xl font-extrabold text-slate-950 sm:text-4xl">Major hubs, connected by road discipline.</h2>
+              <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+                Highway Corridors
+              </span>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+                High-frequency freight routes connecting major manufacturing hubs.
+              </h2>
             </div>
-            <Button asChild variant="outline" className="h-11 rounded-md border-slate-300 px-5 font-bold text-slate-800 hover:bg-slate-100">
-              <Link href="/services">Explore services</Link>
+            <Button asChild variant="outline" className="h-11 rounded-lg border-slate-300 font-bold text-slate-800 hover:bg-white shrink-0">
+              <Link href="/contact">Inquire for Custom Lane</Link>
             </Button>
           </div>
 
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {hubStations.map((hub) => (
-              <article key={`${hub.name}-${hub.region}`} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                <div className="relative aspect-[16/10]">
+          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {majorCorridors.map((lane, idx) => (
+              <div
+                key={idx}
+                className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-xl hover:-translate-y-1"
+              >
+                <div className="relative aspect-[16/10] overflow-hidden bg-slate-200">
                   <Image
-                    src={hub.image}
-                    alt={`${hub.name} logistics hub`}
+                    src={lane.image}
+                    alt={lane.corridor}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
+                  <div className="absolute top-3 right-3 rounded-md bg-slate-900/80 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur">
+                    {lane.status}
+                  </div>
                 </div>
-                <div className="p-5">
-                  <div className="flex items-start gap-3">
-                    <MapPin className="mt-1 h-5 w-5 shrink-0 text-sky-700" aria-hidden="true" />
+
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-slate-950 leading-snug">
+                    {lane.corridor}
+                  </h3>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg bg-slate-50 p-3 text-xs">
                     <div>
-                      <h3 className="text-xl font-bold text-slate-950">{hub.name}</h3>
-                      <p className="text-sm font-semibold text-slate-500">{hub.region}</p>
+                      <p className="text-slate-500">Route Distance</p>
+                      <p className="font-bold text-slate-900">{lane.distance}</p>
+                    </div>
+                    <div>
+                      <p className="text-slate-500">Expected SLA</p>
+                      <p className="font-bold text-slate-900">{lane.duration}</p>
                     </div>
                   </div>
-                  <p className="mt-4 text-sm leading-7 text-slate-600">{hub.description}</p>
+
+                  <div className="mt-4 text-xs text-slate-600">
+                    <p><strong className="text-slate-800">Typical Cargo:</strong> {lane.cargo}</p>
+                    <p className="mt-1"><strong className="text-slate-800">Frequency:</strong> {lane.frequency}</p>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <Link
+                      href="/book"
+                      className="text-xs font-bold text-sky-700 hover:text-sky-800 inline-flex items-center gap-1"
+                    >
+                      <span>Book Shipment on Lane</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
                 </div>
-              </article>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-slate-50 py-16 sm:py-20">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-wide text-sky-700">Common questions</p>
-            <h2 className="mt-3 text-3xl font-extrabold text-slate-950 sm:text-4xl">Answers before the first call.</h2>
-            <p className="mt-5 text-base leading-8 text-slate-600">
-              Clear expectations make logistics easier. These are the questions clients usually ask before booking with {siteName}.
+      {/* Corporate Comparison Table */}
+      <section className="py-20 sm:py-28 bg-white border-b border-slate-200">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center">
+            <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+              The Tanish Difference
+            </span>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+              Why commercial supply chains choose us over unorganized transport.
+            </h2>
+            <p className="mt-4 text-base text-slate-600">
+              Reliable freight is built on institutional accountability, clear contracts, and verified transport assets.
             </p>
           </div>
-          <Accordion type="single" collapsible className="w-full rounded-lg border border-slate-200 bg-white px-5 shadow-sm">
-            {mockFaqs.slice(0, 6).map((faq, index) => (
-              <AccordionItem key={faq.question} value={`item-${index}`} className="border-slate-200">
-                <AccordionTrigger className="text-left text-base font-bold text-slate-950 hover:text-sky-700">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-sm leading-7 text-slate-600">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
 
-      <section className="bg-slate-950 py-16 text-white sm:py-20">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8">
-          <div>
-            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-md bg-sky-500/15 text-sky-200">
-              <Clock3 className="h-6 w-6" aria-hidden="true" />
+          <div className="mt-14 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50 text-slate-900">
+                    <th className="p-4 sm:p-5 font-bold w-1/3">Key Operational Feature</th>
+                    <th className="p-4 sm:p-5 font-bold w-1/3 bg-sky-50 text-sky-950 border-x border-sky-100">
+                      Tanish Logistic Standard
+                    </th>
+                    <th className="p-4 sm:p-5 font-bold w-1/3 text-slate-500">
+                      Traditional Unorganized Transporter
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {comparisonPoints.map((row, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50/50 transition">
+                      <td className="p-4 sm:p-5 font-bold text-slate-900">
+                        {row.feature}
+                      </td>
+                      <td className="p-4 sm:p-5 bg-sky-50/50 border-x border-sky-100/70 text-slate-900 font-medium">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                          <span>{row.tanish}</span>
+                        </div>
+                      </td>
+                      <td className="p-4 sm:p-5 text-slate-500">
+                        {row.traditional}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <h2 className="text-3xl font-extrabold sm:text-4xl">Need a dependable route for your next shipment?</h2>
-            <p className="mt-4 max-w-2xl text-base leading-8 text-slate-300">
-              Share pickup, drop, load type, and timing. The team will help you find the right movement plan.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
-            <Button asChild size="lg" className="h-12 rounded-md px-6 font-bold text-white" style={{ backgroundColor: primaryColor }}>
-              <Link href="/contact">
-                Request quote
-                <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="h-12 rounded-md border-white/30 bg-white/5 px-6 font-bold text-white hover:bg-white hover:text-slate-950">
-              <Link href="/services">Compare services</Link>
-            </Button>
           </div>
         </div>
       </section>
+
+      {/* FAQ Accordion */}
+      <section className="py-20 sm:py-28 bg-slate-50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+                Frequently Asked Questions
+              </span>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+                Clear expectations before the first shipment.
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-slate-600">
+                Have questions about billing, load capacity, transit times, or vehicle booking? Here are answers to what clients ask most frequently.
+              </p>
+              <div className="mt-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <p className="text-sm font-bold text-slate-900">Need specific custom route pricing?</p>
+                <p className="mt-1 text-xs text-slate-600">Our operations team provides direct quotes within hours.</p>
+                <Button asChild size="sm" className="mt-4 rounded-md font-bold text-white" style={{ backgroundColor: primaryColor }}>
+                  <Link href="/contact">Contact Dispatch Office</Link>
+                </Button>
+              </div>
+            </div>
+
+            <Accordion type="single" collapsible className="w-full rounded-2xl border border-slate-200 bg-white px-6 shadow-sm">
+              {mockFaqs.slice(0, 6).map((faq, index) => (
+                <AccordionItem key={faq.question} value={`item-${index}`} className="border-slate-100 py-2">
+                  <AccordionTrigger className="text-left text-base font-bold text-slate-950 hover:text-sky-700">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm leading-relaxed text-slate-600">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 };

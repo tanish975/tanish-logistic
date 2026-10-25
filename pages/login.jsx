@@ -36,7 +36,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4 pt-24 pb-12">
       <SiteMetadata
         title="Admin login — Tanish Logistic"
         description="Sign in to the Tanish Logistic admin dashboard to manage bookings, routes, customers, reviews, and settings."
