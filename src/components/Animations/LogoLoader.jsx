@@ -41,7 +41,7 @@ export function LogoLoader({
           className="relative z-10 flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-full bg-slate-900/60 p-2 shadow-2xl shadow-sky-950/80 backdrop-blur-md border border-white/20"
         >
           <img
-            src="/icon.png"
+            src="/logo-animated.svg"
             alt="Tanish Logistic"
             className="h-full w-full object-contain rounded-full drop-shadow-[0_4px_16px_rgba(2,132,199,0.5)]"
           />

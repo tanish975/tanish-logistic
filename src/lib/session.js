@@ -32,6 +32,27 @@ export function withSessionRoute(handler) {
 export function withAdminRoute(handler) {
   return async function adminProtectedHandler(req, res) {
     try {
+      // CSRF defense-in-depth: for state-changing methods, reject requests
+      // whose Origin (if the browser sent one) does not match this host.
+      // SameSite=Lax cookies already block most cross-site POSTs; this
+      // covers the remainder (e.g. older browsers, origin spoofing via
+      // subdomain POSTs without cookies is still rejected by the 401 below).
+      if (req.method !== 'GET' && req.method !== 'HEAD') {
+        const origin = req.headers?.origin;
+        if (origin) {
+          const host = req.headers?.host;
+          let originHost = null;
+          try {
+            originHost = new URL(origin).host;
+          } catch (_e) {
+            originHost = null;
+          }
+          if (!host || !originHost || originHost !== host) {
+            return res.status(403).json({ message: 'Forbidden. Cross-origin request rejected.' });
+          }
+        }
+      }
+
       req.session = await getIronSession(req, res, sessionOptions);
       const user = req.session?.user;
       if (!user) {

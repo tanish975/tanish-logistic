@@ -149,6 +149,7 @@ export const Footer = () => {
             <Link href="/about" className="hover:text-slate-200 transition">About Us</Link>
             <Link href="/services" className="hover:text-slate-200 transition">Services</Link>
             <Link href="/contact" className="hover:text-slate-200 transition">Dispatch Support</Link>
+            <Link href="/privacy" className="hover:text-slate-200 transition">Privacy Policy</Link>
             <Link href="/book" className="text-sky-400 hover:text-sky-300 transition font-semibold">Book Shipment</Link>
           </div>
         </div>

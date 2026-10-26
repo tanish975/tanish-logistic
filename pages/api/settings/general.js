@@ -6,7 +6,7 @@ const settingsFilePath = path.resolve(process.cwd(), 'data/settings.json');
 
 const defaultSettings = {
   siteName: 'Tanish Logistic',
-  logoUrl: '/icon.png',
+  logoUrl: '/logo-animated.svg',
   slogan: 'Driven by Trust, Powered by Roads',
   contactDetails: 'Vadodara, Gujarat, India',
   copyright: `© ${new Date().getFullYear()} Tanish Logistic. All rights reserved.`,
