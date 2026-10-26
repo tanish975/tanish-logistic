@@ -32,8 +32,14 @@ async function generateBookingId() {
 }
 
 async function sendBookingEmails(booking) {
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) {
+  // ADMIN_EMAIL supports one address or a comma-separated list.
+  // Every listed address receives the admin notification.
+  const adminEmails = (process.env.ADMIN_EMAIL || '')
+    .split(',')
+    .map((email) => email.trim())
+    .filter(Boolean);
+  const primaryAdminEmail = adminEmails[0];
+  if (adminEmails.length === 0) {
     console.warn(
       '[add-booking] ADMIN_EMAIL is not configured - skipping confirmation emails for booking ' +
         booking.bookingId +
@@ -87,7 +93,7 @@ async function sendBookingEmails(booking) {
         <p><strong>Status:</strong> <span style="color: #f59e0b;">Pending Confirmation</span></p>
       </div>
       <p>Our team will review your booking and get back to you shortly. You can track your booking status using your booking ID: <strong>${escapeHtml(booking.bookingId)}</strong></p>
-      <p>If you have any questions or need to make changes, feel free to contact us at <a href="mailto:${escapeHtml(adminEmail)}">${escapeHtml(adminEmail)}</a> or call us.</p>
+      <p>If you have any questions or need to make changes, feel free to contact us at <a href="mailto:${escapeHtml(primaryAdminEmail)}">${escapeHtml(primaryAdminEmail)}</a> or call us.</p>
       <br>
       <p>Best regards,<br>The Tanish Logistic Team</p>
     </div>
@@ -96,7 +102,7 @@ async function sendBookingEmails(booking) {
   await Promise.allSettled([
     resend.emails.send({
       from: 'Tanish Logistic - New Booking <noreply@tanishlogistic.com>',
-      to: adminEmail,
+      to: adminEmails,
       subject: `New Booking Received - ${escapeHtml(booking.bookingId)} - ${escapeHtml(booking.clientName)}`,
       html: adminHtml,
     }),
