@@ -41,6 +41,15 @@ const ThankYou = () => {
   const router = useRouter();
   const bookingId = router.query?.booking;
 
+  // A thank-you page only makes sense right after a booking submission.
+  // If someone lands here without a booking reference (stale tab, direct
+  // visit, refresh), send them home instead of an orphaned success screen.
+  React.useEffect(() => {
+    if (router.isReady && !router.query?.booking) {
+      router.replace('/');
+    }
+  }, [router]);
+
   return (
     <div className="min-h-screen bg-white text-slate-950 font-sans">
       <SiteMetadata
