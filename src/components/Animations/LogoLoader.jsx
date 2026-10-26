@@ -11,48 +11,32 @@ export function LogoLoader({
 
   const content = (
     <div className={`flex flex-col items-center justify-center p-6 text-center select-none ${className}`}>
-      {/* Outer Glow Halo & Medallion Container */}
+      {/*
+        The loader mirrors the site emblem: /logo-animated.svg plays its own
+        animation set (ring draw-in, monogram rise, transit orbit rotation,
+        marching road dashes, gold shimmer) — so we frame it in gold and let
+        it move exactly like the header logo.
+      */}
       <div className="relative flex items-center justify-center">
-        {/* Ambient Back Glow */}
-        <div className="absolute -inset-6 rounded-full bg-sky-500/20 blur-2xl animate-pulse" />
+        {/* Warm ambient gold glow */}
+        <div className="absolute -inset-8 rounded-full bg-[#e8c877]/10 blur-2xl" />
 
-        {/* Outer Orbital Rotating Ring */}
-        {!shouldReduceMotion && (
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 4, ease: 'linear' }}
-            className="absolute -inset-4 rounded-full border border-dashed border-sky-400/40"
-          />
-        )}
-
-        {/* Pulse Expansion Ring */}
-        {!shouldReduceMotion && (
-          <motion.div
-            animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0, 0.4] }}
-            transition={{ repeat: Infinity, duration: 2.2, ease: 'easeInOut' }}
-            className="absolute -inset-2 rounded-full border border-sky-400/30"
-          />
-        )}
-
-        {/* Centered Upgraded Logo Emblem */}
-        <motion.div
-          animate={shouldReduceMotion ? {} : { scale: [0.97, 1.03, 0.97] }}
-          transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-          className="relative z-10 flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-full bg-slate-900/60 p-2 shadow-2xl shadow-sky-950/80 backdrop-blur-md border border-white/20"
-        >
-          <img
-            src="/logo-animated.svg"
-            alt="Tanish Logistic"
-            className="h-full w-full object-contain rounded-full drop-shadow-[0_4px_16px_rgba(2,132,199,0.5)]"
-          />
-        </motion.div>
+        {/* Bare emblem — same animated logo as the header */}
+        <motion.img
+          src="/logo-animated.svg"
+          alt="Tanish Logistic"
+          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.92 }}
+          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="relative z-10 h-28 w-28 sm:h-32 sm:w-32 object-contain drop-shadow-[0_6px_24px_rgba(0,0,0,0.55)]"
+        />
       </div>
 
       {/* Brand Title */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.45, delay: 0.15 }}
         className="mt-6 flex flex-col items-center gap-1.5"
       >
         <span className="text-base sm:text-lg font-black tracking-widest uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
@@ -65,18 +49,26 @@ export function LogoLoader({
         )}
       </motion.div>
 
-      {/* Shimmering Linear Progress Bar */}
-      <div className="mt-5 relative h-1 w-36 overflow-hidden rounded-full bg-slate-800/80 border border-white/10">
-        {!shouldReduceMotion ? (
-          <motion.div
-            animate={{ x: ['-100%', '100%'] }}
-            transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
-            className="absolute inset-y-0 w-1/2 rounded-full bg-gradient-to-r from-transparent via-sky-400 to-transparent shadow-[0_0_8px_rgba(56,189,248,0.8)]"
-          />
-        ) : (
-          <div className="h-full w-full bg-sky-500" />
-        )}
+      {/* Gold marching road line — same dash rhythm as the emblem's road ribbon */}
+      <div className="mt-6 h-[5px] w-44 overflow-hidden rounded-full bg-white/[0.07] border border-white/[0.06]">
+        <div
+          className={shouldReduceMotion ? 'h-full w-full' : 'tl-marching-road h-full w-full'}
+          style={{
+            backgroundImage: 'linear-gradient(90deg, #e8c877 0 14px, transparent 14px 28px)',
+            backgroundSize: '28px 100%',
+          }}
+        />
       </div>
+
+      <style>{`
+        @keyframes tl-march {
+          from { background-position: 0 0; }
+          to { background-position: 56px 0; }
+        }
+        .tl-marching-road {
+          animation: tl-march 1.1s linear infinite;
+        }
+      `}</style>
     </div>
   );
 
