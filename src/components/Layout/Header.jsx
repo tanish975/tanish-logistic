@@ -55,7 +55,7 @@ export const Header = () => {
   }, []);
 
   const siteName = settings.siteName ?? 'Tanish Logistic';
-  const logoUrl = settings.logoUrl ?? '/icon.png';
+  const logoUrl = settings.logoUrl ?? '/logo-animated.svg';
   const primaryColor = settings.primaryColor || '#0369A1';
 
   return (
@@ -74,13 +74,11 @@ export const Header = () => {
             href="/"
             className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-full"
           >
-            <div className="relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-full bg-slate-900/60 p-2 shadow-inner border border-white/15 backdrop-blur-sm">
-              <img
-                src={logoUrl}
-                alt={`${siteName} Logo`}
-                className="h-full w-full object-contain"
-              />
-            </div>
+            <img
+              src={logoUrl}
+              alt={`${siteName} Logo`}
+              className="h-12 w-12 sm:h-[52px] sm:w-[52px] shrink-0 object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]"
+            />
             <div>
               <span className="block text-lg sm:text-xl font-extrabold tracking-tight text-white leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
                 {siteName}

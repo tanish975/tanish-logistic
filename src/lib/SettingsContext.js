@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const SettingsContext = createContext({
   siteName: 'Tanish Logistic',
-  logoUrl: '/icon.png',
+  logoUrl: '/logo-animated.svg',
   slogan: '',
   contactDetails: '',
   copyright: '',
@@ -16,7 +16,7 @@ export const useSettings = () => useContext(SettingsContext);
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({
     siteName: 'Tanish Logistic',
-    logoUrl: '/icon.png',
+    logoUrl: '/logo-animated.svg',
     slogan: '',
     contactDetails: '',
     copyright: '',
