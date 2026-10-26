@@ -293,8 +293,15 @@ const Home = () => {
                 );
               })
             )}
-          <div className="absolute inset-0 z-10 bg-slate-950/78" />
-          <div className="absolute inset-x-0 bottom-0 z-10 h-40 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
+          {/*
+              Readability gradient: dark only behind the left text column,
+              fading out so the video stays vivid like the reference design.
+            */}
+            <div
+              className="absolute inset-0 z-10 bg-gradient-to-r from-slate-950/75 via-slate-950/25 to-transparent"
+              aria-hidden="true"
+            />
+          <div className="absolute inset-x-0 bottom-0 z-10 h-44 bg-gradient-to-t from-slate-950 via-slate-950/55 to-transparent" aria-hidden="true" />
         </div>
 
         <div className="relative z-20 mx-auto flex min-h-screen max-w-7xl items-center px-4 pt-28 pb-16 sm:px-6 sm:pt-36 sm:pb-24 lg:px-8">
@@ -303,7 +310,7 @@ const Home = () => {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="max-w-3xl"
+            className="max-w-3xl drop-shadow-[0_2px_14px_rgba(2,6,23,0.85)]"
           >
 <motion.div
               className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-sky-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-sky-200 backdrop-blur-md"
