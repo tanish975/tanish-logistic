@@ -391,13 +391,7 @@ import { LogoLoader } from './LogoLoader';
 export { MovingTruckLoader, MovingTruckLoader as TruckLoader, LogoLoader };
 
 export function PageLoader() {
-  return (
-    <LogoLoader
-      fullScreen={true}
-      text="Tanish Logistic"
-      subtext="Connecting Indian Freight Corridors..."
-    />
-  );
+  return <LogoLoader fullScreen={true} />;
 }
 
 export default {

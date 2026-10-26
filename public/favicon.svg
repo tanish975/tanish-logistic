@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img">
   <title>Tanish Logistic</title>
   <defs>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="gold" x1="256" y1="130" x2="256" y2="370" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#f9ecc0"/>
       <stop offset="38%" stop-color="#e8c877"/>
       <stop offset="72%" stop-color="#c79b4a"/>
@@ -28,9 +28,13 @@
   <!-- Road ribbon with lane dashes -->
   <path d="M102,396 Q246,344 390,396" fill="none" stroke="url(#ringGold)" stroke-width="7" stroke-linecap="round" stroke-dasharray="30 20"/>
 
-  <!-- Elegant TL monogram -->
-  <g filter="url(#softShadow)" stroke="#8a6828" stroke-width="1">
-    <path d="M118,140 H284 L294,152 V170 H223 V350 H189 V170 H118 Z" fill="url(#gold)"/>
-    <path d="M294,140 H328 V316 H384 L400,350 H294 Z" fill="url(#gold)"/>
+  <!-- Hand-written TL monogram (bold strokes for small sizes) -->
+  <g transform="translate(-26,0) skewX(6)" filter="url(#softShadow)">
+    <g stroke="url(#gold)" stroke-width="40" stroke-linecap="round" fill="none">
+      <path d="M207,146 V354"/>
+      <path d="M117,146 H297"/>
+      <path d="M303,146 V354"/>
+      <path d="M303,354 H395"/>
+    </g>
   </g>
 </svg>
