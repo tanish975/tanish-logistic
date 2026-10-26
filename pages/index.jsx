@@ -223,6 +223,20 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [isPaused, shouldReduceMotion]);
 
+  // Play only the active hero video; keep others paused (but buffered).
+  const heroVideoRefs = React.useRef([]);
+
+  React.useEffect(() => {
+    heroVideoRefs.current.forEach((video, idx) => {
+      if (!video) return;
+      if (idx === currentHeroIndex) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, [currentHeroIndex, shouldReduceMotion]);
+
   return (
     <div className="min-h-screen bg-white text-slate-950 font-sans">
       <SiteMetadata
@@ -248,22 +262,37 @@ const Home = () => {
               className="object-cover"
               quality={85}
             />
-          ) : (
-            <motion.video
-              key={heroContent[currentHeroIndex].video}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="absolute inset-0 h-full w-full object-cover"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.7, ease: 'easeOut' }}
-              aria-hidden="true"
-            >
-              <source src={heroContent[currentHeroIndex].video} type="video/mp4" />
-            </motion.video>
-          )}
+            ) : (
+              heroContent.map((content, idx) => {
+                const isActive = idx === currentHeroIndex;
+                return (
+                  <motion.video
+                    key={content.video}
+                    ref={(el) => {
+                      heroVideoRefs.current[idx] = el;
+                    }}
+                    src={content.video}
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    initial={false}
+                    animate={{ opacity: isActive ? 1 : 0 }}
+                    transition={{
+                      duration: 0.7,
+                      ease: 'easeOut',
+                      // Outgoing video stays fully visible while the incoming
+                      // one (on top, higher z-index) fades over it — then it
+                      // fades out hidden underneath. No empty gap, ever.
+                      delay: isActive ? 0 : 0.7,
+                    }}
+                    style={{ zIndex: isActive ? 2 : 1 }}
+                    aria-hidden="true"
+                  />
+                );
+              })
+            )}
           <div className="absolute inset-0 bg-slate-950/78" />
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
         </div>

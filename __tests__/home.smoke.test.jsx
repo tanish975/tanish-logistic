@@ -21,6 +21,9 @@ describe('Home page smoke test (SSR render)', () => {
     expect(html).toContain('Road Freight Built for Serious Business');
     expect(html).toContain('Years Moving Freight');
 
+    // Hero video stack — all 4 videos rendered (cross-fade, no unmount gap)
+    expect(html.match(/hero-videos\//g)).toHaveLength(4);
+
     // Coverage marquee (magicui)
     expect(html).toContain('Cities and industrial hubs served');
     expect(html).toContain('animate-marquee');
