@@ -251,7 +251,7 @@ const Home = () => {
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(Boolean(shouldReduceMotion))}
       >
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 z-0 isolate">
           {shouldReduceMotion ? (
             <Image
               src={heroContent[0].poster}
@@ -293,11 +293,11 @@ const Home = () => {
                 );
               })
             )}
-          <div className="absolute inset-0 bg-slate-950/78" />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
+          <div className="absolute inset-0 z-10 bg-slate-950/78" />
+          <div className="absolute inset-x-0 bottom-0 z-10 h-40 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
         </div>
 
-        <div className="relative mx-auto flex min-h-screen max-w-7xl items-center px-4 pt-28 pb-16 sm:px-6 sm:pt-36 sm:pb-24 lg:px-8">
+        <div className="relative z-20 mx-auto flex min-h-screen max-w-7xl items-center px-4 pt-28 pb-16 sm:px-6 sm:pt-36 sm:pb-24 lg:px-8">
           {/* Hero Content */}
           <motion.div
             variants={containerVariants}
@@ -376,7 +376,7 @@ const Home = () => {
           <button
             type="button"
             onClick={() => setIsPaused((paused) => !paused)}
-            className="absolute bottom-8 right-6 sm:right-8 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-slate-900/60 text-white backdrop-blur transition hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            className="absolute bottom-8 right-6 sm:right-8 z-30 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-slate-900/60 text-white backdrop-blur transition hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
             aria-label={isPaused ? 'Resume video rotation' : 'Pause video rotation'}
           >
             {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
