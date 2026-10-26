@@ -34,6 +34,10 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { BentoGrid } from '@/components/Animations/BentoGrid';
 import { ProcessDraw } from '@/components/Animations/ProcessDraw';
 import { ClickSuccessButton } from '@/components/Animations/ClickSuccessButton';
+import { BlurFade } from '@/components/magicui/blur-fade';
+import { Marquee } from '@/components/magicui/marquee';
+import { BorderBeam } from '@/components/magicui/border-beam';
+import { DotPattern } from '@/components/magicui/dot-pattern';
 import { mockFaqs } from '../src/faq';
 import { useSettings } from '@/lib/SettingsContext';
 
@@ -100,6 +104,29 @@ const serviceHighlights = [
     features: ['Dedicated account manager', 'Guaranteed monthly vehicle quota', 'Consolidated monthly billing'],
     href: '/services',
   },
+];
+
+const servedCities = [
+  'Vadodara',
+  'Ahmedabad',
+  'Surat',
+  'Mumbai',
+  'Pune',
+  'Delhi NCR',
+  'Gurugram',
+  'Mandi Gobindgarh',
+  'Ludhiana',
+  'Jaipur',
+  'Indore',
+  'Bhopal',
+  'Nagpur',
+  'Nashik',
+  'Kanpur',
+  'Lucknow',
+  'Kolkata',
+  'Hyderabad',
+  'Bengaluru',
+  'Chennai',
 ];
 
 const majorCorridors = [
@@ -328,19 +355,42 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Pan-India Coverage Marquee */}
+      <section
+        aria-label="Cities and industrial hubs served"
+        className="border-y border-slate-800 bg-slate-950 py-4"
+      >
+        <p className="sr-only">
+          Serving 100+ cities and industrial hubs across India, including
+          Vadodara, Ahmedabad, Surat, Mumbai, Pune, Delhi NCR and Mandi
+          Gobindgarh.
+        </p>
+        <Marquee aria-hidden="true" pauseOnHover className="[--duration:50s]">
+          {servedCities.map((city) => (
+            <span
+              key={city}
+              className="inline-flex items-center gap-2 whitespace-nowrap text-sm font-semibold tracking-wide text-slate-400"
+            >
+              <MapPin className="h-3.5 w-3.5 text-sky-500" />
+              {city}
+            </span>
+          ))}
+        </Marquee>
+      </section>
+
       {/* Metrics & Operational Track Record */}
       <section className="border-b border-slate-200/80 bg-white py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:gap-12">
             {stats.map((stat, idx) => (
-              <div key={idx} className="relative pl-6 border-l-2 border-sky-600">
+              <BlurFade key={stat.label} inView delay={idx * 0.08} className="relative pl-6 border-l-2 border-sky-600">
                 <div className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-950 tabular-nums">
                   <CountUp end={stat.value} duration={2} enableScrollSpy={!shouldReduceMotion} />
                   <span>{stat.suffix}</span>
                 </div>
                 <p className="mt-2 text-sm sm:text-base font-bold text-slate-900">{stat.label}</p>
                 <p className="mt-0.5 text-xs text-slate-500">{stat.sub}</p>
-              </div>
+              </BlurFade>
             ))}
           </div>
         </div>
@@ -352,18 +402,20 @@ const Home = () => {
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             {/* Editorial Content Column */}
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
-                Operational Discipline
-              </span>
-              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl lg:leading-tight">
-                Engineering road freight for high-value Indian supply chains.
-              </h2>
-              <p className="mt-6 text-base leading-relaxed text-slate-600 sm:text-lg">
-                At Tanish Logistic, we operate with a simple premise: commercial transport succeeds on route planning, vehicle fit, driver integrity, and transparent communication before wheels start turning.
-              </p>
+              <BlurFade inView>
+                <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+                  Operational Discipline
+                </span>
+                <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl lg:leading-tight">
+                  Engineering road freight for high-value Indian supply chains.
+                </h2>
+                <p className="mt-6 text-base leading-relaxed text-slate-600 sm:text-lg">
+                  At Tanish Logistic, we operate with a simple premise: commercial transport succeeds on route planning, vehicle fit, driver integrity, and transparent communication before wheels start turning.
+                </p>
+              </BlurFade>
 
               <div className="mt-8 space-y-4">
-                <div className="flex items-start gap-3.5">
+                <BlurFade inView delay={0.1} className="flex items-start gap-3.5">
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-sky-100 text-sky-700 font-bold text-xs mt-0.5">
                     01
                   </div>
@@ -373,9 +425,9 @@ const Home = () => {
                       We match your exact cargo weight, dimensions, and fragility to the proper chassis and axle rating — eliminating over-capacity risks or under-utilized space.
                     </p>
                   </div>
-                </div>
+                </BlurFade>
 
-                <div className="flex items-start gap-3.5">
+                <BlurFade inView delay={0.18} className="flex items-start gap-3.5">
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-sky-100 text-sky-700 font-bold text-xs mt-0.5">
                     02
                   </div>
@@ -385,9 +437,9 @@ const Home = () => {
                       Every commercial driver is verified with background credentials, commercial driving permits, and adherence to safe highway transit hours.
                     </p>
                   </div>
-                </div>
+                </BlurFade>
 
-                <div className="flex items-start gap-3.5">
+                <BlurFade inView delay={0.26} className="flex items-start gap-3.5">
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-sky-100 text-sky-700 font-bold text-xs mt-0.5">
                     03
                   </div>
@@ -397,7 +449,7 @@ const Home = () => {
                       No chasing multiple brokers. A dedicated operations manager coordinates pickup, toll corridors, highway status, and delivery confirmation.
                     </p>
                   </div>
-                </div>
+                </BlurFade>
               </div>
 
               <div className="mt-10 flex flex-wrap items-center gap-4">
@@ -414,7 +466,7 @@ const Home = () => {
             </div>
 
             {/* Photographic Right Column */}
-            <div className="relative">
+            <BlurFade inView delay={0.15} className="relative">
               <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-slate-200 shadow-xl ring-1 ring-slate-900/10">
                 <Image
                   src="/gallery/Picture1.jpg"
@@ -442,7 +494,7 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </BlurFade>
           </div>
         </div>
       </section>
@@ -450,7 +502,7 @@ const Home = () => {
       {/* Core Logistics Capabilities Bento Grid */}
       <section className="py-20 sm:py-28 bg-white border-b border-slate-200/80">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
+          <BlurFade inView className="max-w-3xl">
             <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
               Service Capabilities
             </span>
@@ -460,7 +512,7 @@ const Home = () => {
             <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">
               Each capability is designed around the real demands of plant managers, logistics directors, and procurement teams.
             </p>
-          </div>
+          </BlurFade>
 
           <BentoGrid
             items={serviceHighlights.map((service, index) => ({
@@ -479,23 +531,27 @@ const Home = () => {
       <section className="py-20 sm:py-28 bg-slate-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-            <div className="max-w-2xl">
+            <BlurFade inView className="max-w-2xl">
               <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
                 Highway Corridors
               </span>
               <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
                 High-frequency freight routes connecting major manufacturing hubs.
               </h2>
-            </div>
-            <Button asChild variant="outline" className="h-11 rounded-lg border-slate-300 font-bold text-slate-800 hover:bg-white shrink-0">
-              <Link href="/contact">Inquire for Custom Lane</Link>
-            </Button>
+            </BlurFade>
+            <BlurFade inView delay={0.1}>
+              <Button asChild variant="outline" className="h-11 rounded-lg border-slate-300 font-bold text-slate-800 hover:bg-white shrink-0">
+                <Link href="/contact">Inquire for Custom Lane</Link>
+              </Button>
+            </BlurFade>
           </div>
 
           <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {majorCorridors.map((lane, idx) => (
-              <div
+              <BlurFade
                 key={idx}
+                inView
+                delay={idx * 0.1}
                 className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-xl hover:-translate-y-1"
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-slate-200">
@@ -542,7 +598,7 @@ const Home = () => {
                     </Link>
                   </div>
                 </div>
-              </div>
+              </BlurFade>
             ))}
           </div>
         </div>
@@ -551,7 +607,7 @@ const Home = () => {
       {/* Corporate Comparison Table */}
       <section className="py-20 sm:py-28 bg-white border-b border-slate-200">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
+          <BlurFade inView className="max-w-3xl mx-auto text-center">
             <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
               The Tanish Difference
             </span>
@@ -561,9 +617,9 @@ const Home = () => {
             <p className="mt-4 text-base text-slate-600">
               Reliable freight is built on institutional accountability, clear contracts, and verified transport assets.
             </p>
-          </div>
+          </BlurFade>
 
-          <div className="mt-14 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+          <BlurFade inView delay={0.12} className="mt-14 overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
@@ -597,7 +653,7 @@ const Home = () => {
                 </tbody>
               </table>
             </div>
-          </div>
+          </BlurFade>
         </div>
       </section>
 
@@ -605,7 +661,7 @@ const Home = () => {
       <section className="py-20 sm:py-28 bg-slate-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-            <div>
+            <BlurFade inView>
               <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
                 Frequently Asked Questions
               </span>
@@ -622,9 +678,10 @@ const Home = () => {
                   <Link href="/contact">Contact Dispatch Office</Link>
                 </Button>
               </div>
-            </div>
+            </BlurFade>
 
-            <Accordion type="single" collapsible className="w-full rounded-2xl border border-slate-200 bg-white px-6 shadow-sm">
+            <BlurFade inView delay={0.12}>
+              <Accordion type="single" collapsible className="w-full rounded-2xl border border-slate-200 bg-white px-6 shadow-sm">
               {mockFaqs.slice(0, 6).map((faq, index) => (
                 <AccordionItem key={faq.question} value={`item-${index}`} className="border-slate-100 py-2">
                   <AccordionTrigger className="text-left text-base font-bold text-slate-950 hover:text-sky-700">
@@ -635,8 +692,66 @@ const Home = () => {
                   </AccordionContent>
                 </AccordionItem>
               ))}
-            </Accordion>
+              </Accordion>
+            </BlurFade>
           </div>
+        </div>
+      </section>
+
+      {/* Final Conversion CTA */}
+      <section className="relative overflow-hidden bg-slate-950 py-20 sm:py-28">
+        <DotPattern
+          width={22}
+          height={22}
+          cr={1.2}
+          className="text-sky-400/25 [mask-image:radial-gradient(ellipse_at_center,black_35%,transparent_78%)]"
+        />
+        <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <BlurFade inView>
+            <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/80 px-6 py-12 text-center shadow-2xl backdrop-blur-sm sm:px-12 sm:py-16">
+              <BorderBeam
+                size={90}
+                duration={9}
+                borderWidth={1.5}
+                colorFrom={primaryColor}
+                colorTo="#22d3ee"
+              />
+              <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                Ready to move your next shipment?
+              </h2>
+              <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg">
+                Get a transparent, GST-compliant quotation for your lane — or talk
+                to our 24/7 dispatch desk for scheduled and contract freight.
+              </p>
+              <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  className="group h-12 rounded-xl px-7 text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-950/50 transition-all duration-200 active:scale-[0.98]"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  <Link href="/contact" className="inline-flex items-center justify-center gap-2 whitespace-nowrap">
+                    <span>Get Freight Quote</span>
+                    <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="h-12 rounded-xl border border-slate-700 bg-slate-900/80 px-6 text-sm sm:text-base font-semibold text-slate-100 backdrop-blur-sm transition-all duration-200 hover:border-slate-500 hover:bg-slate-800 hover:text-white active:scale-[0.98]"
+                >
+                  <Link href="/book" className="inline-flex items-center justify-center gap-2 whitespace-nowrap">
+                    <Truck className="h-4 w-4" />
+                    <span>Book a Shipment</span>
+                  </Link>
+                </Button>
+              </div>
+              <p className="mt-8 text-xs font-semibold uppercase tracking-widest text-slate-400">
+                98.2% On-Time SLA &middot; 100+ Hubs &middot; Daily Departures
+              </p>
+            </div>
+          </BlurFade>
         </div>
       </section>
 

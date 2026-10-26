@@ -97,20 +97,38 @@ export default {
     					height: '0'
     				}
     			},
-    			glow: {
-    				'0%, 100%': {
-    					opacity: '0.7'
-    				},
-    				'50%': {
-    					opacity: '1'
-    				}
-    			}
-    		},
-    		animation: {
-    			'accordion-down': 'accordion-down 0.2s ease-out',
-    			'accordion-up': 'accordion-up 0.2s ease-out',
-    			glow: 'glow 4s ease-in-out infinite'
-    		}
+			glow: {
+				'0%, 100%': {
+					opacity: '0.7'
+				},
+				'50%': {
+					opacity: '1'
+				}
+			},
+			marquee: {
+				from: {
+					transform: 'translateX(0)'
+				},
+				to: {
+					transform: 'translateX(calc(-100% - var(--gap)))'
+				}
+			},
+			'marquee-vertical': {
+				from: {
+					transform: 'translateY(0)'
+				},
+				to: {
+					transform: 'translateY(calc(-100% - var(--gap)))'
+				}
+			}
+		},
+		animation: {
+			'accordion-down': 'accordion-down 0.2s ease-out',
+			'accordion-up': 'accordion-up 0.2s ease-out',
+			glow: 'glow 4s ease-in-out infinite',
+			marquee: 'var(--duration) linear infinite',
+			'marquee-vertical': 'var(--duration) linear infinite'
+		}
     	}
     },
     plugins: [tailwindcssAnimate, require("tailwindcss-animate")],
