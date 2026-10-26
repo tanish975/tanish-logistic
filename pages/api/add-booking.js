@@ -1,5 +1,18 @@
 import prisma from '@/lib/prisma';
 import { Resend } from 'resend';
+import { withRateLimit } from '@/lib/rate-limit';
+
+// Escape user-supplied values before interpolating into HTML email
+// templates (prevents HTML/phishing injection into sent emails).
+function escapeHtml(value) {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -19,7 +32,15 @@ async function generateBookingId() {
 }
 
 async function sendBookingEmails(booking) {
-  const adminEmail = process.env.ADMIN_EMAIL || 'tanishlogistic744@gmail.com';
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) {
+    console.warn(
+      '[add-booking] ADMIN_EMAIL is not configured - skipping confirmation emails for booking ' +
+        booking.bookingId +
+        '. Set ADMIN_EMAIL in your environment variables.'
+    );
+    return;
+  }
 
   const adminHtml = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -27,21 +48,21 @@ async function sendBookingEmails(booking) {
       <p>You have a new booking on Tanish Logistic. Here are the details:</p>
       <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
         <h3 style="margin-top: 0;">Booking Details</h3>
-        <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
-        <p><strong>Client Name:</strong> ${booking.clientName}</p>
+        <p><strong>Booking ID:</strong> ${escapeHtml(booking.bookingId)}</p>
+        <p><strong>Client Name:</strong> ${escapeHtml(booking.clientName)}</p>
         <p><strong>Company:</strong> ${booking.companyName || 'Not provided'}</p>
         <p><strong>Phone:</strong> ${booking.phone}</p>
         <p><strong>Email:</strong> ${booking.email}</p>
         <p><strong>Service Type:</strong> ${booking.serviceType || 'Not specified'}</p>
-        <p><strong>Pickup Location:</strong> ${booking.pickup}</p>
-        <p><strong>Drop Location:</strong> ${booking.drop}</p>
-        <p><strong>Cargo Type:</strong> ${booking.cargo}</p>
+        <p><strong>Pickup Location:</strong> ${escapeHtml(booking.pickup)}</p>
+        <p><strong>Drop Location:</strong> ${escapeHtml(booking.drop)}</p>
+        <p><strong>Cargo Type:</strong> ${escapeHtml(booking.cargo)}</p>
         <p><strong>Cargo Weight:</strong> ${booking.cargoWeight ? booking.cargoWeight + ' tons' : 'Not specified'}</p>
         <p><strong>Cargo Value:</strong> ${booking.cargoValue ? '₹' + booking.cargoValue.toLocaleString() : 'Not specified'}</p>
         <p><strong>Booking Date:</strong> ${booking.date ? new Date(booking.date).toLocaleDateString() : 'Not scheduled'}</p>
         <p><strong>Status:</strong> Pending</p>
-        ${booking.cargoDescription ? `<p><strong>Description:</strong> ${booking.cargoDescription}</p>` : ''}
-        ${booking.specialInstructions ? `<p><strong>Special Instructions:</strong> ${booking.specialInstructions}</p>` : ''}
+        ${booking.cargoDescription ? `<p><strong>Description:</strong> ${escapeHtml(booking.cargoDescription)}</p>` : ''}
+        ${booking.specialInstructions ? `<p><strong>Special Instructions:</strong> ${escapeHtml(booking.specialInstructions)}</p>` : ''}
         ${booking.price ? `<p><strong>Estimated Price:</strong> ₹${parseFloat(booking.price).toLocaleString()}</p>` : ''}
       </div>
       <p>Please log in to your admin dashboard to review and manage this booking.</p>
@@ -53,20 +74,20 @@ async function sendBookingEmails(booking) {
   const customerHtml = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #10b981;">Thank You for Your Booking!</h2>
-      <p>Dear ${booking.clientName},</p>
+      <p>Dear ${escapeHtml(booking.clientName)},</p>
       <p>We have received your booking request. Here are the details:</p>
       <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
         <h3 style="margin-top: 0;">Booking Confirmation</h3>
-        <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
-        <p><strong>Pickup Location:</strong> ${booking.pickup}</p>
-        <p><strong>Drop Location:</strong> ${booking.drop}</p>
-        <p><strong>Cargo Type:</strong> ${booking.cargo}</p>
-        ${booking.cargoWeight ? `<p><strong>Cargo Weight:</strong> ${booking.cargoWeight} tons</p>` : ''}
+        <p><strong>Booking ID:</strong> ${escapeHtml(booking.bookingId)}</p>
+        <p><strong>Pickup Location:</strong> ${escapeHtml(booking.pickup)}</p>
+        <p><strong>Drop Location:</strong> ${escapeHtml(booking.drop)}</p>
+        <p><strong>Cargo Type:</strong> ${escapeHtml(booking.cargo)}</p>
+        ${booking.cargoWeight ? `<p><strong>Cargo Weight:</strong> ${escapeHtml(booking.cargoWeight)} tons</p>` : ''}
         <p><strong>Service Type:</strong> ${booking.serviceType || 'Standard'}</p>
         <p><strong>Status:</strong> <span style="color: #f59e0b;">Pending Confirmation</span></p>
       </div>
-      <p>Our team will review your booking and get back to you shortly. You can track your booking status using your booking ID: <strong>${booking.bookingId}</strong></p>
-      <p>If you have any questions or need to make changes, feel free to contact us at <a href="mailto:${adminEmail}">${adminEmail}</a> or call us.</p>
+      <p>Our team will review your booking and get back to you shortly. You can track your booking status using your booking ID: <strong>${escapeHtml(booking.bookingId)}</strong></p>
+      <p>If you have any questions or need to make changes, feel free to contact us at <a href="mailto:${escapeHtml(adminEmail)}">${escapeHtml(adminEmail)}</a> or call us.</p>
       <br>
       <p>Best regards,<br>The Tanish Logistic Team</p>
     </div>
@@ -76,19 +97,19 @@ async function sendBookingEmails(booking) {
     resend.emails.send({
       from: 'Tanish Logistic - New Booking <noreply@tanishlogistic.com>',
       to: adminEmail,
-      subject: `New Booking Received - ${booking.bookingId} - ${booking.clientName}`,
+      subject: `New Booking Received - ${escapeHtml(booking.bookingId)} - ${escapeHtml(booking.clientName)}`,
       html: adminHtml,
     }),
     booking.email ? resend.emails.send({
       from: 'Tanish Logistic <noreply@tanishlogistic.com>',
       to: booking.email,
-      subject: `Booking Confirmation - ${booking.bookingId} - Tanish Logistic`,
+      subject: `Booking Confirmation - ${escapeHtml(booking.bookingId)} - Tanish Logistic`,
       html: customerHtml,
     }) : Promise.resolve({ data: null, error: null }),
   ]);
 }
 
-export default async function handler(req, res) {
+export default withRateLimit(async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
@@ -130,7 +151,7 @@ export default async function handler(req, res) {
       message: 'Booking created successfully. Confirmation emails will be sent shortly.',
     });
   } catch (error) {
-    console.error('Booking creation failed:', error);
+    console.error('Booking creation failed:', error?.message || 'unknown error');
     res.status(500).json({ message: 'Error saving booking.' });
   }
-}
+}, { limit: 15, windowMs: 60_000, name: 'booking' });

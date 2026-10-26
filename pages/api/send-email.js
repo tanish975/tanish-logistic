@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { withRateLimit } from '@/lib/rate-limit';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -8,7 +9,7 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 
-export default async function handler(req, res) {
+export default withRateLimit(async function handler(req, res) {
   if (req.method === 'POST') {
     const { name, email, message, phone, company, service } = req.body;
 
@@ -74,4 +75,4 @@ export default async function handler(req, res) {
       res.status(500).json({ message: 'Failed to send message due to a server error.' });
     }
   }
-}
+}, { limit: 10, windowMs: 60_000, name: 'email' });

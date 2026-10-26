@@ -1,9 +1,10 @@
 import { getIronSession } from 'iron-session';
+import { withRateLimit } from '@/lib/rate-limit';
 import sessionOptions from '@/lib/session';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 
-export default async function loginRoute(req, res) {
+export default withRateLimit(async function loginRoute(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).end();
     }
@@ -49,4 +50,4 @@ export default async function loginRoute(req, res) {
     } catch (error) {
       return res.status(500).json({ message: 'Internal server error.' });
     }
-}
+}, { limit: 5, windowMs: 60_000, name: 'login' });

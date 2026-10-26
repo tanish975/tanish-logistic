@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,9 +23,9 @@ const steps = [
 
 const Book = () => {
   const shouldReduceMotion = useReducedMotion();
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [confirmedBookingId, setConfirmedBookingId] = useState(null);
   const [bookingData, setBookingData] = useState({
     // Company Info
     companyName: '',
@@ -142,8 +142,8 @@ const Book = () => {
       }
 
       const result = await response.json();
-      setConfirmedBookingId(result.bookingId || result.booking?.bookingId);
-      setStep(5);
+      const confirmedId = result.bookingId || result.booking?.bookingId;
+      router.push(confirmedId ? `/thank-you?booking=${encodeURIComponent(confirmedId)}` : '/thank-you');
     } catch (error) {
       console.error("Could not save booking:", error);
       toast.error(error.message || 'Failed to submit booking. Please try again.');
@@ -572,46 +572,6 @@ const Book = () => {
                         <div><span className="text-slate-500">Phone:</span> <strong className="text-slate-900">{bookingData.phone}</strong></div>
                         <div><span className="text-slate-500">Email:</span> <strong className="text-slate-900">{bookingData.email}</strong></div>
                       </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Step 5: Success Screen */}
-                {step === 5 && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-center py-8 space-y-5"
-                  >
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 mx-auto">
-                      <CheckCircle2 className="h-10 w-10" />
-                    </div>
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950">
-                      Freight Booking Submitted Successfully
-                    </h2>
-                    <p className="text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
-                      Our commercial operations desk has received your dispatch request. A dedicated coordinator will review vehicle fit and verify pricing with you shortly.
-                    </p>
-
-                    {confirmedBookingId && (
-                      <div className="my-6 mx-auto max-w-md rounded-2xl border border-emerald-200 bg-emerald-50/70 p-6">
-                        <p className="text-xs font-bold uppercase tracking-wider text-emerald-800">Your Booking Reference</p>
-                        <p className="mt-1 text-3xl font-extrabold tracking-tight text-emerald-950 tabular-nums">
-                          {confirmedBookingId}
-                        </p>
-                        <p className="mt-2 text-xs text-emerald-700">
-                          Please save this reference for tracking and invoice reconciliation.
-                        </p>
-                      </div>
-                    )}
-
-                    <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
-                      <Button asChild className="h-11 rounded-xl bg-sky-700 px-6 font-bold text-white hover:bg-sky-800 shadow-sm transition-all duration-200 active:scale-[0.98]">
-                        <Link href="/" className="inline-flex items-center justify-center whitespace-nowrap">Return to Home</Link>
-                      </Button>
-                      <Button asChild variant="outline" className="h-11 rounded-xl border border-slate-300 px-6 font-semibold text-slate-800 hover:bg-slate-100 transition-all duration-200 active:scale-[0.98]">
-                        <Link href="/contact" className="inline-flex items-center justify-center whitespace-nowrap">Contact Dispatch Office</Link>
-                      </Button>
                     </div>
                   </motion.div>
                 )}
