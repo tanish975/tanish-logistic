@@ -31,10 +31,10 @@
   <!-- Hand-written TL monogram (bold strokes for small sizes) -->
   <g transform="translate(-26,0) skewX(6)" filter="url(#softShadow)">
     <g stroke="url(#gold)" stroke-width="40" stroke-linecap="round" fill="none">
-      <path d="M207,146 V354"/>
-      <path d="M117,146 H297"/>
-      <path d="M303,146 V354"/>
-      <path d="M303,354 H395"/>
+      <path d="M212,144 C192,214 222,282 200,354"/>
+      <path d="M113,162 C172,138 248,140 301,150"/>
+      <path d="M307,144 C290,214 316,280 296,338"/>
+      <path d="M296,338 C288,356 304,364 342,358 C374,353 396,342 408,322"/>
     </g>
   </g>
 </svg>
