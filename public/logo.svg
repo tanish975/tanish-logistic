@@ -1,25 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img">
-  <title>Tanish Logistic</title>
-  <defs>
-    <linearGradient id="gold" x1="256" y1="110" x2="256" y2="410" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#f9ecc0"/>
-      <stop offset="38%" stop-color="#e8c877"/>
-      <stop offset="72%" stop-color="#c79b4a"/>
-      <stop offset="100%" stop-color="#9a7231"/>
-    </linearGradient>
-    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
-      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#1a1206" flood-opacity="0.35"/>
-    </filter>
-  </defs>
 
-  <!-- Slanted cursive TL monogram (bold for small sizes) -->
-  <g filter="url(#softShadow)">
-    <g stroke="url(#gold)" stroke-linecap="round" fill="none">
-      <path stroke-width="30" d="M60,242 C95,216 150,196 203,187 C245,180 274,174 296,173 C307,172 311,178 307,185"/>
-      <path stroke-width="30" d="M245,178 C238,236 230,295 216,348 C210,372 199,389 183,392"/>
-      <path stroke-width="18" d="M381,115 C414,119 439,143 441,178 C443,214 421,244 386,249 C353,252 329,231 326,200 C325,178 340,159 362,152"/>
-      <path stroke-width="30" d="M337,247 C329,293 318,337 302,368"/>
-      <path stroke-width="30" d="M278,389 C287,400 307,406 333,404 C379,400 434,392 472,374"/>
-    </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="35%" stop-color="#fbbf24"/>
+      <stop offset="70%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke="url(#goldGrad)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 34.4,199.8 C 27.1,183 29.2,162 40.8,147.3 C 52.3,134.7 76.4,131.6 115.3,125.3 C 167.8,116.9 225.6,102.2 286.4,75.9 C 311.6,65.4 332.6,46.5 334.8,32.9" stroke-width="20"/>
+    <path d="M 334.8,32.9 C 343.1,38.1 343.1,48.6 332.6,61.2 C 311.6,86.4 275.9,115.8 241.3,149.4 C 202.4,196.7 162.6,285.9 110,417.2" stroke-width="32"/>
+    <path d="M 279.1,156.8 C 270.7,189.3 258.1,235.5 247.6,275.4 C 237.1,315.3 226.6,346.8 219.3,367.8" stroke-width="20"/>
+    <path d="M 219.3,367.8 C 208.8,382.5 181.4,407.7 160.4,417.2 C 155.2,420.3 158.3,426.6 170.9,426.6 C 188.8,426.6 206.7,406.7 231.8,378.3 C 262.3,371 309.6,382.5 362.1,389.9 C 409.3,389.9 446.1,369.9 482.8,310.1" stroke-width="30"/>
   </g>
 </svg>
