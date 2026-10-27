@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img">
   <title>Tanish Logistic</title>
   <defs>
-    <linearGradient id="gold" x1="256" y1="130" x2="256" y2="370" gradientUnits="userSpaceOnUse">
+    <linearGradient id="gold" x1="256" y1="140" x2="256" y2="400" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#f9ecc0"/>
       <stop offset="38%" stop-color="#e8c877"/>
       <stop offset="72%" stop-color="#c79b4a"/>
@@ -20,20 +20,20 @@
     .ring { stroke-dasharray: 1458; stroke-dashoffset: 1458; animation: draw 1.1s cubic-bezier(.55,0,.15,1) forwards; }
     @keyframes draw { to { stroke-dashoffset: 0; } }
 
-    /* TL written stroke by stroke, like a signature */
+    /* Cursive TL written stroke by stroke, like a signature */
     .lt { stroke-dasharray: 100; stroke-dashoffset: 100; animation: write .5s cubic-bezier(.55,0,.25,1) forwards; }
     .l1 { animation-delay: .3s; }
     .l2 { animation-delay: .55s; }
-    .l3 { animation-delay: .8s; }
-    .l4 { animation-delay: 1s; }
+    .l3 { animation-delay: .85s; animation-duration: .65s; }
+    .l4 { animation-delay: 1.35s; }
     @keyframes write { to { stroke-dashoffset: 0; } }
 
-    /* bright pen-tip retraces the letters every cycle */
+    /* bright pen-tip retraces the strokes every cycle */
     .gl { stroke-dasharray: 16 240; stroke-dashoffset: 16; opacity: 0; animation: retrace 7s linear infinite; }
     .g1 { animation-delay: 2.6s; }
     .g2 { animation-delay: 2.85s; }
-    .g3 { animation-delay: 3.1s; }
-    .g4 { animation-delay: 3.32s; }
+    .g3 { animation-delay: 3.05s; }
+    .g4 { animation-delay: 3.3s; }
     @keyframes retrace {
       0% { stroke-dashoffset: 16; opacity: 0; }
       1% { opacity: 1; }
@@ -43,8 +43,6 @@
 
     .orbit { opacity: 0; animation: fade .8s ease-out .55s forwards; }
     @keyframes fade { to { opacity: 1; } }
-    .road { opacity: 0; animation: fadein .7s ease-out .75s forwards; }
-    @keyframes fadein { to { opacity: 1; } }
 
     @media (prefers-reduced-motion: reduce) {
       .gl { animation: none; }
@@ -63,25 +61,20 @@
     <animateTransform attributeName="transform" type="rotate" from="0 256 256" to="360 256 256" dur="40s" repeatCount="indefinite"/>
   </g>
 
-  <!-- Road ribbon with marching lane dashes -->
-  <path class="road" d="M102,396 Q246,344 390,396" fill="none" stroke="url(#ringGold)" stroke-width="7" stroke-linecap="round" stroke-dasharray="30 20">
-    <animate attributeName="stroke-dashoffset" from="0" to="-50" dur="2.2s" repeatCount="indefinite"/>
-  </path>
-
-  <!-- Hand-written TL monogram (subtle forward slant) -->
-  <g transform="translate(-26,0) skewX(6)" filter="url(#softShadow)">
-    <g stroke="url(#gold)" stroke-width="22" stroke-linecap="round" fill="none">
-      <path class="lt l1" pathLength="100" d="M212,144 C192,214 222,282 200,354"/>
-      <path class="lt l2" pathLength="100" d="M113,162 C172,138 248,140 301,150"/>
-      <path class="lt l3" pathLength="100" d="M307,144 C290,214 316,280 296,338"/>
-      <path class="lt l4" pathLength="100" d="M296,338 C288,356 304,364 342,358 C374,353 396,342 408,322"/>
+  <!-- Cursive TL monogram + calligraphic underline (from the ink reference) -->
+  <g filter="url(#softShadow)">
+    <g stroke="url(#gold)" stroke-linecap="round" fill="none">
+      <path class="lt l1" pathLength="100" stroke-width="14" d="M 72,172 C 112,152 192,146 232,166 C 242,172 212,192 172,200"/>
+      <path class="lt l2" pathLength="100" stroke-width="14" d="M 152,166 C 158,226 146,286 122,326 C 110,346 92,352 78,340 C 72,332 78,320 92,324"/>
+      <path class="lt l3" pathLength="100" stroke-width="14" d="M 314,294 C 320,234 350,164 380,154 C 400,148 406,168 394,204 C 360,284 320,340 290,348 C 274,352 270,336 286,328 C 320,314 390,340 440,340"/>
+      <path class="lt l4" pathLength="100" stroke-width="8" d="M111,394 C198,384 318,384 391,390"/>
     </g>
     <!-- pen-tip glint retracing the strokes -->
-    <g stroke="#fff7da" stroke-width="22" stroke-linecap="round" fill="none">
-      <path class="gl g1" pathLength="100" d="M212,144 C192,214 222,282 200,354"/>
-      <path class="gl g2" pathLength="100" d="M113,162 C172,138 248,140 301,150"/>
-      <path class="gl g3" pathLength="100" d="M307,144 C290,214 316,280 296,338"/>
-      <path class="gl g4" pathLength="100" d="M296,338 C288,356 304,364 342,358 C374,353 396,342 408,322"/>
+    <g stroke="#fff7da" stroke-linecap="round" fill="none">
+      <path class="gl g1" pathLength="100" stroke-width="14" d="M 72,172 C 112,152 192,146 232,166 C 242,172 212,192 172,200"/>
+      <path class="gl g2" pathLength="100" stroke-width="14" d="M 152,166 C 158,226 146,286 122,326 C 110,346 92,352 78,340 C 72,332 78,320 92,324"/>
+      <path class="gl g3" pathLength="100" stroke-width="14" d="M 314,294 C 320,234 350,164 380,154 C 400,148 406,168 394,204 C 360,284 320,340 290,348 C 274,352 270,336 286,328 C 320,314 390,340 440,340"/>
+      <path class="gl g4" pathLength="100" stroke-width="8" d="M111,394 C198,384 318,384 391,390"/>
     </g>
   </g>
 </svg>

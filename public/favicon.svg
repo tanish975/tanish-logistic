@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img">
   <title>Tanish Logistic</title>
   <defs>
-    <linearGradient id="gold" x1="256" y1="130" x2="256" y2="370" gradientUnits="userSpaceOnUse">
+    <linearGradient id="gold" x1="256" y1="140" x2="256" y2="400" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#f9ecc0"/>
       <stop offset="38%" stop-color="#e8c877"/>
       <stop offset="72%" stop-color="#c79b4a"/>
@@ -20,21 +20,20 @@
   <!-- Fine outer ring -->
   <circle cx="256" cy="256" r="232" fill="none" stroke="url(#ringGold)" stroke-width="3.5"/>
 
-  <!-- Dotted transit orbit with route marker -->
-  <circle cx="256" cy="256" r="210" fill="none" stroke="#d9b566" stroke-opacity="0.55" stroke-width="2.5" stroke-dasharray="2.5 16" stroke-linecap="round"/>
-  <circle cx="256" cy="46" r="9" fill="#f2dd9e" opacity="0.25"/>
-  <circle cx="256" cy="46" r="5" fill="#f2dd9e"/>
+  <!-- Dotted transit orbit with travelling route marker -->
+  <g>
+    <circle cx="256" cy="256" r="210" fill="none" stroke="#d9b566" stroke-opacity="0.55" stroke-width="2.5" stroke-dasharray="2.5 16" stroke-linecap="round"/>
+    <circle cx="256" cy="46" r="9" fill="#f2dd9e" opacity="0.25"/>
+    <circle cx="256" cy="46" r="5" fill="#f2dd9e"/>
+  </g>
 
-  <!-- Road ribbon with lane dashes -->
-  <path d="M102,396 Q246,344 390,396" fill="none" stroke="url(#ringGold)" stroke-width="7" stroke-linecap="round" stroke-dasharray="30 20"/>
-
-  <!-- Hand-written TL monogram (bold strokes for small sizes) -->
-  <g transform="translate(-26,0) skewX(6)" filter="url(#softShadow)">
-    <g stroke="url(#gold)" stroke-width="40" stroke-linecap="round" fill="none">
-      <path d="M212,144 C192,214 222,282 200,354"/>
-      <path d="M113,162 C172,138 248,140 301,150"/>
-      <path d="M307,144 C290,214 316,280 296,338"/>
-      <path d="M296,338 C288,356 304,364 342,358 C374,353 396,342 408,322"/>
+  <!-- Cursive TL monogram + calligraphic underline (bold for small sizes) -->
+  <g filter="url(#softShadow)">
+    <g stroke="url(#gold)" stroke-linecap="round" fill="none">
+      <path stroke-width="32" d="M 72,172 C 112,152 192,146 232,166 C 242,172 212,192 172,200"/>
+      <path stroke-width="32" d="M 152,166 C 158,226 146,286 122,326 C 110,346 92,352 78,340"/>
+      <path stroke-width="32" d="M 314,294 C 320,234 350,164 380,154 C 400,148 406,168 394,204 C 360,284 320,340 290,348 C 270,344 380,340 440,340"/>
+      <path stroke-width="16" d="M111,394 C198,384 318,384 391,390"/>
     </g>
   </g>
 </svg>
