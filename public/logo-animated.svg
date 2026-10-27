@@ -23,17 +23,15 @@
     /* Cursive TL written stroke by stroke, like a signature */
     .lt { stroke-dasharray: 100; stroke-dashoffset: 100; animation: write .5s cubic-bezier(.55,0,.25,1) forwards; }
     .l1 { animation-delay: .3s; }
-    .l2 { animation-delay: .55s; }
-    .l3 { animation-delay: .85s; animation-duration: .65s; }
-    .l4 { animation-delay: 1.35s; }
+    .l2 { animation-delay: .6s; animation-duration: 1.15s; }
+    .l3 { animation-delay: 1.65s; }
     @keyframes write { to { stroke-dashoffset: 0; } }
 
     /* bright pen-tip retraces the strokes every cycle */
     .gl { stroke-dasharray: 16 240; stroke-dashoffset: 16; opacity: 0; animation: retrace 7s linear infinite; }
     .g1 { animation-delay: 2.6s; }
-    .g2 { animation-delay: 2.85s; }
-    .g3 { animation-delay: 3.05s; }
-    .g4 { animation-delay: 3.3s; }
+    .g2 { animation-delay: 2.9s; }
+    .g3 { animation-delay: 3.6s; }
     @keyframes retrace {
       0% { stroke-dashoffset: 16; opacity: 0; }
       1% { opacity: 1; }
@@ -61,20 +59,18 @@
     <animateTransform attributeName="transform" type="rotate" from="0 256 256" to="360 256 256" dur="40s" repeatCount="indefinite"/>
   </g>
 
-  <!-- Cursive TL monogram + calligraphic underline (from the ink reference) -->
+  <!-- Cursive TL monogram + calligraphic underline -->
   <g filter="url(#softShadow)">
     <g stroke="url(#gold)" stroke-linecap="round" fill="none">
-      <path class="lt l1" pathLength="100" stroke-width="14" d="M 72,172 C 112,152 192,146 232,166 C 242,172 212,192 172,200"/>
-      <path class="lt l2" pathLength="100" stroke-width="14" d="M 152,166 C 158,226 146,286 122,326 C 110,346 92,352 78,340 C 72,332 78,320 92,324"/>
-      <path class="lt l3" pathLength="100" stroke-width="14" d="M 314,294 C 320,234 350,164 380,154 C 400,148 406,168 394,204 C 360,284 320,340 290,348 C 274,352 270,336 286,328 C 320,314 390,340 440,340"/>
-      <path class="lt l4" pathLength="100" stroke-width="8" d="M111,394 C198,384 318,384 391,390"/>
+      <path class="lt l1" pathLength="100" stroke-width="14" d="M112,192 C156,164 220,154 248,158 C256,159 258,164 255,170"/>
+      <path class="lt l2" pathLength="100" stroke-width="14" d="M216,168 C220,214 224,262 228,304 C232,336 246,358 266,358 C278,357 282,349 280,338 C276,290 272,240 268,196 C274,166 296,152 310,160 C324,168 320,186 304,190 C294,192 286,188 284,182 C290,230 316,310 354,348 C366,359 382,363 400,357"/>
+      <path class="lt l3" pathLength="100" stroke-width="8" d="M138,400 C240,388 340,388 408,394"/>
     </g>
     <!-- pen-tip glint retracing the strokes -->
     <g stroke="#fff7da" stroke-linecap="round" fill="none">
-      <path class="gl g1" pathLength="100" stroke-width="14" d="M 72,172 C 112,152 192,146 232,166 C 242,172 212,192 172,200"/>
-      <path class="gl g2" pathLength="100" stroke-width="14" d="M 152,166 C 158,226 146,286 122,326 C 110,346 92,352 78,340 C 72,332 78,320 92,324"/>
-      <path class="gl g3" pathLength="100" stroke-width="14" d="M 314,294 C 320,234 350,164 380,154 C 400,148 406,168 394,204 C 360,284 320,340 290,348 C 274,352 270,336 286,328 C 320,314 390,340 440,340"/>
-      <path class="gl g4" pathLength="100" stroke-width="8" d="M111,394 C198,384 318,384 391,390"/>
+      <path class="gl g1" pathLength="100" stroke-width="14" d="M112,192 C156,164 220,154 248,158 C256,159 258,164 255,170"/>
+      <path class="gl g2" pathLength="100" stroke-width="14" d="M216,168 C220,214 224,262 228,304 C232,336 246,358 266,358 C278,357 282,349 280,338 C276,290 272,240 268,196 C274,166 296,152 310,160 C324,168 320,186 304,190 C294,192 286,188 284,182 C290,230 316,310 354,348 C366,359 382,363 400,357"/>
+      <path class="gl g3" pathLength="100" stroke-width="8" d="M138,400 C240,388 340,388 408,394"/>
     </g>
   </g>
 </svg>
