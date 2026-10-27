@@ -20,12 +20,12 @@ export const SiteMetadata = ({
       <meta name="theme-color" content="#0369A1" />
       <meta name="color-scheme" content="light" />
 
-      <link rel="shortcut icon" href="/favicon.ico?v=4" />
-      <link rel="icon" type="image/x-icon" href="/favicon.ico?v=4" />
-      <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=4" />
-      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=4" />
-      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=4" />
-      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=4" />
+      <link rel="shortcut icon" href="/favicon.ico?v=5" />
+      <link rel="icon" type="image/x-icon" href="/favicon.ico?v=5" />
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5" />
+      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=5" />
+      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=5" />
+      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=5" />
       <link rel="manifest" href="/site.webmanifest" />
 
       <meta property="og:type" content="website" />
