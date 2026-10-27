@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { SettingsProvider, useSettings } from '../src/lib/SettingsContext';
 import { PageTransition, TransitionLink, usePageTransition } from '../src/components/Layout/PageTransition';
 import { ScrollProgress, ScrollToTop } from '../src/components/Layout/ScrollProgress';
+import { WhatsAppFloat } from '../src/components/Layout/WhatsAppFloat';
 import { PageLoader } from '../src/components/Animations';
 
 function MyApp({ Component, pageProps }) {
@@ -32,6 +33,7 @@ function MyApp({ Component, pageProps }) {
       <div className="App">
         <ScrollProgress />
         <ScrollToTop />
+        {!isAdminPage && <WhatsAppFloat />}
         <div className="min-h-screen flex flex-col">
           {!isAdminPage && <Header />}
           <PageTransition>
