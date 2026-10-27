@@ -38,9 +38,11 @@ export const Footer = () => {
           {/* Brand Column */}
           <div>
             <Link href="/" className="inline-flex items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm">
-                <img src={logoUrl} alt={`${siteName} Logo`} className="h-full w-full object-contain" />
-              </div>
+              <img
+                src={logoUrl}
+                alt={`${siteName} Logo`}
+                className="h-12 w-12 shrink-0 object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]"
+              />
               <div>
                 <span className="text-2xl font-extrabold tracking-tight text-white">{siteName}</span>
                 <span className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">Enterprise Road Freight</span>
