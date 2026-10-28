@@ -26,7 +26,7 @@ export const Footer = () => {
   const settings = useSettings();
 
   const siteName = settings.siteName || 'Tanish Logistic';
-  const logoUrl = settings.logoUrl || '/icon.png';
+  const logoUrl = settings.logoUrl || '/logo.svg';
   const copyright = settings.copyright || `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`;
   const primaryColor = settings.primaryColor || '#0369A1';
 
