@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Toaster, toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,23 +11,28 @@ import { HexColorPicker } from 'react-colorful';
 import { FileUpload } from '@/components/ui/FileUpload';
 
 
-const SettingsPage = () => {
+const SettingsPage = ({ embedded = false }) => {
+  const Content = embedded ? 'div' : 'main';
   const { register, handleSubmit, formState: { errors }, reset, control, setValue, watch } = useForm();
   const [isLoading, setIsLoading] = useState(false);
+  const [loadState, setLoadState] = useState('loading');
   const logoUrl = watch('logoUrl');
 
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await fetch('/api/settings/general');
-        const data = await response.json();
-        reset(data); // Populate the form with fetched data
-      } catch (error) {
-        toast.error('Failed to load settings.');
-      }
-    };
-    fetchSettings();
+  const fetchSettings = useCallback(async () => {
+    setLoadState('loading');
+    try {
+      const response = await fetch('/api/settings/general');
+      if (!response.ok) throw new Error('Failed to load settings');
+      const data = await response.json();
+      reset(data);
+      setLoadState('ready');
+    } catch {
+      setLoadState('error');
+      toast.error('Failed to load settings.');
+    }
   }, [reset]);
+
+  useEffect(() => { fetchSettings(); }, [fetchSettings]);
 
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -50,20 +55,18 @@ const SettingsPage = () => {
 
   return (
     <>
-      <Head>
-        <title>Site Settings - Tanish Logistic</title>
-      </Head>
-      <Toaster richColors />
-      <div className="flex min-h-screen w-full flex-col bg-gray-50">
-        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-            <h1 className="text-xl font-bold">Site Settings</h1>
+      {!embedded && <Head><title>Site Settings - Tanish Logistic</title></Head>}
+      {!embedded && <Toaster richColors />}
+      <div className={embedded ? 'w-full' : 'flex min-h-screen w-full flex-col bg-gray-50'}>
+        <div className={embedded ? 'space-y-5' : 'flex flex-col sm:gap-4 sm:py-4 sm:pl-14'}>
+          <header className={embedded ? 'space-y-1.5' : 'sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6'}>
+            {embedded ? <><h2 className="text-2xl font-bold tracking-tight text-slate-950">Site settings</h2><p className="text-sm text-slate-600">Manage your website information and configuration.</p></> : <h1 className="text-xl font-bold">Site Settings</h1>}
           </header>
-          <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <Content className={embedded ? 'min-w-0' : 'grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8'}>
+            {loadState === 'loading' ? <p role="status" className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">Loading settings…</p> : loadState === 'error' ? <p role="alert" className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-600">Could not load settings. <button type="button" onClick={fetchSettings} className="font-semibold text-sky-700 underline underline-offset-2">Try again</button></p> : <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>General Information</CardTitle>
+                  <CardTitle className="text-base font-bold leading-6 text-slate-900">General Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-2">
@@ -88,13 +91,15 @@ const SettingsPage = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Appearance and Theming</CardTitle>
+                  <CardTitle className="text-base font-bold leading-6 text-slate-900">Appearance and Theming</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-2">
-                    <label htmlFor="logoUrl" className="text-sm font-medium text-foreground">Logo</label>
-                    <FileUpload onUploadSuccess={(url) => setValue('logoUrl', url, { shouldDirty: true })} />
-                    {logoUrl && <img src={logoUrl} alt="Logo Preview" className="h-20 mt-2" />}
+                    <label htmlFor="site-logo-upload" className="text-sm font-medium text-foreground">Logo</label>
+                    <FileUpload id="site-logo-upload" onUploadSuccess={(url) => setValue('logoUrl', url, { shouldDirty: true })} />
+                    {/* Uploaded logos may be hosted on domains configured by the administrator. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {logoUrl && <img src={logoUrl} alt="Logo preview" className="mt-2 h-20 w-auto object-contain object-left" />}
                     <Input id="logoUrl" {...register("logoUrl")} className="hidden" />
                   </div>
                   <div className="grid gap-2">
@@ -105,8 +110,9 @@ const SettingsPage = () => {
                       render={({ field }) => (
                         <Popover>
                           <PopoverTrigger asChild>
-                            <Button variant="outline" style={{ backgroundColor: field.value }}>
-                              {field.value || "Select Color"}
+                            <Button id="primaryColor" type="button" variant="outline" className="justify-start gap-3 bg-white text-slate-700">
+                              <span aria-hidden="true" className="h-5 w-5 rounded border border-slate-200" style={{ backgroundColor: field.value || '#fff' }} />
+                              {field.value || "Select color"}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto">
@@ -124,8 +130,9 @@ const SettingsPage = () => {
                       render={({ field }) => (
                         <Popover>
                           <PopoverTrigger asChild>
-                            <Button variant="outline" style={{ backgroundColor: field.value }}>
-                              {field.value || "Select Color"}
+                            <Button id="secondaryColor" type="button" variant="outline" className="justify-start gap-3 bg-white text-slate-700">
+                              <span aria-hidden="true" className="h-5 w-5 rounded border border-slate-200" style={{ backgroundColor: field.value || '#fff' }} />
+                              {field.value || "Select color"}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto">
@@ -140,20 +147,16 @@ const SettingsPage = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Functional Configuration</CardTitle>
+                  <CardTitle className="text-base font-bold leading-6 text-slate-900">Integration security</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid gap-2">
-                    <label htmlFor="paymentApiKey" className="text-sm font-medium text-foreground">Payment Gateway API Key</label>
-                    <Input id="paymentApiKey" {...register("paymentApiKey")} className="border-input bg-background" />
-                  </div>
-                  {/* Add more fields for toggling features, other API keys, etc. later */}
+                <CardContent>
+                  <p className="text-sm text-slate-600">Payment integration is not configured. Never enter API keys here; store credentials in your hosting provider&apos;s secret settings.</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Content Management Defaults</CardTitle>
+                  <CardTitle className="text-base font-bold leading-6 text-slate-900">Content Management Defaults</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-2">
@@ -162,8 +165,8 @@ const SettingsPage = () => {
                       name="defaultPostStatus"
                       control={control}
                       render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger className="border-input bg-background">
+                        <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                          <SelectTrigger id="defaultPostStatus" className="border-input bg-background">
                             <SelectValue placeholder="Select a status" />
                           </SelectTrigger>
                           <SelectContent>
@@ -180,8 +183,8 @@ const SettingsPage = () => {
                       name="commentModeration"
                       control={control}
                       render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger className="border-input bg-background">
+                        <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                          <SelectTrigger id="commentModeration" className="border-input bg-background">
                             <SelectValue placeholder="Select a moderation rule" />
                           </SelectTrigger>
                           <SelectContent>
@@ -197,22 +200,18 @@ const SettingsPage = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Security and User Management</CardTitle>
+                  <CardTitle className="text-base font-bold leading-6 text-slate-900">Security</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid gap-2">
-                    <label htmlFor="passwordPolicy" className="text-sm font-medium text-foreground">Password Policy</label>
-                    <Input id="passwordPolicy" {...register("passwordPolicy")} className="border-input bg-background" />
-                  </div>
-                  {/* Add more fields for user roles/permissions later */}
+                <CardContent>
+                  <p className="text-sm text-slate-600">Reviews always require admin approval. Account protection also depends on strong passwords, multi-factor access controls, and your hosting security configuration.</p>
                 </CardContent>
               </Card>
 
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? 'Saving...' : 'Save All Settings'}
               </Button>
-            </form>
-          </main>
+            </form>}
+          </Content>
         </div>
       </div>
     </>

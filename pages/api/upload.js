@@ -1,66 +1,71 @@
 import { withAdminRoute } from '@/lib/session';
 import { IncomingForm } from 'formidable';
-import fs from 'fs';
-import path from 'path';
+import { put } from '@vercel/blob';
+import { randomUUID } from 'node:crypto';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { normalizeLogo } from '@/lib/image-upload';
+import { isVercelRequest } from '@/lib/bot-protection';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// ponytail: allowlist of safe extensions; reject everything else.
-const ALLOWED_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.pdf']);
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+export const config = { api: { bodyParser: false } };
+const MAX_FILE_SIZE = 3 * 1024 * 1024;
 
 export default withAdminRoute(async function uploadRoute(req, res) {
   if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
+    res.setHeader('Allow', 'POST');
     return res.status(405).end('Method Not Allowed');
   }
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+  if ((isVercelRequest() || process.env.NODE_ENV === 'production') && !blobToken) {
+    return res.status(503).json({ error: 'Logo storage is not configured. Contact the site administrator.' });
+  }
 
-  const form = new IncomingForm({
-    uploadDir: uploadsDir,
-    keepExtensions: true,
-    maxFileSize: MAX_FILE_SIZE,
-    filename: (name, ext, part, form) => {
-      // Sanitize: strip any path separators from the incoming filename.
-      const safeBase = String(name).replace(/[\\/]/g, '-').replace(/\s+/g, '-').slice(0, 60) || 'upload';
-      const safeExt = (ext && ALLOWED_EXTENSIONS.has(ext.toLowerCase())) ? ext.toLowerCase() : '';
-      return `${safeBase}-${Date.now()}${safeExt}`;
-    },
-  });
-
-  form.parse(req, (err, fields, files) => {
-    if (err) {
-      // formidable returns its own error for oversized files.
-      if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(413).json({ error: 'File too large. Maximum size is 5 MB.' });
-      }
-      return res.status(500).json({ error: 'Error parsing the file upload.' });
+  let tempDir;
+  try {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'tanish-logo-'));
+    const form = new IncomingForm({
+      uploadDir: tempDir,
+      maxFiles: 1,
+      maxFileSize: MAX_FILE_SIZE,
+      maxTotalFileSize: MAX_FILE_SIZE,
+      maxFields: 0,
+      allowEmptyFiles: false,
+    });
+    const [, files] = await form.parse(req);
+    const incoming = files.file;
+    const file = Array.isArray(incoming) ? incoming[0] : incoming;
+    if (!file || Object.keys(files).length !== 1 || (Array.isArray(incoming) && incoming.length !== 1)) {
+      return res.status(400).json({ error: 'Select exactly one logo image.' });
     }
-
-    const file = files.file;
-    if (!file) {
-      return res.status(400).json({ error: 'No file uploaded.' });
+    const extension = path.extname(file.originalFilename || '').toLowerCase();
+    const normalized = await normalizeLogo(await fs.readFile(file.filepath), extension);
+    if (!normalized) {
+      return res.status(400).json({ error: 'Upload a valid PNG, JPEG, GIF or WebP image (maximum 3 MB). SVG and PDF are not allowed.' });
     }
-
-    const uploadedFile = Array.isArray(file) ? file[0] : file;
-    const ext = path.extname(uploadedFile.originalFilename || '').toLowerCase();
-
-    if (!ALLOWED_EXTENSIONS.has(ext)) {
-      // Remove the temp file formidable already wrote.
-      try { fs.unlinkSync(uploadedFile.filepath); } catch {}
-      return res.status(400).json({ error: `File type "${ext || 'unknown'}" is not allowed.` });
+    const filename = `${randomUUID()}.png`;
+    let url;
+    if (blobToken) {
+      // Public Blob storage is appropriate only for non-sensitive website logos.
+      const blob = await put(`logos/${filename}`, normalized, {
+        access: 'public', token: blobToken, contentType: 'image/png', addRandomSuffix: false,
+      });
+      url = blob.url;
+    } else {
+      // Local/self-hosted development only. Vercel never writes to public/.
+      const directory = path.join(process.cwd(), 'public', 'uploads');
+      await fs.mkdir(directory, { recursive: true });
+      await fs.writeFile(path.join(directory, filename), normalized, { flag: 'wx', mode: 0o644 });
+      url = `/uploads/${filename}`;
     }
-
-    const fileUrl = `/uploads/${path.basename(uploadedFile.filepath)}`;
-    res.status(200).json({ url: fileUrl });
-  });
+    return res.status(200).json({ url });
+  } catch (error) {
+    if (error?.httpCode === 413) return res.status(413).json({ error: 'File too large. Maximum size is 3 MB.' });
+    // Malformed multipart bodies are input errors; storage/network failures
+    // are generic and never include provider credentials or internal paths.
+    if (error?.httpCode && error.httpCode < 500) return res.status(400).json({ error: 'Invalid file upload.' });
+    return res.status(503).json({ error: 'Logo upload is temporarily unavailable.' });
+  } finally {
+    if (tempDir) await fs.rm(tempDir, { recursive: true, force: true }).catch(() => {});
+  }
 });
