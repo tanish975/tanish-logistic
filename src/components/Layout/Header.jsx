@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useSettings } from '../../lib/SettingsContext';
+import BrandLogo from './BrandLogo';
 import { Button } from '../ui/button';
 import { Menu, X, ArrowRight } from 'lucide-react';
 
@@ -74,7 +75,7 @@ export const Header = () => {
             href="/"
             className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-full"
           >
-            <img
+            <BrandLogo
               src={logoUrl}
               alt={`${siteName} Logo`}
               className="h-12 w-12 sm:h-[52px] sm:w-[52px] shrink-0 object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]"

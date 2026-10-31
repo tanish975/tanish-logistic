@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { HexColorPicker } from 'react-colorful';
 import { FileUpload } from '@/components/ui/FileUpload';
+import BrandLogo from '@/components/Layout/BrandLogo';
 
 
 const SettingsPage = () => {
@@ -94,7 +95,7 @@ const SettingsPage = () => {
                   <div className="grid gap-2">
                     <label htmlFor="logoUrl" className="text-sm font-medium text-foreground">Logo</label>
                     <FileUpload onUploadSuccess={(url) => setValue('logoUrl', url, { shouldDirty: true })} />
-                    {logoUrl && <img src={logoUrl} alt="Logo Preview" className="h-20 mt-2" />}
+                    {logoUrl && <BrandLogo src={logoUrl} alt="Logo Preview" className="h-20 mt-2" />}
                     <Input id="logoUrl" {...register("logoUrl")} className="hidden" />
                   </div>
                   <div className="grid gap-2">
