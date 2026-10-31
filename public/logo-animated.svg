@@ -27,35 +27,37 @@
     }
   </style>
 
+  <!-- Continuous write-on: T bar, T/L stems together, then L sweep. -->
+  <!-- Calibrated dash lengths keep the mirrored glow and primary strokes in sync. -->
   <!-- Ambient glow strokes -->
   <g fill="none" stroke="url(#goldGrad)" stroke-linecap="round" stroke-linejoin="round" opacity="0.35" filter="url(#goldGlow)">
-    <path d="M 34.4,199.8 C 27.1,183 29.2,162 40.8,147.3 C 52.3,134.7 76.4,131.6 115.3,125.3 C 167.8,116.9 225.6,102.2 286.4,75.9 C 311.6,65.4 332.6,46.5 334.8,32.9" stroke-width="12" stroke-dasharray="420" stroke-dashoffset="0">
-      <animate attributeName="stroke-dashoffset" from="420" to="0" dur="0.6s" begin="0.15s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1" />
+    <path d="M 34.4,199.8 C 27.1,183 29.2,162 40.8,147.3 C 52.3,134.7 76.4,131.6 115.3,125.3 C 167.8,116.9 225.6,102.2 286.4,75.9 C 311.6,65.4 332.6,46.5 334.8,32.9" stroke-width="12" stroke-dasharray="380" stroke-dashoffset="0">
+      <animate attributeName="stroke-dashoffset" from="380" to="0" dur="0.54s" begin="0s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.25 0.2 0.75 0.8" />
     </path>
-    <path d="M 334.8,32.9 C 343.1,38.1 343.1,48.6 332.6,61.2 C 311.6,86.4 275.9,115.8 241.3,149.4 C 202.4,196.7 162.6,285.9 110,417.2" stroke-width="25" stroke-dasharray="520" stroke-dashoffset="0">
-      <animate attributeName="stroke-dashoffset" from="520" to="0" dur="0.6s" begin="0.70s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1" />
+    <path d="M 334.8,32.9 C 343.1,38.1 343.1,48.6 332.6,61.2 C 311.6,86.4 275.9,115.8 241.3,149.4 C 202.4,196.7 162.6,285.9 110,417.2" stroke-width="25" stroke-dasharray="459" stroke-dashoffset="0">
+      <animate attributeName="stroke-dashoffset" from="459" to="0" dur="0.65s" begin="0.54s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.25 0.2 0.75 0.8" />
     </path>
-    <path d="M 279.1,156.8 C 270.7,189.3 258.1,235.5 247.6,275.4 C 237.1,315.3 226.6,346.8 219.3,367.8" stroke-width="11" stroke-dasharray="280" stroke-dashoffset="0">
-      <animate attributeName="stroke-dashoffset" from="280" to="0" dur="0.5s" begin="1.25s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1" />
+    <path d="M 279.1,156.8 C 270.7,189.3 258.1,235.5 247.6,275.4 C 237.1,315.3 226.6,346.8 219.3,367.8" stroke-width="11" stroke-dasharray="220" stroke-dashoffset="0">
+      <animate attributeName="stroke-dashoffset" from="220" to="0" dur="0.65s" begin="0.54s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.25 0.2 0.75 0.8" />
     </path>
-    <path d="M 219.3,367.8 C 208.8,382.5 181.4,407.7 160.4,417.2 C 155.2,420.3 158.3,426.6 170.9,426.6 C 188.8,426.6 206.7,406.7 231.8,378.3 C 262.3,371 309.6,382.5 362.1,389.9 C 409.3,389.9 446.1,369.9 482.8,310.1" stroke-width="21" stroke-dasharray="520" stroke-dashoffset="0">
-      <animate attributeName="stroke-dashoffset" from="520" to="0" dur="0.65s" begin="1.70s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1" />
+    <path d="M 219.3,367.8 C 208.8,382.5 181.4,407.7 160.4,417.2 C 155.2,420.3 158.3,426.6 170.9,426.6 C 188.8,426.6 206.7,406.7 231.8,378.3 C 262.3,371 309.6,382.5 362.1,389.9 C 409.3,389.9 446.1,369.9 482.8,310.1" stroke-width="21" stroke-dasharray="461" stroke-dashoffset="0">
+      <animate attributeName="stroke-dashoffset" from="461" to="0" dur="0.65s" begin="1.19s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.25 0.2 0.75 0.8" />
     </path>
   </g>
 
   <!-- Sharp primary calligraphy strokes -->
   <g fill="none" stroke="url(#goldGrad)" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M 34.4,199.8 C 27.1,183 29.2,162 40.8,147.3 C 52.3,134.7 76.4,131.6 115.3,125.3 C 167.8,116.9 225.6,102.2 286.4,75.9 C 311.6,65.4 332.6,46.5 334.8,32.9" stroke-width="9.5" stroke-dasharray="420" stroke-dashoffset="0">
-      <animate attributeName="stroke-dashoffset" from="420" to="0" dur="0.6s" begin="0.15s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1" />
+    <path d="M 34.4,199.8 C 27.1,183 29.2,162 40.8,147.3 C 52.3,134.7 76.4,131.6 115.3,125.3 C 167.8,116.9 225.6,102.2 286.4,75.9 C 311.6,65.4 332.6,46.5 334.8,32.9" stroke-width="9.5" stroke-dasharray="380" stroke-dashoffset="0">
+      <animate attributeName="stroke-dashoffset" from="380" to="0" dur="0.54s" begin="0s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.25 0.2 0.75 0.8" />
     </path>
-    <path d="M 334.8,32.9 C 343.1,38.1 343.1,48.6 332.6,61.2 C 311.6,86.4 275.9,115.8 241.3,149.4 C 202.4,196.7 162.6,285.9 110,417.2" stroke-width="21" stroke-dasharray="520" stroke-dashoffset="0">
-      <animate attributeName="stroke-dashoffset" from="520" to="0" dur="0.6s" begin="0.70s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1" />
+    <path d="M 334.8,32.9 C 343.1,38.1 343.1,48.6 332.6,61.2 C 311.6,86.4 275.9,115.8 241.3,149.4 C 202.4,196.7 162.6,285.9 110,417.2" stroke-width="21" stroke-dasharray="459" stroke-dashoffset="0">
+      <animate attributeName="stroke-dashoffset" from="459" to="0" dur="0.65s" begin="0.54s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.25 0.2 0.75 0.8" />
     </path>
-    <path d="M 279.1,156.8 C 270.7,189.3 258.1,235.5 247.6,275.4 C 237.1,315.3 226.6,346.8 219.3,367.8" stroke-width="9" stroke-dasharray="280" stroke-dashoffset="0">
-      <animate attributeName="stroke-dashoffset" from="280" to="0" dur="0.5s" begin="1.25s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1" />
+    <path d="M 279.1,156.8 C 270.7,189.3 258.1,235.5 247.6,275.4 C 237.1,315.3 226.6,346.8 219.3,367.8" stroke-width="9" stroke-dasharray="220" stroke-dashoffset="0">
+      <animate attributeName="stroke-dashoffset" from="220" to="0" dur="0.65s" begin="0.54s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.25 0.2 0.75 0.8" />
     </path>
-    <path d="M 219.3,367.8 C 208.8,382.5 181.4,407.7 160.4,417.2 C 155.2,420.3 158.3,426.6 170.9,426.6 C 188.8,426.6 206.7,406.7 231.8,378.3 C 262.3,371 309.6,382.5 362.1,389.9 C 409.3,389.9 446.1,369.9 482.8,310.1" stroke-width="18" stroke-dasharray="520" stroke-dashoffset="0">
-      <animate attributeName="stroke-dashoffset" from="520" to="0" dur="0.65s" begin="1.70s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1" />
+    <path d="M 219.3,367.8 C 208.8,382.5 181.4,407.7 160.4,417.2 C 155.2,420.3 158.3,426.6 170.9,426.6 C 188.8,426.6 206.7,406.7 231.8,378.3 C 262.3,371 309.6,382.5 362.1,389.9 C 409.3,389.9 446.1,369.9 482.8,310.1" stroke-width="18" stroke-dasharray="461" stroke-dashoffset="0">
+      <animate attributeName="stroke-dashoffset" from="461" to="0" dur="0.65s" begin="1.19s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.25 0.2 0.75 0.8" />
     </path>
   </g>
 

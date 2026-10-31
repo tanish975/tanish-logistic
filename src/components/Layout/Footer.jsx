@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Building2, Mail, MapPin, Phone, Truck, ShieldCheck, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useSettings } from '../../lib/SettingsContext';
+import BrandLogo from './BrandLogo';
 
 const navigationLinks = [
   { href: '/', label: 'Home' },
@@ -38,7 +39,7 @@ export const Footer = () => {
           {/* Brand Column */}
           <div>
             <Link href="/" className="inline-flex items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">
-              <img
+              <BrandLogo
                 src={logoUrl}
                 alt={`${siteName} Logo`}
                 className="h-12 w-12 shrink-0 object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]"
