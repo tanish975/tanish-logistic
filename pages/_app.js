@@ -4,7 +4,7 @@ import { Header } from '../src/components/Layout/Header';
 import { Footer } from '../src/components/Layout/Footer';
 import { useRouter } from 'next/router';
 import { SettingsProvider, useSettings } from '../src/lib/SettingsContext';
-import { PageTransition, TransitionLink, usePageTransition } from '../src/components/Layout/PageTransition';
+import { PageTransition } from '../src/components/Layout/PageTransition';
 import { ScrollProgress, ScrollToTop } from '../src/components/Layout/ScrollProgress';
 import { WhatsAppFloat } from '../src/components/Layout/WhatsAppFloat';
 import { PageLoader } from '../src/components/Animations';
@@ -31,17 +31,19 @@ function MyApp({ Component, pageProps }) {
     <SettingsProvider>
       <ThemeColors />
       <div className="App">
-        <ScrollProgress />
-        <ScrollToTop />
-        {!isAdminPage && <WhatsAppFloat />}
+        {!isAdminPage && <><ScrollProgress /><ScrollToTop /><WhatsAppFloat /></>}
         <div className="min-h-screen flex flex-col">
           {!isAdminPage && <Header />}
-          <PageTransition>
-            <main className="flex-1">
-              {isLoading && <PageLoader />}
-              <Component {...pageProps} />
-            </main>
-          </PageTransition>
+          {isAdminPage ? (
+            <Component {...pageProps} />
+          ) : (
+            <PageTransition>
+              <main className="flex-1">
+                {isLoading && <PageLoader />}
+                <Component {...pageProps} />
+              </main>
+            </PageTransition>
+          )}
           {!isAdminPage && <Footer />}
         </div>
       </div>

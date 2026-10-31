@@ -83,6 +83,12 @@ const ThankYou = () => {
             </p>
           </BlurFade>
 
+          {router.query?.email === 'unavailable' && (
+            <p role="status" className="mx-auto mt-6 max-w-xl rounded-lg border border-amber-400/40 bg-amber-950/40 p-4 text-sm text-amber-100">
+              Your booking was saved, but an email notification may not have been delivered. Please keep your reference and call the dispatch desk if you need confirmation.
+            </p>
+          )}
+
           {bookingId && (
             <BlurFade inView delay={0.12}>
               <div className="relative mx-auto mt-10 max-w-md overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/80 p-8 shadow-2xl backdrop-blur-sm">
