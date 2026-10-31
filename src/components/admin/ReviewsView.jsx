@@ -1,11 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Badge } from '@/components/ui/badge';
+import { useMemo, useState } from 'react';
+import {
+  Check,
+  Clock3,
+  MessageSquare,
+  Plus,
+  Star,
+  Trash2,
+  X,
+} from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -14,477 +20,541 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Toaster, toast } from 'sonner';
-import { Check, X, Clock, Star, Trash2, Plus } from 'lucide-react';
+import { formatBookingDate } from '@/lib/admin-display';
+
+function reviewActivity(reviews) {
+  const now = new Date();
+  return Array.from({ length: 6 }, (_, index) => {
+    const date = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1);
+    return {
+      label: new Intl.DateTimeFormat('en-IN', { month: 'short' }).format(date),
+      count: reviews.filter((review) => {
+        const reviewDate = new Date(review.date);
+        return (
+          reviewDate.getMonth() === date.getMonth() &&
+          reviewDate.getFullYear() === date.getFullYear()
+        );
+      }).length,
+    };
+  });
+}
+
+const selectClass =
+  'h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600';
+const primaryButtonClass =
+  'inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-sky-700 px-3.5 text-sm font-semibold text-white transition hover:bg-sky-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60';
 
 const ReviewsView = ({ reviews, onRefresh }) => {
+  const [activeFilter, setActiveFilter] = useState('approved');
   const [showAddForm, setShowAddForm] = useState(false);
-  const [showPendingOnly, setShowPendingOnly] = useState(false);
   const [newReview, setNewReview] = useState({
     platform: 'Google',
     rating: 5,
     comment: '',
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString().split('T')[0],
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [actionId, setActionId] = useState(null);
+  const [reviewToDelete, setReviewToDelete] = useState(null);
 
-  // Confirmation dialog state
-  const [confirmState, setConfirmState] = useState({
-    open: false,
-    reviewId: null,
-  });
+  const groupedReviews = useMemo(
+    () => ({
+      approved: reviews.filter((review) => review.status === 'approved'),
+      pending: reviews.filter((review) => review.status === 'pending'),
+      rejected: reviews.filter((review) => review.status === 'rejected'),
+      other: reviews.filter(
+        (review) => !['approved', 'pending', 'rejected'].includes(review.status)
+      ),
+    }),
+    [reviews]
+  );
+  const { approved, pending, rejected, other } = groupedReviews;
+  const displayed = groupedReviews[activeFilter] || [];
+  const averageRating = approved.length
+    ? (
+        approved.reduce((sum, review) => sum + Number(review.rating || 0), 0) /
+        approved.length
+      ).toFixed(1)
+    : '—';
+  const platforms = [
+    ...new Set(approved.map((review) => review.platform).filter(Boolean)),
+  ];
+  const activity = useMemo(() => reviewActivity(approved), [approved]);
+  const maxActivity = Math.max(1, ...activity.map((month) => month.count));
 
-  // Filter reviews based on status
-  const approvedReviews = reviews.filter(r => r.status !== 'pending');
-  const pendingReviews = reviews.filter(r => r.status === 'pending');
-  const displayReviews = showPendingOnly ? pendingReviews : approvedReviews;
-
-  const averageRating = approvedReviews.length > 0 
-    ? (approvedReviews.reduce((acc, review) => acc + review.rating, 0) / approvedReviews.length).toFixed(1)
-    : '0.0';
-
-  const getRatingColor = (rating) => {
-    if (rating >= 4.5) return 'bg-green-500';
-    if (rating >= 3.5) return 'bg-lime-500';
-    if (rating >= 2.5) return 'bg-yellow-500';
-    if (rating >= 1.5) return 'bg-orange-500';
-    return 'bg-red-500';
-  };
-
-  const getPlatformColor = (platform) => {
-    switch (platform?.toLowerCase()) {
-      case 'google':
-        return 'bg-blue-500 hover:bg-blue-600';
-      case 'facebook':
-        return 'bg-blue-600 hover:bg-blue-700';
-      case 'instagram':
-        return 'bg-pink-500 hover:bg-pink-600';
-      case 'twitter':
-        return 'bg-sky-500 hover:bg-sky-600';
-      case 'site':
-        return 'bg-purple-500 hover:bg-purple-600';
-      default:
-        return 'bg-gray-500 hover:bg-gray-600';
-    }
-  };
-
-  const handleAddReview = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const handleAddReview = async (event) => {
+    event.preventDefault();
+    if (isAdding) return;
+    setIsAdding(true);
     try {
       const response = await fetch('/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newReview)
+        body: JSON.stringify(newReview),
       });
-      
       if (!response.ok) throw new Error('Failed to add review');
-      
-      toast.success('Review added successfully!');
+      toast.success('Review added.');
       setShowAddForm(false);
       setNewReview({
         platform: 'Google',
         rating: 5,
         comment: '',
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
       });
-      if (onRefresh) onRefresh();
-    } catch (error) {
-      toast.error('Failed to add review');
+      if (onRefresh) await onRefresh();
+    } catch {
+      toast.error('Could not add the review. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsAdding(false);
     }
   };
 
-  const handleApproveReview = async (id) => {
+  const updateReview = async (id, status) => {
+    if (actionId) return;
+    setActionId(id);
     try {
       const response = await fetch('/api/reviews', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status: 'approved' })
+        body: JSON.stringify({ id, status }),
       });
-      
-      if (!response.ok) throw new Error('Failed to approve review');
-      
-      toast.success('Review approved and published!');
-      if (onRefresh) onRefresh();
-    } catch (error) {
-      toast.error('Failed to approve review');
+      if (!response.ok) throw new Error('Failed to update review');
+      toast.success(
+        status === 'approved' ? 'Review approved.' : 'Review rejected.'
+      );
+      if (onRefresh) await onRefresh();
+    } catch {
+      toast.error('Could not update the review. Please try again.');
+    } finally {
+      setActionId(null);
     }
-  };
-
-  const handleRejectReview = async (id) => {
-    try {
-      const response = await fetch('/api/reviews', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status: 'rejected' })
-      });
-      
-      if (!response.ok) throw new Error('Failed to reject review');
-      
-      toast.success('Review rejected!');
-      if (onRefresh) onRefresh();
-    } catch (error) {
-      toast.error('Failed to reject review');
-    }
-  };
-
-  const handleDeleteReview = async (id) => {
-    setConfirmState({
-      open: true,
-      reviewId: id,
-    });
   };
 
   const confirmDeleteReview = async () => {
-    const id = confirmState.reviewId;
-    if (!id) return;
-
+    if (!reviewToDelete || actionId) return;
+    setActionId(reviewToDelete);
     try {
       const response = await fetch('/api/reviews', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
+        body: JSON.stringify({ id: reviewToDelete }),
       });
-      
       if (!response.ok) throw new Error('Failed to delete review');
-      
-      toast.success('Review deleted successfully!');
-      if (onRefresh) onRefresh();
-    } catch (error) {
-      toast.error('Failed to delete review');
+      toast.success('Review deleted.');
+      setReviewToDelete(null);
+      if (onRefresh) await onRefresh();
+    } catch {
+      toast.error('Could not delete the review. Please try again.');
     } finally {
-      setConfirmState(prev => ({ ...prev, open: false, reviewId: null }));
+      setActionId(null);
     }
   };
 
-  // Generate chart data dynamically from reviews
-  const generateChartData = () => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const currentMonth = new Date().getMonth();
-    
-    // Get last 6 months
-    const chartData = [];
-    for (let i = 5; i >= 0; i--) {
-      const monthIndex = (currentMonth - i + 12) % 12;
-      const monthName = months[monthIndex];
-      const year = currentMonth - i < 0 ? new Date().getFullYear() - 1 : new Date().getFullYear();
-      
-      // Count reviews for this month
-      const count = approvedReviews.filter(r => {
-        const reviewDate = new Date(r.date);
-        return reviewDate.getMonth() === monthIndex && reviewDate.getFullYear() === year;
-      }).length;
-      
-      chartData.push({ name: monthName, reviews: count });
-    }
-    
-    return chartData;
-  };
-
-  const data = generateChartData();
+  const filters = [
+    { id: 'approved', label: 'Approved', count: approved.length },
+    { id: 'pending', label: 'Pending', count: pending.length },
+    { id: 'rejected', label: 'Rejected', count: rejected.length },
+    ...(other.length
+      ? [{ id: 'other', label: 'Other', count: other.length }]
+      : []),
+  ];
 
   return (
-    <div className="space-y-4">
-      <Toaster richColors />
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="shadow-lg border-2 border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-gray-50">
-            <CardTitle className="text-sm font-medium text-gray-700">Average Rating</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-900">{averageRating} ⭐</div>
-            <p className="text-xs text-gray-500 mt-1">Out of 5 stars</p>
-          </CardContent>
-        </Card>
-        <Card className="shadow-lg border-2 border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-gray-50">
-            <CardTitle className="text-sm font-medium text-gray-700">Approved Reviews</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">{approvedReviews.length}</div>
-            <p className="text-xs text-gray-500 mt-1">Publicly visible</p>
-          </CardContent>
-        </Card>
-        <Card className="shadow-lg border-2 border-yellow-200 bg-yellow-50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-yellow-50">
-            <CardTitle className="text-sm font-medium text-yellow-700">Pending Reviews</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-yellow-600">{pendingReviews.length}</div>
-            <p className="text-xs text-yellow-600 mt-1">Awaiting approval</p>
-          </CardContent>
-        </Card>
-        <Card className="shadow-lg border-2 border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-gray-50">
-            <CardTitle className="text-sm font-medium text-gray-700">Platforms</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-2 flex-wrap">
-              {[...new Set(approvedReviews.map(r => r.platform))].map(platform => (
-                <Badge key={platform} className={getPlatformColor(platform)}>
-                  {platform}
-                </Badge>
-              ))}
-              {approvedReviews.length === 0 && <span className="text-gray-400 text-sm">No data</span>}
-            </div>
-          </CardContent>
-        </Card>
+    <section className="space-y-5 pb-8" aria-labelledby="reviews-title">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold tracking-wide text-sky-700">
+            CUSTOMER FEEDBACK
+          </p>
+          <h2
+            id="reviews-title"
+            className="mt-2 text-2xl font-bold tracking-tight text-slate-950 sm:text-[28px]"
+          >
+            Reviews
+          </h2>
+          <p className="mt-1.5 text-sm leading-6 text-slate-600">
+            Review customer feedback and manage submissions.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowAddForm(!showAddForm)}
+          className={primaryButtonClass}
+        >
+          <Plus className="h-4 w-4" aria-hidden="true" />
+          {showAddForm ? 'Close form' : 'Add external review'}
+        </button>
       </div>
 
-      <Card className="shadow-lg border-2 border-gray-200">
-        <CardHeader className="bg-gray-50 border-b flex flex-row items-center justify-between">
-          <CardTitle className="text-gray-900">Review Growth</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-gray-300" />
-              <XAxis dataKey="name" className="fill-gray-600" />
-              <YAxis className="fill-gray-600" />
-              <Tooltip 
-                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                itemStyle={{ color: '#374151' }}
-              />
-              <Legend />
-              <Line type="monotone" dataKey="reviews" stroke="#2563EB" strokeWidth={2} activeDot={{ r: 8 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {/* Action Buttons */}
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2">
-          <Button 
-            onClick={() => setShowPendingOnly(false)} 
-            variant={!showPendingOnly ? 'default' : 'outline'}
-            className={!showPendingOnly ? 'bg-green-600' : ''}
+      <section
+        className="grid grid-cols-2 gap-3 xl:grid-cols-4 xl:gap-4"
+        aria-label="Review overview"
+      >
+        {[
+          {
+            label: 'Average rating',
+            value: averageRating,
+            note: 'Approved reviews',
+            icon: Star,
+            color: 'bg-amber-50 text-amber-700',
+          },
+          {
+            label: 'Approved',
+            value: approved.length,
+            note: 'Reviews approved',
+            icon: Check,
+            color: 'bg-emerald-50 text-emerald-700',
+          },
+          {
+            label: 'Pending',
+            value: pending.length,
+            note: 'Awaiting review',
+            icon: Clock3,
+            color: 'bg-sky-50 text-sky-700',
+          },
+          {
+            label: 'Platforms',
+            value: platforms.length,
+            note: 'For approved reviews',
+            icon: MessageSquare,
+            color: 'bg-indigo-50 text-indigo-700',
+          },
+        ].map((item) => (
+          <div
+            key={item.label}
+            className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:p-5"
           >
-            <Check className="mr-2 h-4 w-4" />
-            Approved ({approvedReviews.length})
-          </Button>
-          <Button 
-            onClick={() => setShowPendingOnly(true)} 
-            variant={showPendingOnly ? 'default' : 'outline'}
-            className={showPendingOnly ? 'bg-yellow-600' : ''}
-          >
-            <Clock className="mr-2 h-4 w-4" />
-            Pending ({pendingReviews.length})
-          </Button>
-        </div>
-        <Button onClick={() => setShowAddForm(!showAddForm)} className="bg-green-600 hover:bg-green-700">
-          <Plus className="mr-2 h-4 w-4" />
-          {showAddForm ? 'Cancel' : 'Add External Review'}
-        </Button>
-      </div>
-
-      {/* Pending Reviews Alert */}
-      {pendingReviews.length > 0 && !showPendingOnly && (
-        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Clock className="h-6 w-6 text-yellow-600" />
-            <span className="text-yellow-800 font-medium">
-              You have {pendingReviews.length} pending review(s) awaiting approval!
-            </span>
-          </div>
-          <Button 
-            onClick={() => setShowPendingOnly(true)} 
-            variant="outline"
-            className="border-yellow-400 text-yellow-700 hover:bg-yellow-100"
-          >
-            View Pending
-          </Button>
-        </div>
-      )}
-
-      {/* Add Review Form */}
-      {showAddForm && (
-        <Card className="shadow-lg border-2 border-green-200 bg-green-50">
-          <CardHeader className="bg-green-100 border-b">
-            <CardTitle className="text-gray-900">Add External Review</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleAddReview} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium text-gray-700">Platform</label>
-                  <Select 
-                    value={newReview.platform} 
-                    onValueChange={(value) => setNewReview({...newReview, platform: value})}
-                  >
-                    <SelectTrigger className="bg-white border-input">
-                      <SelectValue placeholder="Select platform" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Google">Google</SelectItem>
-                      <SelectItem value="Facebook">Facebook</SelectItem>
-                      <SelectItem value="Instagram">Instagram</SelectItem>
-                      <SelectItem value="Twitter">Twitter</SelectItem>
-                      <SelectItem value="Trustpilot">Trustpilot</SelectItem>
-                      <SelectItem value="Site">Your Website</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium text-gray-700">Rating</label>
-                  <Select 
-                    value={String(newReview.rating)} 
-                    onValueChange={(value) => setNewReview({...newReview, rating: parseInt(value)})}
-                  >
-                    <SelectTrigger className="bg-white border-input">
-                      <SelectValue placeholder="Select rating" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="5">5 Stars ⭐⭐⭐⭐⭐</SelectItem>
-                      <SelectItem value="4">4 Stars ⭐⭐⭐⭐</SelectItem>
-                      <SelectItem value="3">3 Stars ⭐⭐⭐</SelectItem>
-                      <SelectItem value="2">2 Stars ⭐⭐</SelectItem>
-                      <SelectItem value="1">1 Star ⭐</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <label className="text-sm font-medium text-gray-700">Date</label>
-                <Input 
-                  type="date" 
-                  value={newReview.date}
-                  onChange={(e) => setNewReview({...newReview, date: e.target.value})}
-                  className="bg-white border-input"
-                />
-              </div>
-              <div className="grid gap-2">
-                <label className="text-sm font-medium text-gray-700">Comment</label>
-                <Textarea 
-                  placeholder="Enter the customer's review comment..."
-                  value={newReview.comment}
-                  onChange={(e) => setNewReview({...newReview, comment: e.target.value})}
-                  className="bg-white border-input"
-                  rows={3}
-                />
-              </div>
-              <Button type="submit" disabled={isLoading} className="bg-green-600 hover:bg-green-700">
-                {isLoading ? 'Adding...' : 'Add Review'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Reviews List */}
-      <Card className="shadow-lg border-2 border-gray-200">
-        <CardHeader className="bg-gray-50 border-b">
-          <CardTitle className="text-gray-900">
-            {showPendingOnly ? 'Pending Reviews - Awaiting Approval' : 'Approved Customer Reviews'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {displayReviews.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <p className="text-lg">No {showPendingOnly ? 'pending' : ''} reviews available</p>
-              <p className="text-sm mt-2">
-                {showPendingOnly 
-                  ? 'No reviews awaiting approval.' 
-                  : 'Reviews from customers will appear here. Users can submit reviews from the Contact page.'}
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-sm font-semibold text-slate-500">
+                {item.label}
               </p>
+              <span
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.color}`}
+              >
+                <item.icon className="h-4 w-4" aria-hidden="true" />
+              </span>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {displayReviews.map((review) => (
-                <div 
-                  key={review.id} 
-                  className={`p-4 border-2 rounded-lg transition-colors bg-white ${
-                    review.status === 'pending' ? 'border-yellow-200 bg-yellow-50' : 'border-gray-100 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Badge className={getPlatformColor(review.platform)}>
-                        {review.platform}
-                      </Badge>
-                      {review.name && (
-                        <span className="text-sm font-medium text-gray-700">- {review.name}</span>
-                      )}
-                      <span className="text-sm text-gray-500">{review.date}</span>
-                      {review.status === 'pending' && (
-                        <Badge className="bg-yellow-500">Pending</Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                          />
-                        ))}
-                      </div>
-                      {showPendingOnly ? (
-                        <div className="flex gap-1 ml-2">
-                          <Button 
-                            size="sm" 
-                            onClick={() => handleApproveReview(review.id)}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <Check className="h-4 w-4 mr-1" />
-                            Approve
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleRejectReview(review.id)}
-                            className="text-red-600 border-red-300 hover:bg-red-50"
-                          >
-                            <X className="h-4 w-4 mr-1" />
-                            Reject
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button 
-                          variant="destructive" 
-                          size="sm"
-                          onClick={() => handleDeleteReview(review.id)}
-                          className="bg-red-500 hover:bg-red-600 ml-2"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-gray-700 mt-2">{review.comment}</p>
-                  <div className="mt-2">
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs text-white ${getRatingColor(review.rating)}`}>
-                      {review.rating} / 5
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            <p className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+              {item.value}
+            </p>
+            <p className="mt-3 text-xs leading-5 text-slate-500">{item.note}</p>
+          </div>
+        ))}
+      </section>
 
-      <Dialog open={confirmState.open} onOpenChange={(open) => setConfirmState(prev => ({ ...prev, open }))}>
-        <DialogContent>
+      {showAddForm && (
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:p-6">
+          <h3 className="text-base font-bold text-slate-900">
+            Add external review
+          </h3>
+          <p className="mt-1 text-xs text-slate-500">
+            Add feedback from another platform to the review list.
+          </p>
+          <form onSubmit={handleAddReview} className="mt-5 space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-2">
+                <label
+                  htmlFor="review-platform"
+                  className="text-sm font-semibold text-slate-700"
+                >
+                  Platform
+                </label>
+                <select
+                  id="review-platform"
+                  value={newReview.platform}
+                  onChange={(event) =>
+                    setNewReview({ ...newReview, platform: event.target.value })
+                  }
+                  className={selectClass}
+                >
+                  <option>Google</option>
+                  <option>Facebook</option>
+                  <option>Instagram</option>
+                  <option>Twitter</option>
+                  <option>Trustpilot</option>
+                  <option value="Site">Your website</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label
+                  htmlFor="review-rating"
+                  className="text-sm font-semibold text-slate-700"
+                >
+                  Rating
+                </label>
+                <select
+                  id="review-rating"
+                  value={newReview.rating}
+                  onChange={(event) =>
+                    setNewReview({
+                      ...newReview,
+                      rating: Number(event.target.value),
+                    })
+                  }
+                  className={selectClass}
+                >
+                  {[5, 4, 3, 2, 1].map((rating) => (
+                    <option key={rating} value={rating}>
+                      {rating} {rating === 1 ? 'star' : 'stars'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label
+                  htmlFor="review-date"
+                  className="text-sm font-semibold text-slate-700"
+                >
+                  Date
+                </label>
+                <Input
+                  id="review-date"
+                  type="date"
+                  value={newReview.date}
+                  onChange={(event) =>
+                    setNewReview({ ...newReview, date: event.target.value })
+                  }
+                  className="border-slate-200 focus-visible:ring-sky-600"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label
+                htmlFor="review-comment"
+                className="text-sm font-semibold text-slate-700"
+              >
+                Comment
+              </label>
+              <Textarea
+                id="review-comment"
+                value={newReview.comment}
+                onChange={(event) =>
+                  setNewReview({ ...newReview, comment: event.target.value })
+                }
+                placeholder="Enter the customer's review"
+                required
+                rows={3}
+                className="border-slate-200 focus-visible:ring-sky-600"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isAdding}
+              className={primaryButtonClass}
+            >
+              {isAdding ? 'Adding…' : 'Add review'}
+            </button>
+          </form>
+        </div>
+      )}
+
+      <div
+        className="rounded-xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)] sm:p-6"
+        role="region"
+        aria-label="Review activity"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h3 className="text-base font-bold text-slate-900">
+              Review activity
+            </h3>
+            <p className="mt-1 text-xs text-slate-500">
+              Approved reviews over the last 6 months
+            </p>
+          </div>
+          <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+            Last 6 months
+          </span>
+        </div>
+        <div
+          className="mt-5 flex h-32 items-end justify-around gap-2 border-b border-slate-200 px-1"
+          aria-hidden="true"
+        >
+          {activity.map((month) => (
+            <div
+              key={month.label}
+              className="flex h-full min-w-0 flex-1 flex-col items-center justify-end"
+            >
+              <span className="mb-1 text-[11px] font-semibold text-slate-500">
+                {month.count}
+              </span>
+              <span
+                className="w-full max-w-[44px] rounded-t-md bg-sky-700"
+                style={{
+                  height: `${month.count ? Math.max((month.count / maxActivity) * 78, 4) : 0}%`,
+                }}
+              />
+            </div>
+          ))}
+        </div>
+        <div
+          className="mt-2 flex justify-around gap-2 px-1 text-center text-[11px] text-slate-500"
+          aria-hidden="true"
+        >
+          {activity.map((month) => (
+            <span key={month.label} className="flex-1">
+              {month.label}
+            </span>
+          ))}
+        </div>
+        <p className="sr-only">
+          {activity.map((month) => `${month.label}: ${month.count}`).join(', ')}
+        </p>
+      </div>
+
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+        <div className="space-y-4 border-b border-slate-100 px-4 py-5 sm:px-5">
+          <div>
+            <h3 className="text-base font-bold text-slate-900">Review list</h3>
+            <p className="mt-1 text-xs text-slate-500">
+              Choose a status to see its reviews.
+            </p>
+          </div>
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-label="Filter reviews"
+          >
+            {filters.map((filter) => (
+              <button
+                key={filter.id}
+                type="button"
+                aria-pressed={activeFilter === filter.id}
+                onClick={() => setActiveFilter(filter.id)}
+                className={`min-h-9 rounded-lg border px-3 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 ${activeFilter === filter.id ? 'border-sky-700 bg-sky-700 text-white' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
+              >
+                {filter.label} ({filter.count})
+              </button>
+            ))}
+          </div>
+        </div>
+        {displayed.length === 0 ? (
+          <div className="px-5 py-10 text-center">
+            <p className="text-sm font-semibold text-slate-800">
+              No {activeFilter} reviews
+            </p>
+            <p className="mt-1 text-xs text-slate-500">
+              {activeFilter === 'pending'
+                ? 'There are no reviews awaiting approval.'
+                : 'Reviews in this status will appear here.'}
+            </p>
+          </div>
+        ) : (
+          <ul className="divide-y divide-slate-100">
+            {displayed.map((review) => (
+              <li key={review.id} className="space-y-3 px-4 py-5 sm:px-5">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs">
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere] rounded-md bg-sky-50 px-2 py-1 font-bold text-sky-800">
+                    {review.platform || 'Unknown platform'}
+                  </span>
+                  {review.name && (
+                    <span className="min-w-0 break-words [overflow-wrap:anywhere] font-semibold text-slate-700">
+                      {review.name}
+                    </span>
+                  )}
+                  <span className="text-slate-500">
+                    {formatBookingDate(review.date)}
+                  </span>
+                  {activeFilter === 'other' && (
+                    <span className="break-all text-slate-500">
+                      {review.status || 'Unknown status'}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="sr-only">
+                    {review.rating} out of 5 stars
+                  </span>
+                  {[0, 1, 2, 3, 4].map((index) => (
+                    <Star
+                      key={index}
+                      className={`h-4 w-4 ${index < Number(review.rating) ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
+                      aria-hidden="true"
+                    />
+                  ))}
+                  <span
+                    aria-hidden="true"
+                    className="ml-1 text-xs font-semibold text-slate-600"
+                  >
+                    {review.rating} / 5
+                  </span>
+                </div>
+                <p className="break-words [overflow-wrap:anywhere] text-sm leading-6 text-slate-700">
+                  {review.comment}
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  {activeFilter === 'pending' ? (
+                    <>
+                      <button
+                        type="button"
+                        disabled={Boolean(actionId)}
+                        onClick={() => updateReview(review.id, 'approved')}
+                        aria-label={`Approve review by ${review.name || 'Anonymous'}`}
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-md bg-emerald-700 px-3 text-xs font-semibold text-white hover:bg-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 disabled:opacity-50"
+                      >
+                        <Check className="h-4 w-4" aria-hidden="true" /> Approve
+                      </button>
+                      <button
+                        type="button"
+                        disabled={Boolean(actionId)}
+                        onClick={() => updateReview(review.id, 'rejected')}
+                        aria-label={`Reject review by ${review.name || 'Anonymous'}`}
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-rose-200 px-3 text-xs font-semibold text-rose-700 hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 disabled:opacity-50"
+                      >
+                        <X className="h-4 w-4" aria-hidden="true" /> Reject
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setReviewToDelete(review.id)}
+                      aria-label={`Delete review by ${review.name || 'Anonymous'}`}
+                      className="inline-flex min-h-9 items-center gap-1.5 rounded-md px-2 text-xs font-semibold text-rose-700 hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden="true" /> Delete
+                    </button>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <Dialog
+        open={Boolean(reviewToDelete)}
+        onOpenChange={(open) => {
+          if (!open && !actionId) setReviewToDelete(null);
+        }}
+      >
+        <DialogContent className="w-[calc(100%-2rem)] rounded-xl">
           <DialogHeader>
-            <DialogTitle>Delete Review</DialogTitle>
+            <DialogTitle>Delete this review?</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this review? This action cannot be undone.
+              This will permanently remove the review. This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmState(prev => ({ ...prev, open: false }))}>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              disabled={Boolean(actionId)}
+              onClick={() => setReviewToDelete(null)}
+            >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmDeleteReview}>
-              Delete
+            <Button
+              variant="destructive"
+              className="bg-rose-700 text-white hover:bg-rose-800"
+              disabled={Boolean(actionId)}
+              onClick={confirmDeleteReview}
+            >
+              {actionId ? 'Deleting…' : 'Delete review'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </section>
   );
 };
 

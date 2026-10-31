@@ -15,7 +15,7 @@ export default withAdminRoute(async function getBookingsRoute(req, res) {
       },
     });
     res.status(200).json(bookings);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });

@@ -5,14 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Phone, Mail, MapPin, Clock, Send, Loader2, Star, ThumbsUp, Building2, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { Phone, Mail, MapPin, Clock, Send, Loader2, Star, ThumbsUp, Building2, CheckCircle2 } from 'lucide-react';
 import { SiteMetadata } from '@/components/Layout/Metadata';
 import { PublicPageHero, FinalCta } from '@/components/Layout/PublicPage';
 import { MovingTruckLoader } from '@/components/Animations/MovingTruckLoader';
 
 const Contact = () => {
-  const shouldReduceMotion = useReducedMotion();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -20,6 +18,7 @@ const Contact = () => {
     company: '',
     service: '',
     message: '',
+    website: '',
     newsletter: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,14 +39,16 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const phoneRegex = /^[0-9]{10,15}$/;
-    if (formData.phone && !phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
-      toast.error('Please enter a valid phone number (10-15 digits).');
+    const phoneDigits = (formData.phone.match(/\p{Decimal_Number}/gu) || []).length;
+    if (phoneDigits < 7 || phoneDigits > 20) {
+      toast.error('Please enter a valid phone number (7–20 digits).');
       setIsSubmitting(false);
       return;
     }
 
-    const promise = fetch('/api/send-email', {
+    // Use the canonical trailing-slash URL so BotID signs the same path that
+    // reaches the API instead of following a 308 redirect after signing.
+    const promise = fetch('/api/send-email/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -55,22 +56,28 @@ const Contact = () => {
       body: JSON.stringify(formData),
     }).then(async (response) => {
       if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.message || 'An unexpected error occurred.');
+        const result = await response.json().catch(() => ({}));
+        throw new Error(result.message || 'Could not send your inquiry. Please try again or call +91 99242 04744.');
       }
       return response.json();
     });
 
-    toast.promise(promise, {
-      loading: 'Sending freight inquiry...',
-      success: () => {
-        setFormData({ name: '', email: '', phone: '', company: '', service: '', message: '', newsletter: false });
-        return 'Inquiry sent! Our operations desk will respond shortly.';
-      },
-      error: (err) => err.message || 'Failed to send message. Please try again.',
-    }).finally(() => {
+    try {
+      await toast.promise(promise, {
+        loading: 'Sending freight inquiry...',
+        success: (result) => {
+          setFormData({ name: '', email: '', phone: '', company: '', service: '', message: '', website: '', newsletter: false });
+          return result.warning
+            ? 'Inquiry sent, but we could not send a confirmation email.'
+            : 'Inquiry sent! Our operations desk will respond shortly.';
+        },
+        error: (err) => err.message || 'Failed to send message. Please try again or call +91 99242 04744.',
+      });
+    } catch {
+      // The toast already reports the error; keep the form contents for a retry.
+    } finally {
       setIsSubmitting(false);
-    });
+    }
   };
 
   return (
@@ -209,12 +216,26 @@ const Contact = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+                {/* Hidden from people and assistive technology; never required. */}
+                <div className="hidden" aria-hidden="true">
+                  <Label htmlFor="contact-website">Website (leave empty)</Label>
+                  <Input
+                    id="contact-website"
+                    name="website"
+                    type="text"
+                    value={formData.website}
+                    onChange={handleChange}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-sm font-bold text-slate-900">Full Name *</Label>
                     <Input
                       id="name"
                       name="name"
+                      maxLength={120}
                       type="text"
                       required
                       value={formData.name}
@@ -228,6 +249,7 @@ const Contact = () => {
                     <Input
                       id="email"
                       name="email"
+                      maxLength={254}
                       type="email"
                       required
                       value={formData.email}
@@ -244,6 +266,7 @@ const Contact = () => {
                     <Input
                       id="phone"
                       name="phone"
+                      maxLength={60}
                       type="tel"
                       required
                       value={formData.phone}
@@ -257,6 +280,7 @@ const Contact = () => {
                     <Input
                       id="company"
                       name="company"
+                      maxLength={200}
                       type="text"
                       value={formData.company}
                       onChange={handleChange}
@@ -287,6 +311,7 @@ const Contact = () => {
                   <Textarea
                     id="message"
                     name="message"
+                    maxLength={5000}
                     rows={4}
                     required
                     value={formData.message}
@@ -316,7 +341,8 @@ const Contact = () => {
                 </Button>
 
                 <p className="text-center text-xs text-slate-500">
-                  We treat all shipping and pricing data strictly confidentially.
+                  We treat all shipping and pricing data strictly confidentially. Having trouble with the form?{' '}
+                  <a href="tel:+919924204744" className="font-semibold text-sky-700 underline">Call +91 99242 04744</a>.
                 </p>
               </form>
             </div>
@@ -341,7 +367,6 @@ const Contact = () => {
 
 // Clean Corporate Review Form Component
 const ReviewForm = () => {
-  const shouldReduceMotion = useReducedMotion();
   const [reviewData, setReviewData] = useState({
     name: '',
     rating: 5,
@@ -360,7 +385,6 @@ const ReviewForm = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...reviewData,
-          isPublic: true,
           platform: 'Site',
         }),
       });
@@ -369,7 +393,7 @@ const ReviewForm = () => {
 
       setSubmitted(true);
       toast.success('Thank you for your rating & feedback!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to submit review. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -408,6 +432,7 @@ const ReviewForm = () => {
               <Input
                 id="reviewName"
                 type="text"
+                maxLength={120}
                 required
                 value={reviewData.name}
                 onChange={(e) => setReviewData({ ...reviewData, name: e.target.value })}
@@ -440,6 +465,7 @@ const ReviewForm = () => {
               <Label htmlFor="reviewComment" className="text-sm font-bold text-slate-900">Feedback or Review Comments *</Label>
               <Textarea
                 id="reviewComment"
+                maxLength={5000}
                 rows={4}
                 required
                 value={reviewData.comment}

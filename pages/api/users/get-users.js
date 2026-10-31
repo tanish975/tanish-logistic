@@ -20,8 +20,7 @@ export default withAdminRoute(async function getUsersRoute(req, res) {
             },
         });
         res.status(200).json(users);
-    } catch (error) {
-        console.error('Error getting users:', error);
-        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    } catch {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });

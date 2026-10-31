@@ -4,10 +4,18 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = process.env.ADMIN_EMAIL || 'tksunaria@gmail.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(adminEmail) ||
+      !adminPassword || adminPassword.length < 16 || Buffer.byteLength(adminPassword, 'utf8') > 72) {
+    throw new Error('Set a single ADMIN_EMAIL and an ADMIN_PASSWORD of at least 16 characters and at most 72 UTF-8 bytes before seeding.');
+  }
+  if (process.env.SEED_SAMPLE_DATA === '1' &&
+      (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production')) {
+    throw new Error('Sample data seeding is disabled in production.');
+  }
 
-  const hashedPassword = await bcrypt.hash(adminPassword, 10);
+  const hashedPassword = await bcrypt.hash(adminPassword, 12);
 
   const adminUser = await prisma.user.upsert({
     where: { email: adminEmail },
@@ -21,6 +29,11 @@ async function main() {
   });
 
   console.log('Admin user ready:', { email: adminUser.email, role: adminUser.role });
+
+  if (process.env.SEED_SAMPLE_DATA !== '1') {
+    console.log('Sample records skipped. Set SEED_SAMPLE_DATA=1 in a non-production environment to create them.');
+    return;
+  }
 
   // Create sample bookings
   const bookings = [

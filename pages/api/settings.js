@@ -1,8 +1,16 @@
+import { publicSiteSettings, readSiteSettings } from '@/lib/site-settings';
+
+// Public branding only. Administrative defaults and credentials are never
+// sent to public visitors.
 export default async function handler(req, res) {
-  if (req.method === 'GET') {
-    res.status(200).json({ message: 'No settings are currently managed.' });
-  } else {
-    res.setHeader('Allow', ['GET']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+  res.setHeader('Cache-Control', 'no-store');
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET');
+    return res.status(405).end('Method Not Allowed');
+  }
+  try {
+    return res.status(200).json(publicSiteSettings(await readSiteSettings()));
+  } catch {
+    return res.status(503).json({ message: 'Settings are temporarily unavailable.' });
   }
 }

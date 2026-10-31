@@ -3,7 +3,7 @@ import { indiaPincodes } from '@/india-pincodes';
 export default async function handler(req, res) {
   const { pincode } = req.query;
 
-  if (!pincode || !/^\d{6}$/.test(pincode)) {
+  if (typeof pincode !== 'string' || !/^\d{6}$/.test(pincode)) {
     return res.status(400).json({ error: 'Please enter a valid 6-digit pincode.' });
   }
 
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         message: 'Sorry, this area is not covered yet.',
       });
     }
-  } catch (error) {
+  } catch {
     res.status(500).json({
       serviceable: false,
       message: 'Could not check serviceability at this time.',

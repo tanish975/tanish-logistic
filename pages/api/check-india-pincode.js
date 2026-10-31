@@ -4,7 +4,7 @@ import { indiaPincodes } from '@/india-pincodes';
 export default function handler(req, res) {
   const { pincode } = req.query;
 
-  if (!pincode || !/^\d{6}$/.test(pincode)) {
+  if (typeof pincode !== 'string' || !/^\d{6}$/.test(pincode)) {
     return res.status(400).json({ error: 'Please enter a valid 6-digit pincode.' });
   }
 
