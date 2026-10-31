@@ -1,8 +1,18 @@
 jest.mock('botid/next/config', () => ({ withBotId: (config) => config }));
+const fs = require('node:fs');
+const path = require('node:path');
 const originalNodeEnv = process.env.NODE_ENV;
 afterAll(() => { process.env.NODE_ENV = originalNodeEnv; });
 
 describe('production HTTP security headers', () => {
+  it('retires the public legacy admin demo and links only to the protected app', () => {
+    const legacyAdmin = fs.readFileSync(path.join(process.cwd(), 'public/admin.html'), 'utf8');
+    expect(legacyAdmin).toContain('content="0; url=/admin/"');
+    expect(legacyAdmin).toContain('href="/admin/"');
+    expect(legacyAdmin.toLowerCase()).not.toContain('<script');
+    expect(legacyAdmin.toLowerCase()).not.toContain('firebase');
+  });
+
   it('adds browser hardening and prevents admin/API caching', async () => {
     jest.resetModules();
     process.env.NODE_ENV = 'production';

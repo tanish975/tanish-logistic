@@ -201,7 +201,7 @@ npx prisma migrate deploy
 
 For a disposable development database you can use `npx prisma migrate dev`. Generate a client after schema changes with `npx prisma generate`.
 
-The seed script has **no default credentials**. Set a single `ADMIN_EMAIL` and a strong `ADMIN_PASSWORD` through your local environment or secret manager before deliberately running `npx prisma db seed`. Existing admin passwords are not changed by seeding. Sample bookings, drivers and vehicles are skipped unless `SEED_SAMPLE_DATA=1`, and sample seeding is refused in production. Do not seed a live database without an approved plan and backup.
+The seed script has **no default credentials**. Set a single `ADMIN_EMAIL` and a strong `ADMIN_PASSWORD` through your local environment or secret manager before deliberately running `npx prisma db seed`. Existing admin passwords are not changed by seeding. The operator-only `node scripts/create-admin.js` uses the same explicit email and password policy, but creates or resets the selected account as an administrator; run it only from a trusted environment when intentionally provisioning access. Sample bookings, drivers and vehicles are skipped unless `SEED_SAMPLE_DATA=1`, and sample seeding is refused in production. Do not seed or provision a live database without an approved plan and backup.
 
 ## Available Scripts
 
