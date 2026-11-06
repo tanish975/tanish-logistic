@@ -1,10 +1,6 @@
 import React from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Truck, Users, Award, Target, CheckCircle2, ArrowRight, ShieldCheck, MapPin, Building2, Clock, Check } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { Users, Award, Target, ShieldCheck, Check } from 'lucide-react';
 import { SiteMetadata } from '@/components/Layout/Metadata';
 import { ProcessDraw } from '@/components/Animations/ProcessDraw';
 import { PublicPageHero, FinalCta } from '@/components/Layout/PublicPage';
@@ -63,8 +59,6 @@ const milestones = [
 ];
 
 const About = () => {
-  const shouldReduceMotion = useReducedMotion();
-
   return (
     <div className="min-h-screen bg-white text-slate-950 font-sans">
       <SiteMetadata
@@ -243,9 +237,9 @@ const About = () => {
       </section>
 
       {/* Freight Process Flow */}
-      <section className="py-20 sm:py-28 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center mb-14">
+      <section className="min-w-0 py-20 sm:py-28 bg-white">
+        <div className="mx-auto min-w-0 max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-14 max-w-3xl text-center">
             <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
               Our Working Process
             </span>
@@ -390,6 +384,7 @@ const About = () => {
         title="Experience dependable road freight for your business."
         description="Connect with our operations directors in Vadodara or Mandi Gobindgarh to review your shipping lanes, vehicle requirements, and pricing models."
         primaryLabel="Contact Our Team"
+        secondaryHref="/services"
         secondaryLabel="View Transport Services"
       />
     </div>

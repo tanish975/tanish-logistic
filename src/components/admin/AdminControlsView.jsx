@@ -4,7 +4,6 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -13,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { toast } from 'sonner';
 
 const AdminControlsView = () => {
   const shouldReduceMotion = useReducedMotion();
@@ -63,7 +61,7 @@ const AdminControlsView = () => {
             const response = await fetch('/api/users/add-user', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, username, password }),
+                body: JSON.stringify({ name, email: username, password }),
             });
 
             const data = await response.json();
@@ -120,7 +118,7 @@ const AdminControlsView = () => {
         <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: shouldReduceMotion ? 0 : 0.5 }} id="admin-controls-section">
             <div className="mb-8">
                 <h2 className="text-3xl font-bold text-gray-800 mb-2">Admin Controls</h2>
-                <p className="text-gray-600">Manage admin accounts for the dashboard.</p>
+                <p className="text-gray-600">Manage customer accounts. New accounts do not receive admin access.</p>
             </div>
 
             {error && <p className="bg-red-100 text-red-700 p-3 rounded-lg mb-4">{error}</p>}
@@ -129,29 +127,29 @@ const AdminControlsView = () => {
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Add New User Form */}
                 <div className="bg-white p-6 rounded-xl shadow-lg">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4">Add New Admin</h3>
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">Add New Customer</h3>
                     <form onSubmit={handleAddUser} className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="name">Full Name</Label>
                             <Input id="name" value={name} onChange={e => setName(e.target.value)} required />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="username">Username</Label>
-                            <Input id="username" value={username} onChange={e => setUsername(e.target.value)} required />
+                            <Label htmlFor="username">Email</Label>
+                            <Input id="username" type="email" value={username} onChange={e => setUsername(e.target.value)} required />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="password">Password</Label>
-                            <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+                            <Input id="password" type="password" minLength={12} autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} required />
                         </div>
                         <Button type="submit" className="w-full bg-blue-600 text-white hover:bg-blue-700">
-                            Add Admin
+                            Add Customer
                         </Button>
                     </form>
                 </div>
 
                 {/* Existing Users List */}
                 <div className="bg-white p-6 rounded-xl shadow-lg">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4">Current Admins</h3>
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">Current Users</h3>
                     {isLoading ? <p>Loading...</p> : (
                         <ul className="space-y-3">
                             {users.map(user => (

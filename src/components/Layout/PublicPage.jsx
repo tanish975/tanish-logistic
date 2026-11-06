@@ -1,8 +1,19 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Sparkles, Phone, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Phone, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Button } from '../ui/button';
+
+const ActionLink = ({ href, children, ...props }) => {
+  const usesBrowserProtocol = /^(?:tel:|mailto:|https?:\/\/)/i.test(href);
+  const Component = usesBrowserProtocol ? 'a' : Link;
+
+  return (
+    <Component href={href} {...props}>
+      {children}
+    </Component>
+  );
+};
 
 const fadeUp = (reduce) => ({
   hidden: { opacity: 0, y: 16 },
@@ -22,7 +33,6 @@ export const PublicPageHero = ({
   primaryLabel = 'Request a Quote',
   secondaryHref = '/services',
   secondaryLabel = 'View Services',
-  badgeText = 'Enterprise Road Logistics',
   children,
 }) => {
   const shouldReduceMotion = useReducedMotion();
@@ -59,10 +69,10 @@ export const PublicPageHero = ({
               size="lg"
               className="group relative h-12 rounded-xl bg-gradient-to-r from-sky-600 to-sky-700 px-7 text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-950/50 hover:from-sky-500 hover:to-sky-600 hover:shadow-xl hover:shadow-sky-900/60 border border-sky-400/25 transition-all duration-200 active:scale-[0.98]"
             >
-              <Link href={primaryHref} className="inline-flex items-center justify-center gap-2 whitespace-nowrap">
+              <ActionLink href={primaryHref} className="inline-flex items-center justify-center gap-2 whitespace-nowrap">
                 <span>{primaryLabel}</span>
                 <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
-              </Link>
+              </ActionLink>
             </Button>
             <Button
               asChild
@@ -70,9 +80,9 @@ export const PublicPageHero = ({
               variant="outline"
               className="h-12 rounded-xl border border-slate-700/80 bg-slate-900/80 px-6 text-sm sm:text-base font-semibold text-slate-100 shadow-sm backdrop-blur-sm hover:border-slate-500 hover:bg-slate-800 hover:text-white transition-all duration-200 active:scale-[0.98]"
             >
-              <Link href={secondaryHref} className="inline-flex items-center justify-center whitespace-nowrap">
+              <ActionLink href={secondaryHref} className="inline-flex items-center justify-center whitespace-nowrap">
                 {secondaryLabel}
-              </Link>
+              </ActionLink>
             </Button>
           </motion.div>
 
@@ -129,7 +139,9 @@ export const FinalCta = ({
   eyebrow = 'Ready to move your freight?',
   title = 'Plan your next shipment with road freight professionals.',
   description = 'Share your pickup origin, destination drop, cargo dimensions, and required dispatch timeline. Our team prepares route-optimized B2B pricing within hours.',
+  primaryHref = '/contact',
   primaryLabel = 'Request Freight Quote',
+  secondaryHref = '/book',
   secondaryLabel = 'Book Transport Online',
 }) => (
   <section className="relative overflow-hidden bg-slate-950 py-20 text-white sm:py-24">
@@ -164,10 +176,10 @@ export const FinalCta = ({
             size="lg"
             className="group relative h-12 rounded-xl bg-gradient-to-r from-sky-600 to-sky-700 px-7 text-sm sm:text-base font-bold text-white shadow-lg shadow-sky-950/50 hover:from-sky-500 hover:to-sky-600 hover:shadow-xl hover:shadow-sky-900/60 border border-sky-400/25 transition-all duration-200 active:scale-[0.98]"
           >
-            <Link href="/contact" className="inline-flex items-center justify-center gap-2 whitespace-nowrap">
+            <ActionLink href={primaryHref} className="inline-flex items-center justify-center gap-2 whitespace-nowrap">
               <span>{primaryLabel}</span>
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
-            </Link>
+            </ActionLink>
           </Button>
           <Button
             asChild
@@ -175,9 +187,9 @@ export const FinalCta = ({
             variant="outline"
             className="h-12 rounded-xl border border-slate-700/80 bg-slate-900/80 px-6 text-sm sm:text-base font-semibold text-slate-100 shadow-sm backdrop-blur-sm hover:border-slate-500 hover:bg-slate-800 hover:text-white transition-all duration-200 active:scale-[0.98]"
           >
-            <Link href="/book" className="inline-flex items-center justify-center whitespace-nowrap">
+            <ActionLink href={secondaryHref} className="inline-flex items-center justify-center whitespace-nowrap">
               {secondaryLabel}
-            </Link>
+            </ActionLink>
           </Button>
         </div>
       </div>

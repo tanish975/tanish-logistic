@@ -1,6 +1,6 @@
-// pages/api/get-payments.js
+import { withAdminRoute } from '@/lib/session';
 
-export default async function handler(req, res) {
+export default withAdminRoute(async function handler(req, res) {
   if (req.method === 'GET') {
     // In a real application, you would fetch payment data from your database.
     // For now, we'll return a mock empty array.
@@ -9,4 +9,4 @@ export default async function handler(req, res) {
     res.setHeader('Allow', ['GET']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-}
+});

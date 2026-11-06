@@ -7,10 +7,14 @@ export default withAdminRoute(async function deleteBookingRoute(req, res) {
         return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 
-    const { id, deleteAllCancelled } = req.body;
+    const { id, deleteAllCancelled } = req.body || {};
+
+    if (deleteAllCancelled !== undefined && typeof deleteAllCancelled !== 'boolean') {
+        return res.status(400).json({ message: 'Invalid deletion request.' });
+    }
 
     try {
-        if (deleteAllCancelled) {
+        if (deleteAllCancelled === true) {
             await prisma.booking.updateMany({
                 where: { status: 'CANCELLED' },
                 data: { driverId: null, vehicleId: null }
@@ -29,7 +33,7 @@ export default withAdminRoute(async function deleteBookingRoute(req, res) {
             });
         }
 
-        if (!id) {
+        if (typeof id !== 'string' || !id.trim() || id.length > 128) {
             return res.status(400).json({ message: 'Booking ID is required.' });
         }
 
@@ -56,7 +60,7 @@ export default withAdminRoute(async function deleteBookingRoute(req, res) {
         });
 
         res.status(200).json({ message: 'Booking deleted successfully.' });
-    } catch (error) {
+    } catch {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });

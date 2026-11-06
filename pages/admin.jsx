@@ -1,14 +1,11 @@
 'use client';
 
 import Head from 'next/head';
-import { useEffect, useState, useCallback } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
+import { Menu, ShieldAlert } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -16,558 +13,562 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  LayoutDashboard,
-  Package,
-  Users,
-  LineChart,
-  Settings,
-  Map,
-  Search,
-  RefreshCw,
-  Trash2,
-  LogOut,
-  ChevronLeft,
-  Menu,
-  X,
-  ShieldCheck,
-  ArrowRight,
-  BarChart2,
-  MapPin,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  Plus,
-  Truck,
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
 import LoginForm from '@/components/ui/LoginForm';
-import CustomersView from '@/components/admin/CustomersView';
-import ReportsView from '@/components/admin/ReportsView';
-import AdminControlsView from '@/components/admin/AdminControlsView';
+import AdminSidebar, { ADMIN_SECTIONS } from '@/components/admin/AdminSidebar';
+import BookingsWorkspace from '@/components/admin/BookingsWorkspace';
 import DashboardView from '@/components/admin/DashboardView';
+import CustomersView from '@/components/admin/CustomersView';
 import ReviewsView from '@/components/admin/ReviewsView';
 import RoutesView from '@/components/admin/RoutesView';
+import { BOOKING_STATUSES } from '@/lib/admin-display';
 import SettingsPage from './settings';
 
-const AccessDenied = ({ onLogout }) => (
-  <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
-    <div className="bg-white p-8 rounded-xl shadow-lg text-center max-w-md mx-4">
-      <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
-        <svg className="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3h13.856z" />
-        </svg>
+function AccessDenied({ onLogout }) {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#f3f6f8] px-4">
+      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50 text-rose-700">
+          <ShieldAlert className="h-6 w-6" aria-hidden="true" />
+        </div>
+        <h1 className="mt-5 text-xl font-bold text-slate-950">
+          Admin access required
+        </h1>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          This account does not have permission to access the admin workspace.
+        </p>
+        <Button onClick={onLogout} variant="outline" className="mt-6 w-full">
+          Sign out
+        </Button>
       </div>
-      <h2 className="text-2xl font-bold text-slate-950 mb-4">Access Denied</h2>
-      <p className="text-slate-600 mb-6">You do not have permissions to view this page.</p>
-      <Button onClick={onLogout} variant="destructive" className="w-full">
-        Logout
-      </Button>
     </div>
-  </div>
-);
+  );
+}
 
-const VALID_BOOKING_STATUSES = ['PENDING', 'CONFIRMED', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'];
-
-const STATUS_VARIANTS = {
-  PENDING: 'outline',
-  CONFIRMED: 'default',
-  IN_TRANSIT: 'secondary',
-  DELIVERED: 'success',
-  CANCELLED: 'destructive',
-};
-
-const STATUS_LABELS = {
-  PENDING: 'Pending',
-  CONFIRMED: 'Confirmed',
-  IN_TRANSIT: 'In Transit',
-  DELIVERED: 'Delivered',
-  CANCELLED: 'Cancelled',
-};
-
-const SIDEBAR_NAV = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'bookings', label: 'Bookings', icon: Package },
-  { id: 'routes', label: 'Routes', icon: Map },
-  { id: 'customers', label: 'Customers', icon: Users },
-  { id: 'reviews', label: 'Reviews', icon: LineChart },
-  { id: 'settings', label: 'Settings', icon: Settings },
-];
-
-const AdminPage = () => {
-  const shouldReduceMotion = useReducedMotion();
+export default function AdminPage() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [bookings, setBookings] = useState([]);
+  const [bookingStatus, setBookingStatus] = useState('loading');
   const [reviews, setReviews] = useState([]);
-  const [filteredBookings, setFilteredBookings] = useState([]);
+  const [reviewsStatus, setReviewsStatus] = useState('loading');
   const [currentSection, setCurrentSection] = useState('dashboard');
-
   const [searchInput, setSearchInput] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-
-  // Mobile sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  // Confirmation dialog state
+  const [updatingBookingId, setUpdatingBookingId] = useState(null);
+  const [isConfirming, setIsConfirming] = useState(false);
   const [confirmState, setConfirmState] = useState({
     open: false,
     title: '',
     message: '',
     onConfirm: null,
+    confirmLabel: 'Confirm',
   });
 
+  const loadBookings = useCallback(async ({ notify = false } = {}) => {
+    setBookingStatus('loading');
+    try {
+      const response = await fetch('/api/get-bookings', {
+        credentials: 'include',
+      });
+      if (response.status === 401) {
+        setUser(null);
+        setBookings([]);
+        setReviews([]);
+        setReviewsStatus('loading');
+        setBookingStatus('error');
+        toast.error('Your session expired. Please sign in again.');
+        return;
+      }
+      if (!response.ok) throw new Error('Failed to load bookings');
+      const data = await response.json();
+      if (!Array.isArray(data)) throw new Error('Unexpected bookings response');
+      setBookings(data);
+      setBookingStatus('ready');
+      if (notify) toast.success('Bookings refreshed.');
+    } catch {
+      setBookingStatus('error');
+      if (notify) toast.error('Could not load bookings. Please try again.');
+    }
+  }, []);
+
+  const loadReviews = useCallback(async () => {
+    setReviewsStatus((previous) =>
+      previous === 'ready' || previous === 'refreshing'
+        ? 'refreshing'
+        : 'loading'
+    );
+    try {
+      const response = await fetch('/api/reviews?all=true', {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to load reviews');
+      const data = await response.json();
+      if (!Array.isArray(data)) throw new Error('Unexpected reviews response');
+      setReviews(data);
+      setReviewsStatus('ready');
+    } catch {
+      setReviewsStatus('error');
+    }
+  }, []);
+
   useEffect(() => {
+    let active = true;
     const checkSession = async () => {
       try {
         const response = await fetch('/api/user');
         const data = await response.json();
-        if (data.isLoggedIn && data.user?.role === 'ADMIN') {
+        if (!active) return;
+        if (response.ok && data.user?.role === 'ADMIN') {
           setUser(data.user);
           loadBookings();
           loadReviews();
         } else {
           setUser(null);
         }
-      } catch (error) {
-        console.error('Session check failed', error);
-        setUser(null);
+      } catch {
+        if (active) setUser(null);
+      } finally {
+        if (active) setIsLoading(false);
       }
-      setIsLoading(false);
     };
     checkSession();
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [loadBookings, loadReviews]);
 
   useEffect(() => {
-    let filtered = bookings;
-    if (searchInput) {
-      filtered = filtered.filter(b => 
-        b.clientName.toLowerCase().includes(searchInput.toLowerCase()) ||
-        b.bookingId.toLowerCase().includes(searchInput.toLowerCase())
+    if (!router.isReady) return;
+    const requested =
+      typeof router.query.section === 'string'
+        ? router.query.section
+        : 'dashboard';
+    setCurrentSection(
+      ADMIN_SECTIONS.some((section) => section.id === requested)
+        ? requested
+        : 'dashboard'
+    );
+  }, [router.isReady, router.query.section]);
+
+  const filteredBookings = useMemo(() => {
+    const query = searchInput.trim().toLowerCase();
+    return bookings.filter((booking) => {
+      const matchesSearch =
+        !query ||
+        [
+          booking.clientName,
+          booking.customerName,
+          booking.companyName,
+          booking.bookingId,
+          booking.id,
+          booking.pickup,
+          booking.drop,
+        ].some((value) =>
+          String(value || '')
+            .toLowerCase()
+            .includes(query)
+        );
+      return (
+        matchesSearch &&
+        (statusFilter === 'all' || booking.status === statusFilter)
       );
-    }
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(b => b.status === statusFilter);
-    }
-    setFilteredBookings(filtered);
+    });
   }, [bookings, searchInput, statusFilter]);
 
-  const loadBookings = async () => {
-    try {
-      const response = await fetch('/api/get-bookings', {
-        credentials: 'include'
-      });
-      if (!response.ok) {
-        if (response.status === 401) {
-          setUser(null);
-          toast.error('Session expired. Please login again.');
-          return;
-        }
-        throw new Error('Failed to fetch bookings');
-      }
-      const data = await response.json();
-      setBookings(data);
-      toast.success('Bookings loaded successfully');
-    } catch (error) {
-      console.error('Error loading bookings:', error);
-      // Don't show error toast, just log
-    }
-  };
-
-  const loadReviews = async () => {
-    try {
-      // Fetch ALL reviews including pending ones for admin view
-      const response = await fetch('/api/reviews?all=true', {
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch reviews');
-      const data = await response.json();
-      setReviews(data);
-    } catch (error) {
-      console.error("Could not load reviews:", error);
-    }
+  const navigateTo = (section) => {
+    if (!ADMIN_SECTIONS.some((item) => item.id === section)) return;
+    setCurrentSection(section);
+    setIsSidebarOpen(false);
   };
 
   const handleLoginSuccess = (loggedInUser) => {
     setUser(loggedInUser);
-    if (loggedInUser.role === 'ADMIN') {
+    if (loggedInUser?.role === 'ADMIN') {
+      setBookings([]);
+      setReviews([]);
+      setReviewsStatus('loading');
       loadBookings();
       loadReviews();
     }
   };
 
-  const handleLogout = async () => {
+  const performLogout = async () => {
+    try {
+      const response = await fetch('/api/logout', { method: 'POST' });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok && !result.localSessionCleared) throw new Error('Sign-out failed');
+      setUser(null);
+      setBookings([]);
+      setReviews([]);
+      setBookingStatus('loading');
+      setReviewsStatus('loading');
+      if (result.localSessionCleared) {
+        toast.error('Signed out on this device, but other sessions could not be revoked. Contact your administrator.');
+      } else {
+        toast.info('You have been signed out.');
+      }
+    } catch {
+      toast.error('Could not sign out. Please try again.');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsSidebarOpen(false);
     setConfirmState({
       open: true,
-      title: 'Confirm Logout',
-      message: 'Are you sure you want to logout?',
-      onConfirm: async () => {
-        await fetch('/api/logout', { method: 'POST' });
-        setUser(null);
-        toast.info('You have been logged out.');
-        setConfirmState(prev => ({ ...prev, open: false }));
-      },
+      title: 'Sign out?',
+      message:
+        'You can sign back in whenever you need to access the admin workspace.',
+      confirmLabel: 'Sign out',
+      destructive: false,
+      onConfirm: performLogout,
     });
   };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const closeSidebar = () => {
-    setIsSidebarOpen(false);
-  };
-
   const handleUpdateBookingStatus = async (bookingId, newStatus) => {
+    if (!BOOKING_STATUSES.some((status) => status.value === newStatus)) return;
+    setUpdatingBookingId(bookingId);
     try {
       const response = await fetch('/api/update-booking-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ bookingId, newStatus }),
-        credentials: 'include'
+        credentials: 'include',
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update booking status');
-      }
-      
-      const result = await response.json();
-      
-      setBookings(prevBookings =>
-        prevBookings.map(b =>
-          (b.id === bookingId || b.bookingId === bookingId) ? { ...b, status: newStatus } : b
+      if (!response.ok) throw new Error('Failed to update booking');
+      setBookings((previous) =>
+        previous.map((booking) =>
+          booking.id === bookingId || booking.bookingId === bookingId
+            ? { ...booking, status: newStatus }
+            : booking
         )
       );
-      setFilteredBookings(prevBookings =>
-        prevBookings.map(b =>
-          (b.id === bookingId || b.bookingId === bookingId) ? { ...b, status: newStatus } : b
-        )
-      );
-      toast.success(`Booking ${bookingId} status updated to ${newStatus}`);
-    } catch (error) {
-      console.error('Error updating booking status:', error);
-      toast.error('Failed to update booking status');
+      toast.success('Booking status updated.');
+    } catch {
+      toast.error('Could not update the booking status. Please try again.');
+    } finally {
+      setUpdatingBookingId(null);
     }
   };
 
-   const handleDeleteBooking = async (bookingId) => {
-      setConfirmState({
-        open: true,
-        title: 'Delete Booking',
-        message: 'Are you sure you want to delete this booking?',
-        onConfirm: async () => {
-          try {
-            const response = await fetch('/api/delete-booking', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ id: bookingId }),
-              credentials: 'include'
-            });
+  const handleDeleteBooking = (bookingId) => {
+    setConfirmState({
+      open: true,
+      title: 'Delete this booking?',
+      message:
+        'This will permanently remove the booking. This action cannot be undone.',
+      confirmLabel: 'Delete booking',
+      destructive: true,
+      onConfirm: async () => {
+        try {
+          const response = await fetch('/api/delete-booking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: bookingId }),
+            credentials: 'include',
+          });
+          const data = await response.json();
+          if (!response.ok)
+            throw new Error(data.message || 'Failed to delete booking');
+          setBookings((previous) =>
+            previous.filter(
+              (booking) =>
+                booking.id !== bookingId && booking.bookingId !== bookingId
+            )
+          );
+          toast.success(data.message || 'Booking deleted.');
+        } catch {
+          toast.error('Could not delete the booking. Please try again.');
+        }
+      },
+    });
+  };
 
-            const data = await response.json();
+  const handleDeleteAllCancelled = () => {
+    setConfirmState({
+      open: true,
+      title: 'Delete all cancelled bookings?',
+      message:
+        'All cancelled bookings will be permanently removed. This action cannot be undone.',
+      confirmLabel: 'Delete cancelled bookings',
+      destructive: true,
+      onConfirm: async () => {
+        try {
+          const response = await fetch('/api/delete-booking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ deleteAllCancelled: true }),
+            credentials: 'include',
+          });
+          if (!response.ok)
+            throw new Error('Failed to delete cancelled bookings');
+          setBookings((previous) =>
+            previous.filter((booking) => booking.status !== 'CANCELLED')
+          );
+          toast.success('Cancelled bookings deleted.');
+        } catch {
+          toast.error('Could not delete cancelled bookings. Please try again.');
+        }
+      },
+    });
+  };
 
-            if (!response.ok) {
-              throw new Error(data.message || data.error?.message || 'Failed to delete booking');
-            }
+  const runConfirmation = async () => {
+    if (!confirmState.onConfirm || isConfirming) return;
+    setIsConfirming(true);
+    try {
+      await confirmState.onConfirm();
+    } finally {
+      setIsConfirming(false);
+      setConfirmState((previous) => ({ ...previous, open: false }));
+    }
+  };
 
-            setBookings(prevBookings => prevBookings.filter(b => b.id !== bookingId && b.bookingId !== bookingId));
-            setFilteredBookings(prevFiltered => prevFiltered.filter(b => b.id !== bookingId && b.bookingId !== bookingId));
-            toast.success(data.message || 'Booking deleted successfully');
-          } catch (error) {
-            console.error('Error deleting booking:', error);
-            toast.error(`Failed to delete booking: ${error.message}`);
-          } finally {
-            setConfirmState(prev => ({ ...prev, open: false }));
-          }
-        },
-      });
-    };
-
-   const handleDeleteAllCancelled = async () => {
-      setConfirmState({
-        open: true,
-        title: 'Delete All Cancelled',
-        message: 'Are you sure you want to delete ALL cancelled bookings permanently? This cannot be undone.',
-        onConfirm: async () => {
-          try {
-            const response = await fetch('/api/delete-booking', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ deleteAllCancelled: true }),
-              credentials: 'include'
-            });
-
-            if (!response.ok) throw new Error('Failed to delete cancelled bookings');
-
-            setBookings(prevBookings => prevBookings.filter(b => b.status !== 'CANCELLED'));
-            setFilteredBookings(prevFiltered => prevFiltered.filter(b => b.status !== 'CANCELLED'));
-            toast.success('All cancelled bookings deleted successfully');
-          } catch (error) {
-            console.error('Error deleting cancelled bookings:', error);
-            toast.error('Failed to delete cancelled bookings');
-          } finally {
-            setConfirmState(prev => ({ ...prev, open: false }));
-          }
-        },
-      });
-    };
-
-   const getStatusVariant = (status) => {
-     switch (status) {
-       case 'DELIVERED': return 'success';
-       case 'IN_TRANSIT': return 'secondary';
-       case 'CANCELLED': return 'destructive';
-       case 'CONFIRMED': return 'default';
-       case 'PENDING':
-       default: return 'outline';
-     }
-   };
-
-  if (isLoading) {
-    return <div className="flex justify-center items-center h-screen"><p>Loading...</p></div>;
-  }
-
-  if (!user) {
-    return <LoginForm onLoginSuccess={handleLoginSuccess} />;
-  }
-
-  if (user.role !== 'ADMIN') {
-    return <AccessDenied onLogout={handleLogout} />;
-  }
-
-  const renderContent = () => {
-    return (
-      <AnimatePresence mode="wait">
-      <motion.div
-        key={currentSection}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
-      >
-        {(() => {
-          switch (currentSection) {
-            case 'dashboard':
-              return <DashboardView bookings={bookings} />;
-            case 'bookings':
-               return (
-                 <div className="space-y-4">
-                   <div className="flex items-center gap-4">
-                     <Input placeholder="Search by client or booking ID..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} className="max-w-sm" />
-                     <Select onValueChange={setStatusFilter} defaultValue="all">
-                       <SelectTrigger className="w-[180px] bg-background border-input">
-                         <SelectValue placeholder="Filter by status" />
-                       </SelectTrigger>
-                       <SelectContent>
-                         <SelectItem value="all">All Status</SelectItem>
-                         {VALID_BOOKING_STATUSES.map(status => (
-                             <SelectItem key={status} value={status}>{status.replace('_', ' ')}</SelectItem>
-                         ))}
-                       </SelectContent>
-                     </Select>
-                     <Button onClick={loadBookings}>Refresh</Button>
-                     <Button onClick={handleDeleteAllCancelled} variant="destructive">
-                       Delete All Cancelled
-                     </Button>
-                   </div>
-                   <Card className="shadow-lg">
-                     <Table>
-                       <TableHeader>
-                         <TableRow>
-                           <TableHead>Booking ID</TableHead>
-                           <TableHead>Client</TableHead>
-                           <TableHead>Route</TableHead>
-                           <TableHead>Date</TableHead>
-                           <TableHead>Status</TableHead>
-                           <TableHead>Actions</TableHead>
-                         </TableRow>
-                       </TableHeader>
-                       <TableBody>
-                         {filteredBookings.map(booking => (
-                           <TableRow key={booking.id}>
-                             <TableCell className="font-medium">{booking.bookingId || booking.id}</TableCell>
-                             <TableCell>{booking.clientName || booking.customerName}</TableCell>
-                             <TableCell>{booking.pickup} → {booking.drop}</TableCell>
-                             <TableCell>{booking.date ? new Date(booking.date).toLocaleDateString() : 'N/A'}</TableCell>
-                             <TableCell>
-                                 <Select value={booking.status} onValueChange={(newStatus) => handleUpdateBookingStatus(booking.id, newStatus)}>
-                                     <SelectTrigger className="w-[120px] bg-background">
-                                         <SelectValue placeholder="Update Status" />
-                                     </SelectTrigger>
-                                     <SelectContent>
-                                         {VALID_BOOKING_STATUSES.map(status => (
-                                             <SelectItem key={status} value={status}>
-                                                 <Badge variant={getStatusVariant(status)}>{status.replace('_', ' ')}</Badge>
-                                             </SelectItem>
-                                         ))}
-                                     </SelectContent>
-                                 </Select>
-                             </TableCell>
-                             <TableCell>
-                               <Button
-                                 variant="destructive"
-                                 size="sm"
-                                 onClick={() => handleDeleteBooking(booking.id)}
-                               >
-                                 Delete
-                               </Button>
-                             </TableCell>
-                           </TableRow>
-                         ))}
-                       </TableBody>
-                     </Table>
-                   </Card>
-                 </div>
-               );
-            case 'routes':
-              return <RoutesView />;
-            case 'customers':
-              return <CustomersView />;
-            case 'reviews':
-              return <ReviewsView reviews={reviews} onRefresh={loadReviews} />;
-            case 'settings':
-              return <SettingsPage />;
-            default:
-              return null;
-          }
-        })()}
-      </motion.div>
-    </AnimatePresence>
+  const head = (
+    <Head>
+      <title>Tanish Logistic | Admin workspace</title>
+      <meta name="robots" content="noindex, nofollow" />
+    </Head>
   );
-}
+  if (isLoading) {
+    return (
+      <>
+        {head}
+        <main
+          role="status"
+          className="flex min-h-screen items-center justify-center bg-[#f3f6f8] text-sm font-medium text-slate-600"
+        >
+          Loading admin workspace…
+        </main>
+      </>
+    );
+  }
+  if (!user)
+    return (
+      <>
+        {head}
+        <main>
+          <LoginForm onLoginSuccess={handleLoginSuccess} />
+        </main>
+      </>
+    );
+  if (user.role !== 'ADMIN')
+    return (
+      <>
+        {head}
+        <Toaster richColors />
+        <main>
+          <AccessDenied onLogout={performLogout} />
+        </main>
+      </>
+    );
+
+  const section =
+    ADMIN_SECTIONS.find((item) => item.id === currentSection) ||
+    ADMIN_SECTIONS[0];
+  const pendingBookings =
+    bookingStatus === 'ready'
+      ? bookings.filter((booking) => booking.status === 'PENDING').length
+      : 0;
+  const pendingReviews =
+    reviewsStatus === 'ready' || reviewsStatus === 'refreshing'
+      ? reviews.filter((review) => review.status === 'pending').length
+      : 0;
+  const sidebarProps = {
+    currentSection,
+    onNavigate: navigateTo,
+    user,
+    pendingBookings,
+    pendingReviews,
+    onSignOut: handleLogout,
+  };
+  const refreshBookings = () => loadBookings({ notify: true });
+  const refreshOverview = () => {
+    refreshBookings();
+    loadReviews();
+  };
+  const name = user.name?.trim() || user.email?.split('@')[0] || 'Admin';
+
+  const content = (() => {
+    switch (currentSection) {
+      case 'dashboard':
+        return (
+          <DashboardView
+            bookings={bookings}
+            bookingStatus={bookingStatus}
+            onNavigate={navigateTo}
+            onRefresh={refreshOverview}
+          />
+        );
+      case 'bookings':
+        return (
+          <BookingsWorkspace
+            bookings={filteredBookings}
+            totalCount={bookings.length}
+            cancelledCount={
+              bookings.filter((booking) => booking.status === 'CANCELLED')
+                .length
+            }
+            searchInput={searchInput}
+            setSearchInput={setSearchInput}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            bookingStatus={bookingStatus}
+            onRefresh={refreshBookings}
+            onUpdateStatus={handleUpdateBookingStatus}
+            onDelete={handleDeleteBooking}
+            onDeleteAllCancelled={handleDeleteAllCancelled}
+            updatingBookingId={updatingBookingId}
+          />
+        );
+      case 'routes':
+        return <RoutesView />;
+      case 'customers':
+        return <CustomersView />;
+      case 'reviews':
+        if (reviewsStatus === 'loading')
+          return (
+            <p
+              role="status"
+              className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500"
+            >
+              Loading reviews…
+            </p>
+          );
+        if (reviewsStatus === 'error')
+          return (
+            <div
+              role="alert"
+              className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-600"
+            >
+              Could not load reviews.{' '}
+              <button
+                type="button"
+                onClick={loadReviews}
+                className="font-semibold text-sky-700 underline underline-offset-2"
+              >
+                Try again
+              </button>
+            </div>
+          );
+        return <ReviewsView reviews={reviews} onRefresh={loadReviews} />;
+      case 'settings':
+        return <SettingsPage embedded />;
+      default:
+        return null;
+    }
+  })();
 
   return (
     <>
-      <Head><title>Tanish Logistic - Admin</title></Head>
+      {head}
       <Toaster richColors />
-      <div className="flex min-h-screen w-full flex-col bg-gray-50">
-        {/* Mobile overlay */}
-        {isSidebarOpen && (
-          <div 
-            className="fixed inset-0 z-20 bg-black/50 sm:hidden"
-            onClick={closeSidebar}
-          />
-        )}
-
-        {/* Sidebar */}
-        <aside className={`
-          fixed inset-y-0 left-0 z-30 w-60 flex-col border-r bg-gray-100
-          transform transition-transform duration-300 ease-in-out
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          ${isSidebarOpen ? 'flex' : 'hidden'}
-          sm:static sm:translate-x-0 sm:flex
-        `}>
-          <div className="flex flex-col gap-2 p-4 pt-14 sm:pt-4">
-            <div className="flex items-center justify-between sm:hidden">
-              <h2 className="text-lg font-semibold">Tanish Logistic</h2>
-              <button 
-                onClick={closeSidebar}
-                className="p-2 rounded-md hover:bg-gray-200"
-                aria-label="Close sidebar"
-              >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <h2 className="text-lg font-semibold hidden sm:block">Tanish Logistic</h2>
-            <nav className="flex flex-col gap-1">
-              <Button 
-                variant={currentSection === 'dashboard' ? 'default' : 'outline'} 
-                onClick={() => { setCurrentSection('dashboard'); closeSidebar(); }}
-                className="justify-start"
-              >
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                Dashboard
-              </Button>
-              <Button 
-                variant={currentSection === 'bookings' ? 'default' : 'outline'} 
-                onClick={() => { setCurrentSection('bookings'); closeSidebar(); }}
-                className="justify-start"
-              >
-                <Package className="mr-2 h-4 w-4" />
-                Bookings
-              </Button>
-              <Button 
-                variant={currentSection === 'routes' ? 'default' : 'outline'} 
-                onClick={() => { setCurrentSection('routes'); closeSidebar(); }}
-                className="justify-start"
-              >
-                <Map className="mr-2 h-4 w-4" />
-                Routes
-              </Button>
-              <Button 
-                variant={currentSection === 'customers' ? 'default' : 'outline'} 
-                onClick={() => { setCurrentSection('customers'); closeSidebar(); }}
-                className="justify-start"
-              >
-                <Users className="mr-2 h-4 w-4" />
-                Customers
-              </Button>
-              <Button 
-                variant={currentSection === 'reviews' ? 'default' : 'outline'} 
-                onClick={() => { setCurrentSection('reviews'); closeSidebar(); }}
-                className="justify-start"
-              >
-                <LineChart className="mr-2 h-4 w-4" />
-                Reviews
-              </Button>
-              <Button 
-                variant={currentSection === 'settings' ? 'default' : 'outline'} 
-                onClick={() => { setCurrentSection('settings'); closeSidebar(); }}
-                className="justify-start"
-              >
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </Button>
-            </nav>
-          </div>
+      <div className="min-h-screen bg-[#f3f6f8] font-sans text-slate-950">
+        <a
+          href="#admin-main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-sky-800 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-sky-600"
+        >
+          Skip to content
+        </a>
+        <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 lg:block">
+          <AdminSidebar {...sidebarProps} />
         </aside>
-
-        {/* Main content area */}
-        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-64">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-            {/* Mobile menu button */}
-            <button
-              onClick={toggleSidebar}
-              className="sm:hidden p-2 rounded-md hover:bg-gray-100"
-              aria-label="Open menu"
-            >
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <h1 className="text-xl font-bold">{currentSection.charAt(0).toUpperCase() + currentSection.slice(1)}</h1>
-            <div className="ml-auto flex items-center gap-2">
-              <Button onClick={handleLogout} variant="outline" size="sm">Logout</Button>
+        <div className="min-w-0 lg:pl-64">
+          <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur-sm sm:px-6 lg:px-8">
+            <Dialog open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Open navigation"
+                  aria-expanded={isSidebarOpen}
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 lg:hidden"
+                >
+                  <Menu className="h-5 w-5" aria-hidden="true" />
+                </button>
+              </DialogTrigger>
+              <DialogContent className="left-0 top-0 flex h-[100dvh] w-[min(20rem,88vw)] max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-none border-0 bg-[#102536] p-0 text-white [&>button]:text-slate-300 [&>button]:hover:text-white">
+                <DialogTitle className="sr-only">Admin navigation</DialogTitle>
+                <DialogDescription className="sr-only">
+                  Choose an admin section or sign out.
+                </DialogDescription>
+                <AdminSidebar {...sidebarProps} />
+              </DialogContent>
+            </Dialog>
+            <div className="flex min-w-0 items-center gap-2 text-sm">
+              <span className="hidden font-medium text-slate-500 sm:inline">
+                Operations
+              </span>
+              <span
+                className="hidden text-slate-300 sm:inline"
+                aria-hidden="true"
+              >
+                /
+              </span>
+              <h1 className="truncate font-bold text-slate-800">
+                {section.label}
+              </h1>
+            </div>
+            <div className="ml-auto flex shrink-0 items-center gap-3">
+              <span className="hidden text-xs font-semibold text-slate-500 sm:inline">
+                Admin workspace
+              </span>
+              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-sky-100 bg-sky-50 text-sm font-bold text-sky-800">
+                <span className="sr-only">Signed in as {name}</span>
+                <span aria-hidden="true">{name.charAt(0).toUpperCase()}</span>
+              </span>
             </div>
           </header>
-          <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-            {renderContent()}
+          <main
+            id="admin-main"
+            tabIndex={-1}
+            className="mx-auto w-full max-w-[1600px] min-w-0 px-4 py-6 outline-none sm:px-6 sm:py-8 lg:px-8"
+          >
+            {content}
           </main>
         </div>
-
-        <Dialog open={confirmState.open} onOpenChange={(open) => setConfirmState(prev => ({ ...prev, open }))}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{confirmState.title}</DialogTitle>
-              <DialogDescription>{confirmState.message}</DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setConfirmState(prev => ({ ...prev, open: false }))}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={confirmState.onConfirm}>
-                Confirm
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
+
+      <Dialog
+        open={confirmState.open}
+        onOpenChange={(open) => {
+          if (!isConfirming)
+            setConfirmState((previous) => ({ ...previous, open }));
+        }}
+      >
+        <DialogContent className="w-[calc(100%-2rem)] rounded-xl">
+          <DialogHeader>
+            <DialogTitle>{confirmState.title}</DialogTitle>
+            <DialogDescription>{confirmState.message}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              disabled={isConfirming}
+              onClick={() =>
+                setConfirmState((previous) => ({ ...previous, open: false }))
+              }
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={confirmState.destructive ? 'destructive' : 'default'}
+              className={
+                confirmState.destructive
+                  ? 'bg-rose-700 text-white hover:bg-rose-800'
+                  : undefined
+              }
+              disabled={isConfirming}
+              onClick={runConfirmation}
+            >
+              {isConfirming ? 'Please wait…' : confirmState.confirmLabel}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
-};
-
-export default AdminPage;
+}

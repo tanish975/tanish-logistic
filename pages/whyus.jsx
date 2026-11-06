@@ -4,9 +4,8 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import {
   ShieldCheck, Clock, Award, DollarSign, Truck, Headphones,
-  CheckCircle2, ArrowRight, Check, X, Shield, MapPin, Building2
+  CheckCircle2, Check, X
 } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
 import { SiteMetadata } from '@/components/Layout/Metadata';
 import { PublicPageHero, FinalCta } from '@/components/Layout/PublicPage';
 
@@ -88,8 +87,6 @@ const comprehensiveComparison = [
 ];
 
 const WhyUs = () => {
-  const shouldReduceMotion = useReducedMotion();
-
   return (
     <div className="min-h-screen bg-white text-slate-950 font-sans">
       <SiteMetadata
@@ -297,7 +294,8 @@ const WhyUs = () => {
         eyebrow="Upgrade Your Freight Partner"
         title="Switch to road transport you can actually rely on."
         description="Contact our dispatch leadership in Vadodara or Mandi Gobindgarh to audit your current route lanes, reduce transit friction, and secure dedicated capacity."
-        primaryLabel="Schedule a Call"
+        primaryHref="tel:+919924204744"
+        primaryLabel="Call Dispatch Desk"
         secondaryLabel="Book Transport Online"
       />
     </div>

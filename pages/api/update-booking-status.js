@@ -7,12 +7,13 @@ export default withAdminRoute(async function updateBookingStatusRoute(req, res) 
   }
 
   try {
-    const { bookingId, id, status, newStatus } = req.body;
+    const { bookingId, id, status, newStatus } = req.body || {};
 
     const actualId = bookingId || id;
     const actualStatus = newStatus || status;
 
-    if (!actualId || !actualStatus) {
+    if (typeof actualId !== 'string' || !actualId.trim() || actualId.length > 128 ||
+        typeof actualStatus !== 'string' || !['PENDING', 'CONFIRMED', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'].includes(actualStatus.toUpperCase())) {
       return res.status(400).json({ message: 'Booking ID and status are required' });
     }
 
@@ -37,7 +38,7 @@ export default withAdminRoute(async function updateBookingStatusRoute(req, res) 
     });
 
     res.status(200).json(updatedBooking);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Error updating booking status' });
   }
 });

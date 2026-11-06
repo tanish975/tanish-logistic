@@ -1,50 +1,20 @@
 import { withAdminRoute } from '@/lib/session';
-import fs from 'fs';
-import path from 'path';
+import { readSiteSettings, saveSiteSettings } from '@/lib/site-settings';
 
-const settingsFilePath = path.resolve(process.cwd(), 'data/settings.json');
-
-const defaultSettings = {
-  siteName: 'Tanish Logistic',
-  logoUrl: '/logo-animated.svg',
-  slogan: 'Driven by Trust, Powered by Roads',
-  contactDetails: 'Vadodara, Gujarat, India',
-  copyright: `© ${new Date().getFullYear()} Tanish Logistic. All rights reserved.`,
-  primaryColor: '#3b82f6',
-  secondaryColor: '#8b5cf6',
-  paymentApiKey: '',
-  defaultPostStatus: 'draft',
-  commentModeration: 'manual',
-  passwordPolicy: ''
-};
+export const config = { api: { bodyParser: { sizeLimit: '16kb' } } };
 
 export default withAdminRoute(async function settingsGeneralRoute(req, res) {
-  if (req.method === 'GET') {
-    try {
-      if (fs.existsSync(settingsFilePath)) {
-        const fileContent = fs.readFileSync(settingsFilePath, 'utf-8');
-        const savedSettings = JSON.parse(fileContent);
-        res.status(200).json({ ...defaultSettings, ...savedSettings });
-      } else {
-        res.status(200).json(defaultSettings);
+  try {
+    if (req.method === 'GET') return res.status(200).json(await readSiteSettings());
+    if (req.method === 'POST') {
+      if (!(await saveSiteSettings(req.body))) {
+        return res.status(400).json({ message: 'Invalid settings. Secrets cannot be saved here.' });
       }
-    } catch (error) {
-      res.status(200).json(defaultSettings);
+      return res.status(200).json({ message: 'Settings saved successfully.' });
     }
-  } else if (req.method === 'POST') {
-    try {
-      const dir = path.dirname(settingsFilePath);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      fs.writeFileSync(settingsFilePath, JSON.stringify(req.body, null, 2));
-      res.status(200).json({ message: 'Settings saved successfully.' });
-    }
-    catch (error) {
-      res.status(500).json({ message: 'Failed to save settings.' });
-    }
-  } else {
-    res.setHeader('Allow', ['GET', 'POST']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+    res.setHeader('Allow', 'GET, POST');
+    return res.status(405).end('Method Not Allowed');
+  } catch {
+    return res.status(503).json({ message: 'Settings are temporarily unavailable.' });
   }
 });

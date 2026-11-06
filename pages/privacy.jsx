@@ -19,7 +19,7 @@ import {
 
 const CONTACT_EMAIL = 'tanishlogistic744@gmail.com';
 const CONTACT_PHONE = '+91 99242 04744';
-const LAST_UPDATED = '26 October 2026';
+const LAST_UPDATED = '31 October 2026';
 
 const sections = [
   {
@@ -31,6 +31,8 @@ const sections = [
     list: [
       'Booking form: your name, company name, phone number, email address, pickup and drop locations, cargo details (type, weight, dimensions, description), preferred date, and any special instructions.',
       'Contact form: your name, email address, phone number, company, and message.',
+      'Review form: your name or organisation, rating, and written feedback; approved reviews may be made public.',
+      'Security data: IP address, browser and device information, and request signals used by Vercel to protect the website, submissions, and sign-in against automated abuse.',
       'Operational data: booking references, dispatch records, and delivery confirmations created while fulfilling your shipment.',
     ],
   },
@@ -45,6 +47,7 @@ const sections = [
       'Coordinating pickup, transit, and delivery of your cargo.',
       'Sending booking confirmations, status updates, and invoices.',
       'Responding to your enquiries and providing customer support.',
+      'Preventing automated abuse and protecting the website and its forms.',
       'Meeting legal, tax, and accounting obligations.',
     ],
   },
@@ -56,7 +59,7 @@ const sections = [
     ],
     list: [
       'Drivers and transport partners assigned to your lane receive the details required to collect and deliver your cargo safely.',
-      'Service providers (such as email delivery services) process data on our behalf under contractual confidentiality obligations.',
+      'Service providers (such as Vercel for hosting and bot protection, and email delivery services) process data as needed to provide these services.',
       'Law enforcement, regulators, or courts, where we are legally required to disclose information.',
     ],
   },
@@ -64,7 +67,7 @@ const sections = [
     icon: Lock,
     title: '4. Data Security',
     paragraphs: [
-      'We apply technical and organisational measures to protect your information, including encrypted transport (HTTPS), access-restricted administrative systems, password-protected accounts, and limited retention of operational records.',
+      'We apply technical and organisational measures to protect your information, including encrypted transport (HTTPS), access-restricted administrative systems, and password-protected accounts.',
       'No method of transmission or storage is completely secure, but we review our practices and work to protect your data against unauthorised access, alteration, or destruction.',
     ],
   },

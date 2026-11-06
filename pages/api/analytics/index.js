@@ -37,8 +37,7 @@ export default withAdminRoute(async function analyticsIndexRoute(req, res) {
       res.setHeader('Allow', ['GET']);
       res.status(405).end(`Method ${req.method} Not Allowed`);
     }
-  } catch (error) {
-    console.error('Error fetching analytics data:', error);
-    res.status(500).json({ message: 'Failed to fetch analytics data', error: error.message });
+  } catch {
+    res.status(500).json({ message: 'Failed to fetch analytics data' });
   }
 });

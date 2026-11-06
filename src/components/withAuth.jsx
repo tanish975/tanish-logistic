@@ -12,7 +12,7 @@ const withAuth = (WrappedComponent, allowedRoles = []) => {
           const response = await fetch('/api/user');
           const data = await response.json();
 
-          if (data.isLoggedIn) {
+          if (response.ok && data.user) {
             // Check if the user's role is allowed
             const userRole = data.user?.role;
             if (allowedRoles.length === 0 || allowedRoles.includes(userRole)) {
