@@ -358,6 +358,7 @@ const Contact = () => {
         eyebrow="Immediate Transport Assistance"
         title="Prefer to speak directly with an operations coordinator?"
         description="Call our Vadodara or Punjab hub desks to discuss immediate capacity, recurring routes, or corporate contract terms."
+        primaryHref="tel:+919924204744"
         primaryLabel="Call +91 9924204744"
         secondaryLabel="Book Transport Online"
       />

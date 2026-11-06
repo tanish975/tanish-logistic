@@ -9,7 +9,6 @@ import { User, CheckCircle2, ArrowRight, MapPin, Box, Loader2, Phone, ShieldChec
 import { motion, useReducedMotion } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
 import { SiteMetadata } from '@/components/Layout/Metadata';
-import { ClickSuccessButton } from '@/components/Animations/ClickSuccessButton';
 import { PublicPageHero } from '@/components/Layout/PublicPage';
 import { MovingTruckLoader } from '@/components/Animations/MovingTruckLoader';
 
@@ -172,7 +171,7 @@ const Book = () => {
         eyebrow="Commercial Cargo Booking"
         title="Schedule Your Freight Movement in 4 Simple Steps."
         description="Provide your cargo specifications, pickup and delivery addresses, and preferred dispatch date. Our operations directors verify vehicle fit and confirm schedule."
-        primaryHref="/contact"
+        primaryHref="tel:+919924204744"
         primaryLabel="Speak With Dispatch"
         secondaryHref="/services"
         secondaryLabel="View Vehicle Specs"
@@ -608,7 +607,7 @@ const Book = () => {
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     ) : (
-<ClickSuccessButton
+                      <Button
                         type="submit"
                         disabled={isSubmitting}
                         className="h-11 px-8 font-bold text-white bg-emerald-600 hover:bg-emerald-700 ml-auto shadow-md"
@@ -624,7 +623,7 @@ const Book = () => {
                             <span>Submit Freight Booking</span>
                           </>
                         )}
-                      </ClickSuccessButton>
+                      </Button>
                     )}
                   </div>
                 )}

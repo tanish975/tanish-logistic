@@ -11,29 +11,18 @@ import {
 } from '@/components/ui/accordion';
 import {
   ArrowRight,
-  BadgeCheck,
   CheckCircle2,
-  Clock3,
-  Gauge,
   MapPin,
-  Navigation,
-  PackageCheck,
   Pause,
   Play,
   Route,
   ShieldCheck,
   Truck,
   Warehouse,
-  Building2,
-  Phone,
-  Check,
-  Sliders,
 } from 'lucide-react';
 import CountUp from 'react-countup';
 import { motion, useReducedMotion } from 'framer-motion';
 import { BentoGrid } from '@/components/Animations/BentoGrid';
-import { ProcessDraw } from '@/components/Animations/ProcessDraw';
-import { ClickSuccessButton } from '@/components/Animations/ClickSuccessButton';
 import { BlurFade } from '@/components/magicui/blur-fade';
 import { Marquee } from '@/components/magicui/marquee';
 import { BorderBeam } from '@/components/magicui/border-beam';
@@ -207,21 +196,46 @@ const itemVariants = {
 const Home = () => {
   const settings = useSettings();
   const shouldReduceMotion = useReducedMotion();
-  const siteName = settings.siteName || 'Tanish Logistic';
   const slogan = settings.slogan || 'Driven by Trust, Powered by Roads';
   const primaryColor = settings.primaryColor || '#0369A1';
   const [currentHeroIndex, setCurrentHeroIndex] = React.useState(0);
-  const [isPaused, setIsPaused] = React.useState(Boolean(shouldReduceMotion));
+  const [isManuallyPaused, setIsManuallyPaused] = React.useState(false);
+  const [isHeroHovered, setIsHeroHovered] = React.useState(false);
+  const [isHeroFocused, setIsHeroFocused] = React.useState(false);
+  const [isResumeOverride, setIsResumeOverride] = React.useState(false);
+  const isPaused = Boolean(
+    shouldReduceMotion ||
+    isManuallyPaused ||
+    ((isHeroHovered || isHeroFocused) && !isResumeOverride)
+  );
+
+  const toggleVideoRotation = () => {
+    if (isPaused) {
+      setIsManuallyPaused(false);
+      setIsResumeOverride(isHeroHovered || isHeroFocused);
+      return;
+    }
+
+    setIsManuallyPaused(true);
+    setIsResumeOverride(false);
+  };
+
+  const handleHeroBlur = (event) => {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      setIsHeroFocused(false);
+      if (!isHeroHovered) setIsResumeOverride(false);
+    }
+  };
 
   React.useEffect(() => {
-    if (isPaused || shouldReduceMotion) return undefined;
+    if (isPaused) return undefined;
 
     const interval = setInterval(() => {
       setCurrentHeroIndex((prevIndex) => (prevIndex + 1) % heroContent.length);
     }, 7000);
 
     return () => clearInterval(interval);
-  }, [isPaused, shouldReduceMotion]);
+  }, [isPaused]);
 
   // Play only the active hero video; keep others paused (but buffered).
   const heroVideoRefs = React.useRef([]);
@@ -247,9 +261,13 @@ const Home = () => {
       {/* Hero Section with Video Background */}
       <section
         className="relative isolate min-h-[calc(100dvh-5rem)] overflow-hidden bg-slate-950 text-white"
-        onFocus={() => setIsPaused(true)}
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(Boolean(shouldReduceMotion))}
+        onFocus={() => setIsHeroFocused(true)}
+        onBlur={handleHeroBlur}
+        onMouseEnter={() => setIsHeroHovered(true)}
+        onMouseLeave={() => {
+          setIsHeroHovered(false);
+          if (!isHeroFocused) setIsResumeOverride(false);
+        }}
       >
         <div className="absolute inset-0 z-0 isolate">
           {shouldReduceMotion ? (
@@ -379,15 +397,17 @@ const Home = () => {
             </motion.div>
           </motion.div>
 
-          {/* Discreet Video Pause/Play Control in Bottom Right */}
-          <button
-            type="button"
-            onClick={() => setIsPaused((paused) => !paused)}
-            className="absolute bottom-8 right-6 sm:right-8 z-30 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-slate-900/60 text-white backdrop-blur transition hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-            aria-label={isPaused ? 'Resume video rotation' : 'Pause video rotation'}
-          >
-            {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-          </button>
+          {/* The static poster has no rotation to control for reduced-motion users. */}
+          {!shouldReduceMotion && (
+            <button
+              type="button"
+              onClick={toggleVideoRotation}
+              className="absolute bottom-8 right-6 z-30 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-slate-900/60 text-white backdrop-blur transition hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 sm:right-8"
+              aria-label={isPaused ? 'Resume video rotation' : 'Pause video rotation'}
+            >
+              {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+            </button>
+          )}
         </div>
       </section>
 

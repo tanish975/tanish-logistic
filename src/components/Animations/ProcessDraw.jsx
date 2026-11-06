@@ -1,49 +1,48 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 
-export function ProcessDraw({ steps, className = '', ...props }) {
-  const shouldReduceMotion = useReducedMotion();
-  const lineRef = useRef(null);
-
-  useEffect(() => {
-    if (shouldReduceMotion || !lineRef.current) return;
-    const line = lineRef.current;
-    const length = line.getTotalLength();
-    line.style.strokeDasharray = length;
-    line.style.strokeDashoffset = length;
-    line.style.transition = 'stroke-dashoffset 1s ease-out';
-    line.style.strokeDashoffset = 0;
-  }, [shouldReduceMotion]);
-
+export function ProcessDraw({ steps = [], className = '', ...props }) {
   return (
-    <div className={`relative w-full ${className}`} {...props}>
-      <div className="flex items-center justify-between mb-8">
-        {steps.map((step, idx) => (
-          <div key={step.id} className="flex flex-col items-center gap-3 relative z-10">
-            <div className="flex items-center gap-2">
-              <div className="h-10 w-10 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center text-lg font-bold border-2 border-sky-200">
-                {step.number}
+    <div className={`w-full min-w-0 ${className}`} {...props}>
+      <ol
+        aria-label="Freight movement process"
+        className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+      >
+        {steps.map((step, index) => (
+          <li
+            key={step.id ?? step.number ?? step.title ?? index}
+            className="group relative min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md sm:p-6"
+          >
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-700 via-cyan-500 to-emerald-400 opacity-80"
+            />
+            <div className="flex min-w-0 items-start gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sm font-extrabold tracking-wide text-sky-800">
+                {step.number ?? String(index + 1).padStart(2, '0')}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                  <h3 className="min-w-0 break-words text-base font-bold leading-snug text-slate-950">
+                    {step.title}
+                  </h3>
+                  {step.tag && (
+                    <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+                      {step.tag}
+                    </span>
+                  )}
+                </div>
+                {step.description && (
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600 [overflow-wrap:anywhere]">
+                    {step.description}
+                  </p>
+                )}
               </div>
-              <motion.div
-                key={`line-${idx}`}
-                ref={step.isLast ? lineRef : undefined}
-                className={`absolute top-[22px] ${
-                  step.isLast ? '-ml-[calc(50%+6px)] h-[calc(100%-12px)] w-[1px] bg-slate-200' : '-ml-[calc(50%+6px)] h-[calc(50%-12px)] w-[1px] bg-slate-200'
-                }`}
-              />
             </div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-slate-950">{step.title}</h3>
-              {step.tag && (
-                <span className="px-2 py-0.5 rounded bg-sky-50 text-sky-600 text-xs font-bold">{step.tag}</span>
-              )}
-            </div>
-            <p className="text-xs text-slate-600 text-center max-w-xs">{step.description}</p>
-          </div>
+          </li>
         ))}
-      </div>
+      </ol>
     </div>
   );
 }

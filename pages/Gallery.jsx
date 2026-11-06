@@ -209,9 +209,11 @@ const Gallery = () => {
                 transition={{ duration: shouldReduceMotion ? 0 : 0.35, delay: shouldReduceMotion ? 0 : index * 0.05 }}
                 className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:border-slate-300 flex flex-col justify-between"
               >
-                <div
+                <button
+                  type="button"
                   onClick={() => openLightbox(image, index)}
-                  className="relative aspect-[16/11] cursor-pointer overflow-hidden bg-slate-100"
+                  aria-label={`Open image preview: ${image.title}`}
+                  className="relative block w-full aspect-[16/11] cursor-pointer overflow-hidden bg-slate-100 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-600"
                 >
                   <Image
                     src={image.url}
@@ -228,7 +230,7 @@ const Gallery = () => {
                   <div className="absolute top-3 left-3 rounded-md bg-slate-900/80 px-2.5 py-1 text-[11px] font-bold text-sky-300 backdrop-blur">
                     {image.category}
                   </div>
-                </div>
+                </button>
 
                 <div className="p-6">
                   <h3 className="text-lg font-bold text-slate-950 leading-snug">

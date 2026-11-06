@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Building2, Mail, MapPin, Phone, Truck, ShieldCheck, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Building2, Mail, MapPin, Phone, ArrowRight } from 'lucide-react';
 import { useSettings } from '../../lib/SettingsContext';
 import BrandLogo from './BrandLogo';
 
@@ -29,7 +29,6 @@ export const Footer = () => {
   const siteName = settings.siteName || 'Tanish Logistic';
   const logoUrl = settings.logoUrl || '/logo.svg';
   const copyright = settings.copyright || `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`;
-  const primaryColor = settings.primaryColor || '#0369A1';
 
   return (
     <footer className="bg-slate-950 text-white border-t border-slate-800">
@@ -148,13 +147,13 @@ export const Footer = () => {
         {/* Bottom Strip */}
         <div className="mt-14 pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <p>{copyright}</p>
-          <div className="flex items-center gap-6">
+          <nav aria-label="Footer utility navigation" className="flex min-w-0 flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:justify-end sm:gap-x-6">
             <Link href="/about" className="hover:text-slate-200 transition">About Us</Link>
             <Link href="/services" className="hover:text-slate-200 transition">Services</Link>
             <Link href="/contact" className="hover:text-slate-200 transition">Dispatch Support</Link>
             <Link href="/privacy" className="hover:text-slate-200 transition">Privacy Policy</Link>
             <Link href="/book" className="text-sky-400 hover:text-sky-300 transition font-semibold">Book Shipment</Link>
-          </div>
+          </nav>
         </div>
       </div>
     </footer>
