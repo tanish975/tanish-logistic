@@ -23,6 +23,7 @@ model User {
   password  String
   name      String?
   role      Role     @default(CUSTOMER)
+  sessionVersion Int @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -164,5 +165,13 @@ model Review {
   status    String   @default("pending") // pending, approved, rejected
   isPublic  Boolean  @default(false)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// A single database-backed row keeps public branding and admin settings durable
+// across serverless instances. Secrets never belong in this JSON document.
+model SiteSettings {
+  id        String   @id
+  data      Json
   updatedAt DateTime @updatedAt
 }

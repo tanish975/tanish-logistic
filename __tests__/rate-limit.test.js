@@ -31,9 +31,23 @@ describe('checkRateLimit', () => {
 });
 
 describe('getClientIp', () => {
-  it('takes the first IP from x-forwarded-for', () => {
-    const req = { headers: { 'x-forwarded-for': '1.2.3.4, 5.6.7.8' }, socket: { remoteAddress: '9.9.9.9' } };
-    expect(getClientIp(req)).toBe('1.2.3.4');
+  it('ignores spoofed forwarded addresses on an untrusted direct connection', () => {
+    const req = { headers: { 'x-forwarded-for': '1.2.3.4' }, socket: { remoteAddress: '9.9.9.9' } };
+    expect(getClientIp(req)).toBe('9.9.9.9');
+  });
+
+  it('uses a validated Vercel client IP on Vercel', () => {
+    const previous = process.env.VERCEL;
+    process.env.VERCEL = '1';
+    try {
+      const req = { headers: { 'x-vercel-forwarded-for': '1.2.3.4', 'x-forwarded-for': '5.6.7.8' }, socket: { remoteAddress: '9.9.9.9' } };
+      expect(getClientIp(req)).toBe('1.2.3.4');
+      req.headers['x-vercel-forwarded-for'] = 'not-an-ip';
+      expect(getClientIp(req)).toBe('9.9.9.9');
+    } finally {
+      if (previous === undefined) delete process.env.VERCEL;
+      else process.env.VERCEL = previous;
+    }
   });
 
   it('falls back to socket address', () => {
@@ -45,7 +59,7 @@ describe('getClientIp', () => {
 describe('withRateLimit wrapper', () => {
   const makeRes = () => ({
     headers: {},
-    setHeader: jest.fn((k, v) => { }),
+    setHeader: jest.fn(),
     status: jest.fn(function () { return this; }),
     json: jest.fn(),
   });

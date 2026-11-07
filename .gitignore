@@ -84,3 +84,14 @@ android-sdk/
 .env*
 Tanish billing app
 .gstack/
+
+# Runtime logo uploads and local application data must not be committed.
+/public/uploads/
+/data/*.local.json
+# Legacy exports are not used by the application and can contain personal data
+# or password hashes. Removing them from the current tree does not erase history.
+/data/bookings.json
+/data/drivers.json
+/data/users.json
+/data/vehicles.json
+/src/data/payments.json

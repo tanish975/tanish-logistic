@@ -1,3 +1,5 @@
+import { isIP } from 'node:net';
+
 /**
  * In-memory sliding-window rate limiter for Next.js API routes.
  *
@@ -8,6 +10,7 @@
  */
 
 const buckets = new Map();
+const MAX_BUCKETS = 20_000;
 
 // Periodically evict stale buckets so the Map cannot grow unbounded.
 const SWEEP_INTERVAL_MS = 10 * 60 * 1000;
@@ -24,9 +27,20 @@ function sweep(now) {
 }
 
 export function getClientIp(req) {
-  const forwarded = req.headers?.['x-forwarded-for'];
-  if (forwarded) return String(forwarded).split(',')[0].trim();
-  return req.socket?.remoteAddress || req.connection?.remoteAddress || 'unknown';
+  // Vercel overwrites its forwarded client-IP header at the edge. Elsewhere,
+  // ignore client-supplied forwarding headers unless an operator explicitly
+  // enables them behind a proxy that strips and replaces incoming headers.
+  const vercel = process.env.VERCEL === '1' || Boolean(process.env.VERCEL_ENV) ||
+    typeof globalThis[Symbol.for('@vercel/request-context')]?.get === 'function';
+  if (vercel || process.env.TRUST_PROXY_IP_HEADERS === '1') {
+    const forwarded = req.headers?.['x-vercel-forwarded-for'] || req.headers?.['x-forwarded-for'];
+    if (typeof forwarded === 'string') {
+      const candidate = forwarded.split(',')[0].trim();
+      if (isIP(candidate)) return candidate;
+    }
+  }
+  const address = req.socket?.remoteAddress || req.connection?.remoteAddress;
+  return typeof address === 'string' && isIP(address) ? address : 'unknown';
 }
 
 /**
@@ -48,6 +62,11 @@ export function checkRateLimit(key, limit, windowMs) {
     return { allowed: false, remaining: 0, retryAfterSec };
   }
 
+  // Bound memory use under traffic from many distinct addresses. This does
+  // not make the per-instance limiter a substitute for a shared WAF limit.
+  if (!buckets.has(key) && buckets.size >= MAX_BUCKETS) {
+    buckets.delete(buckets.keys().next().value);
+  }
   timestamps.push(now);
   buckets.set(key, timestamps);
   return { allowed: true, remaining: limit - timestamps.length, retryAfterSec: 0 };

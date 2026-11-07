@@ -6,9 +6,9 @@ export default withAdminRoute(async function deleteUserRoute(req, res) {
         return res.status(405).end();
     }
 
-    const { id } = req.body;
+    const { id } = req.body || {};
 
-    if (!id) {
+    if (typeof id !== 'string' || !id.trim() || id.length > 128) {
         return res.status(400).json({ message: 'User ID is required.' });
     }
 
@@ -21,8 +21,7 @@ export default withAdminRoute(async function deleteUserRoute(req, res) {
             where: { id },
         });
         res.status(200).json({ message: 'User deleted successfully.' });
-    } catch (error) {
-        console.error('Error deleting user:', error);
-        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    } catch {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });

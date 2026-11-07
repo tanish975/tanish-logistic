@@ -12,7 +12,7 @@ export default withAdminRoute(async function getCustomersRoute(req, res) {
             orderBy: { createdAt: 'desc' },
         });
 
-        const customers = {};
+        const customers = Object.create(null);
 
         bookings.forEach(booking => {
             const key = booking.phone;
@@ -42,7 +42,7 @@ export default withAdminRoute(async function getCustomersRoute(req, res) {
 
         res.status(200).json(customerList);
 
-    } catch (error) {
+    } catch {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });

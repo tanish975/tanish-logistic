@@ -22,22 +22,20 @@ export const SettingsProvider = ({ children }) => {
     copyright: '',
     primaryColor: '#3b82f6',
     secondaryColor: '#8b5cf6',
-    paymentApiKey: '',
     defaultPostStatus: 'draft',
     commentModeration: 'manual',
-    passwordPolicy: '',
   });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const response = await fetch('/api/settings/general');
+        const response = await fetch('/api/settings');
         if (response.ok) {
           const data = await response.json();
           setSettings(prev => ({ ...prev, ...data }));
         }
-      } catch (error) {
+      } catch {
         // Failed to load settings - continue with defaults
       } finally {
         setIsLoading(false);

@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, CheckCircle2, ArrowRight, MapPin, Box, Loader2, Phone, ShieldCheck, Truck, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
+import { User, CheckCircle2, ArrowRight, MapPin, Box, Loader2, Phone, ShieldCheck, Truck, Clock, ArrowLeft } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Toaster, toast } from 'sonner';
 import { SiteMetadata } from '@/components/Layout/Metadata';
-import { ClickSuccessButton } from '@/components/Animations/ClickSuccessButton';
 import { PublicPageHero } from '@/components/Layout/PublicPage';
 import { MovingTruckLoader } from '@/components/Animations/MovingTruckLoader';
 
@@ -47,7 +45,8 @@ const Book = () => {
     preferredDate: '',
     preferredTime: '',
     serviceType: '',
-    specialInstructions: ''
+    specialInstructions: '',
+    website: ''
   });
 
   const handleInputChange = (field, value) => {
@@ -121,7 +120,7 @@ const Book = () => {
         date: bookingData.preferredDate,
         serviceType: bookingData.serviceType,
         specialInstructions: bookingData.specialInstructions,
-        status: 'PENDING'
+        website: bookingData.website
       };
 
       const response = await fetch('/api/add-booking', {
@@ -143,7 +142,8 @@ const Book = () => {
 
       const result = await response.json();
       const confirmedId = result.bookingId || result.booking?.bookingId;
-      router.push(confirmedId ? `/thank-you?booking=${encodeURIComponent(confirmedId)}` : '/thank-you');
+      const emailNotice = result.warning ? '&email=unavailable' : '';
+      router.push(confirmedId ? `/thank-you?booking=${encodeURIComponent(confirmedId)}${emailNotice}` : '/thank-you');
     } catch (error) {
       console.error("Could not save booking:", error);
       toast.error(error.message || 'Failed to submit booking. Please try again.');
@@ -171,7 +171,7 @@ const Book = () => {
         eyebrow="Commercial Cargo Booking"
         title="Schedule Your Freight Movement in 4 Simple Steps."
         description="Provide your cargo specifications, pickup and delivery addresses, and preferred dispatch date. Our operations directors verify vehicle fit and confirm schedule."
-        primaryHref="/contact"
+        primaryHref="tel:+919924204744"
         primaryLabel="Speak With Dispatch"
         secondaryHref="/services"
         secondaryLabel="View Vehicle Specs"
@@ -203,7 +203,6 @@ const Book = () => {
             <div className="mb-10 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {steps.map((s) => {
-                  const Icon = s.icon;
                   const isActive = step === s.number;
                   const isDone = step > s.number;
                   return (
@@ -245,6 +244,11 @@ const Book = () => {
             {/* Form Column */}
             <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-10 shadow-sm">
               <form onSubmit={handleSubmit}>
+                <div aria-hidden="true" className="hidden">
+                  <label htmlFor="booking-website">Website (leave empty)</label>
+                  <input id="booking-website" name="website" type="text" tabIndex={-1} autoComplete="off"
+                    value={bookingData.website} onChange={(event) => handleInputChange('website', event.target.value)} />
+                </div>
                 {/* Step 1: Cargo Info */}
                 {step === 1 && (
                   <motion.div
@@ -603,7 +607,7 @@ const Book = () => {
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     ) : (
-<ClickSuccessButton
+                      <Button
                         type="submit"
                         disabled={isSubmitting}
                         className="h-11 px-8 font-bold text-white bg-emerald-600 hover:bg-emerald-700 ml-auto shadow-md"
@@ -619,7 +623,7 @@ const Book = () => {
                             <span>Submit Freight Booking</span>
                           </>
                         )}
-                      </ClickSuccessButton>
+                      </Button>
                     )}
                   </div>
                 )}

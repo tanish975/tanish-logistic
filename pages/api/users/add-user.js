@@ -2,25 +2,19 @@ import { withAdminRoute } from '@/lib/session';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 
-const saltRounds = 10;
+const saltRounds = 12;
 
 export default withAdminRoute(async function addUserRoute(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).end();
     }
 
-    const { email, password, name } = req.body;
-
-    if (!email || !password || !name) {
-        return res.status(400).json({ message: 'Email, password, and name are required.' });
-    }
-
-    if (typeof email !== 'string' || typeof password !== 'string' || typeof name !== 'string') {
-        return res.status(400).json({ message: 'Invalid input types.' });
-    }
-
-    if (password.length < 8) {
-        return res.status(400).json({ message: 'Password must be at least 8 characters.' });
+    const { email, password, name } = req.body || {};
+    if (typeof email !== 'string' || email.length > 254 ||
+        !/^[^\s@<>,;:"\\]+@[^\s@<>,;:"\\]+\.[^\s@<>,;:"\\]+$/.test(email) ||
+        typeof name !== 'string' || !name.trim() || name.length > 120 || /[\u0000-\u001f\u007f]/.test(name) ||
+        typeof password !== 'string' || password.length < 12 || Buffer.byteLength(password, 'utf8') > 72) {
+        return res.status(400).json({ message: 'Enter a valid email and name, and a password of at least 12 characters and at most 72 UTF-8 bytes.' });
     }
 
     try {
@@ -38,7 +32,7 @@ export default withAdminRoute(async function addUserRoute(req, res) {
             data: {
                 email,
                 password: hashedPassword,
-                name,
+                name: name.trim(),
                 role: 'CUSTOMER',
             },
         });
@@ -53,8 +47,7 @@ export default withAdminRoute(async function addUserRoute(req, res) {
             }
         });
 
-    } catch (error) {
-        console.error('Error adding user:', error);
-        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    } catch {
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });

@@ -1,39 +1,21 @@
 import { withAdminRoute } from '@/lib/session';
+import { validateDriver } from '@/lib/fleet-validation';
 import prisma from '@/lib/prisma';
 
 export default withAdminRoute(async function driversIndexRoute(req, res) {
-    const { method } = req;
-
-    switch(method){
-        case 'GET':
-            try {
-                const drivers = await prisma.driver.findMany({
-                    orderBy: { createdAt: 'desc' },
-                });
-                res.status(200).json(drivers);
-            } catch (error) {
-                console.error('Error fetching drivers:', error);
-                res.status(500).json({ message: 'Error fetching drivers', error: error.message });
-            }
-            break;
-        case 'POST':
-            try {
-                const driver = req.body;
-                const savedDriver = await prisma.driver.create({
-                    data: {
-                        name: driver.name,
-                        phone: driver.phone,
-                        licenseNumber: driver.licenseNumber,
-                    },
-                });
-                res.status(201).json(savedDriver);
-            } catch (error) {
-                console.error('Error creating driver:', error);
-                res.status(500).json({ message: 'Error creating driver', error: error.message });
-            }
-            break;
-        default:
-            res.setHeader('Allow', ['GET', 'POST']);
-            res.status(405).end(`Method ${method} Not Allowed`);
+  try {
+    if (req.method === 'GET') {
+      return res.status(200).json(await prisma.driver.findMany({ orderBy: { createdAt: 'desc' } }));
     }
+    if (req.method === 'POST') {
+      const data = validateDriver(req.body);
+      if (!data) return res.status(400).json({ message: 'Enter valid driver details.' });
+      return res.status(201).json(await prisma.driver.create({ data }));
+    }
+    res.setHeader('Allow', 'GET, POST');
+    return res.status(405).end('Method Not Allowed');
+  } catch (error) {
+    if (error?.code === 'P2002') return res.status(409).json({ message: 'A driver with that phone or licence already exists.' });
+    return res.status(500).json({ message: 'Unable to manage drivers.' });
+  }
 });

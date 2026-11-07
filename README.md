@@ -55,7 +55,7 @@ The application uses:
 ### Booking System
 
 - Customer-facing booking form at `/book`.
-- Creates human-readable booking IDs such as `TN0001`.
+- Creates non-sequential booking references such as `TN` followed by a random hexadecimal identifier.
 - Stores pickup, drop, cargo, address, date, service type, instructions, price, and status.
 - Default booking status is `PENDING`.
 - Sends notification email to admin and confirmation email to customer.
@@ -132,7 +132,7 @@ The application uses:
 
 Install the following before running the project:
 
-- Node.js 18 or newer
+- Node.js 20.9 or newer (Next.js 16 requirement)
 - npm, or Yarn if preferred
 - PostgreSQL database
 
@@ -160,10 +160,12 @@ Create a `.env` or `.env.local` file in the project root.
 
 ```env
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
-SECRET_COOKIE_PASSWORD="replace-with-at-least-32-characters"
+SECRET_COOKIE_PASSWORD=""  # Supply a unique random value of at least 32 characters.
 RESEND_API_KEY="your-resend-api-key"
 ADMIN_EMAIL="admin@example.com"
-NODE_ENV="development"
+# Required for production logo uploads; keep this server-side and secret.
+BLOB_READ_WRITE_TOKEN=""
+# ADMIN_PASSWORD is set securely only when deliberately seeding an admin.
 ```
 
 ### Variable Details
@@ -171,9 +173,12 @@ NODE_ENV="development"
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `DATABASE_URL` | Yes | PostgreSQL connection string used by Prisma. |
-| `SECRET_COOKIE_PASSWORD` | Strongly recommended | Secret used by iron-session to encrypt session cookies. Must be at least 32 characters. |
+| `SECRET_COOKIE_PASSWORD` | Yes | Unique, random iron-session secret of at least 32 characters. Rotating it invalidates all sessions. |
 | `RESEND_API_KEY` | Required for email | API key used to send booking and contact emails. |
-| `ADMIN_EMAIL` | Recommended | Email address that receives booking and inquiry notifications. |
+| `ADMIN_EMAIL` | Required for booking notifications and seeding | Recipient(s) for booking notifications; seeding requires one valid address. Contact notifications currently use their configured recipient in the contact API. |
+| `ADMIN_PASSWORD` | Only for deliberate seeding | Unique admin passphrase of at least 16 characters and at most 72 UTF-8 bytes. No fallback is provided. |
+| `BLOB_READ_WRITE_TOKEN` | Required for production logo uploads | Server-only token for a **public** Vercel Blob store. Logos are public; never upload private documents. |
+| `TRUST_PROXY_IP_HEADERS` | Optional | Set to `1` only behind a trusted non-Vercel proxy that strips and replaces client-supplied forwarding headers. |
 | `NODE_ENV` | Usually automatic | Controls secure cookie behavior and production mode. |
 
 Do not commit real `.env` values to version control.
@@ -186,32 +191,17 @@ Generate the Prisma client:
 npx prisma generate
 ```
 
-Run migrations:
+**Before any deployment:** the security release adds `User.sessionVersion`, persistent `SiteSettings`, and missing booking/review schema objects. Historical migrations include destructive operations and may not match a database previously changed with `db push`. Back up and inspect the actual migration baseline, then rehearse on a disposable database copy before applying anything to production. Never use `db push --accept-data-loss` as a shortcut. See [Security operations](docs/SECURITY-OPERATIONS.md).
+
+On a new empty database or after an operator has verified the migration plan, apply migrations using:
 
 ```bash
 npx prisma migrate deploy
 ```
 
-For local development, you can use:
+For a disposable development database you can use `npx prisma migrate dev`. Generate a client after schema changes with `npx prisma generate`.
 
-```bash
-npx prisma migrate dev
-```
-
-Seed the database with an admin user, sample bookings, drivers, and vehicles:
-
-```bash
-npx prisma db seed
-```
-
-The seed file currently creates an admin account:
-
-```text
-Email: tanish@admin.com
-Password: tanish123
-```
-
-Change this password before using the project in production.
+The seed script has **no default credentials**. Set a single `ADMIN_EMAIL` and a strong `ADMIN_PASSWORD` through your local environment or secret manager before deliberately running `npx prisma db seed`. Existing admin passwords are not changed by seeding. The operator-only `node scripts/create-admin.js` uses the same explicit email and password policy, but creates or resets the selected account as an administrator; run it only from a trusted environment when intentionally provisioning access. Sample bookings, drivers and vehicles are skipped unless `SEED_SAMPLE_DATA=1`, and sample seeding is refused in production. Do not seed or provision a live database without an approved plan and backup.
 
 ## Available Scripts
 
@@ -299,8 +289,8 @@ Admin access requires:
 
 | Endpoint | Method | Description |
 | --- | --- | --- |
-| `/api/reviews` | `GET` | Returns public reviews by default; `?all=true` is used for admin review lists. |
-| `/api/reviews` | `POST` | Creates a review. |
+| `/api/reviews` | `GET` | Admin-only review list; `?all=true` includes pending and rejected reviews. |
+| `/api/reviews` | `POST` | Submits a review as pending and non-public; only an admin can approve it. |
 | `/api/reviews` | `PUT` | Updates review moderation/status fields. |
 | `/api/reviews` | `DELETE` | Deletes a review. |
 
@@ -308,10 +298,10 @@ Admin access requires:
 
 | Endpoint | Method | Description |
 | --- | --- | --- |
-| `/api/settings/general` | `GET` | Returns saved site settings merged with defaults. |
-| `/api/settings/general` | `POST` | Saves site settings to `data/settings.json`. |
-| `/api/settings` | `GET` | Placeholder endpoint for settings status. |
-| `/api/upload` | `POST` | Uploads a file to `public/uploads` and returns its public URL. |
+| `/api/settings/general` | `GET` | Admin-only settings including non-public configuration defaults. |
+| `/api/settings/general` | `POST` | Saves allowlisted, non-secret settings to PostgreSQL. |
+| `/api/settings` | `GET` | Returns public branding settings only. |
+| `/api/upload` | `POST` | Admin-only logo upload; validates and re-encodes images before public storage. |
 
 ### Fleet Management
 
@@ -344,8 +334,8 @@ Admin access requires:
 | `/api/check-pincode` | `GET` | Checks pincode serviceability using postal data/fallback behavior. |
 | `/api/check-india-pincode` | `GET` | Validates Indian pincode coverage. |
 | `/api/check-logistics` | `GET` | Checks logistics serviceability for a pincode. |
-| `/api/get-payments` | `GET` | Placeholder payment list endpoint. |
-| `/api/test-db` | `GET` | Tests database connectivity. |
+| `/api/get-payments` | `GET` | Admin-only placeholder payment list endpoint. |
+| `/api/test-db` | `GET` | Admin-only database connectivity check; no record counts. |
 | `/api/hello` | `GET` | Basic health/demo endpoint. |
 
 ## Data Models
@@ -417,15 +407,10 @@ Stores customer reviews and moderation status.
 
 ## File Storage and Local Data
 
-The project uses a combination of database records and JSON files:
-
-- `data/settings.json` stores editable site settings.
-- `data/bookings.json`, `data/drivers.json`, `data/users.json`, and related JSON files may exist as legacy or supporting data.
-- `public/uploads` stores uploaded files such as logos.
-- `public/gallery` stores gallery images.
-- `public/hero-videos` stores homepage hero videos.
-
-For production, prefer persistent storage for uploads and make sure the deployed environment does not discard runtime-created files.
+- PostgreSQL stores bookings, users, fleet records, reviews, and editable site settings. If no settings row exists yet, allowlisted values from `data/settings.json` are used as initial defaults. Existing serverless filesystem edits are not automatically migrated; export and review them before upgrading.
+- Production logo uploads require a public Vercel Blob store and `BLOB_READ_WRITE_TOKEN`. Only decoded/re-encoded PNG, JPEG, GIF and WebP images up to 3 MB are accepted; SVG and PDF uploads are rejected. Local development can use ignored `public/uploads`.
+- The legacy unused booking, driver, vehicle, payment and user JSON exports were removed from the current Git tree and ignored locally. Their old Git history is still public; review exposure and rotate any related credentials. No history rewrite has been performed.
+- `public/gallery` and `public/hero-videos` contain static public assets.
 
 ## Email Workflow
 
@@ -435,11 +420,18 @@ After a booking is saved:
 
 1. The system sends an admin notification to `ADMIN_EMAIL`.
 2. The system sends a customer confirmation email when a customer email is provided.
-3. Email sending is handled asynchronously so a booking can still be created if email delivery fails.
+3. Delivery is awaited; if email fails after saving, the booking remains successful and the customer is warned rather than encouraged to submit a duplicate.
 
 Contact form submissions use `/api/send-email`.
 
 Email delivery requires a valid `RESEND_API_KEY`.
+
+### Public submission and sign-in spam protection
+
+- On Vercel, contact, booking, public review and sign-in requests use [BotID Basic](https://vercel.com/docs/botid), explicitly configured as `basic` (not paid Deep Analysis). BotID needs Vercel's request context and OIDC enabled for the project. A detected bot is rejected before either email is sent; if verification is unavailable the form returns an error with a telephone fallback rather than sending unverified emails.
+- The API also validates and escapes inputs, checks an optional hidden honeypot, and limits an IP to five attempts per ten minutes. The limit is **per server instance**, not a shared global limit; it and the honeypot alone will not stop distributed or sophisticated spam. There is no language or gibberish filter that could silently discard genuine enquiries.
+- On non-Vercel hosts, BotID is not available and only the secondary protections apply. In development BotID normally returns a human verdict, so local tests cannot prove live bot detection. If building outside Vercel for a Vercel deployment, set `NEXT_PUBLIC_CONTACT_BOTID=1` at build time so the browser protection is included.
+- After an authorized deployment, test on a Vercel preview with OIDC enabled: confirm that a genuine browser can submit and that a direct request without the browser challenge is rejected. A genuine submission sends both the admin notification and the customer confirmation, so use a controlled email configuration and test addresses. Monitor for false positives; if abuse continues, consider a shared rate limiter or additional firewall rules.
 
 ## Deployment
 
@@ -463,32 +455,13 @@ This project includes Vercel-related files and can be deployed to Vercel. Config
 - `SECRET_COOKIE_PASSWORD`
 - `RESEND_API_KEY`
 - `ADMIN_EMAIL`
+- `BLOB_READ_WRITE_TOKEN` (for public logo uploads)
 
-Before production deployment:
-
-- Run database migrations against the production database.
-- Seed only necessary production users.
-- Replace the default admin password.
-- Confirm the Resend sending domain and `from` addresses are verified.
-- Use persistent storage for uploaded assets if the host has ephemeral filesystem behavior.
+Before production deployment, follow the [security operations checklist](docs/SECURITY-OPERATIONS.md): inspect and rehearse the database migration, rotate exposed or weak credentials, configure MFA and shared edge rate limits, connect public logo storage, and test the actual Vercel BotID/CSP behavior with controlled test accounts and email addresses. Do not assume the local mock tests prove production behavior.
 
 ## Maintenance Notes
 
-- Keep Prisma migrations committed whenever the database schema changes.
-- Run `npx prisma generate` after schema updates.
-- Avoid storing production secrets in committed files.
-- Review `/api/settings/general` before production use because it writes settings to a local JSON file.
-- Review access controls for admin-only endpoints before exposing the app publicly.
-- The default seed credentials are for development only.
-- `npm test` is configured for Jest, but meaningful coverage depends on adding test files.
-
-## Recommended Production Checklist
-
-- Replace seed admin password.
-- Set a strong `SECRET_COOKIE_PASSWORD`.
-- Verify email sending domain in Resend.
-- Restrict admin-only APIs consistently.
-- Configure database backups.
-- Configure persistent upload storage.
-- Run `npm run build` successfully before deployment.
-- Test booking creation, email delivery, login/logout, settings update, and booking status changes.
+- Keep Prisma migrations committed and validate them against a backup or disposable clone before deployment.
+- Keep secrets in the hosting provider's secret manager, never in source files, public settings, or browser code.
+- Run `npm test`, `npm run build`, and `npm audit` after dependency or code changes.
+- Review [Security operations](docs/SECURITY-OPERATIONS.md) for known infrastructure limitations, exposure history, and incident-response steps.

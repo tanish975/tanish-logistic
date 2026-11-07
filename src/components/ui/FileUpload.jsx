@@ -4,7 +4,7 @@ import { Button } from './button';
 import { Input } from './input';
 import { toast } from 'sonner';
 
-export const FileUpload = ({ onUploadSuccess }) => {
+export const FileUpload = ({ id, onUploadSuccess }) => {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -28,11 +28,10 @@ export const FileUpload = ({ onUploadSuccess }) => {
         body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error('File upload failed.');
-      }
-
       const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || 'File upload failed.');
+      }
       toast.success('File uploaded successfully!');
       if (onUploadSuccess) {
         onUploadSuccess(data.url);
@@ -46,8 +45,8 @@ export const FileUpload = ({ onUploadSuccess }) => {
 
   return (
     <div className="flex items-center gap-2">
-      <Input type="file" onChange={handleFileChange} />
-      <Button onClick={handleUpload} disabled={isUploading || !file}>
+      <Input id={id} type="file" accept=".png,.jpg,.jpeg,.gif,.webp,image/png,image/jpeg,image/gif,image/webp" onChange={handleFileChange} className="min-w-0" />
+      <Button type="button" onClick={handleUpload} disabled={isUploading || !file}>
         {isUploading ? 'Uploading...' : 'Upload'}
       </Button>
     </div>

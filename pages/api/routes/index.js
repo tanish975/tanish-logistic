@@ -24,9 +24,8 @@ export default withAdminRoute(async function routesIndexRoute(req, res) {
         .slice(0, 10);
 
       res.status(200).json(formattedRoutes);
-    } catch (error) {
-      console.error('Error fetching popular routes:', error);
-      res.status(500).json({ message: 'Failed to fetch popular routes', error: error.message });
+    } catch {
+      res.status(500).json({ message: 'Failed to fetch popular routes' });
     }
   } else {
     res.setHeader('Allow', ['GET']);

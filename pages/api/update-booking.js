@@ -7,9 +7,10 @@ export default withAdminRoute(async function updateBookingRoute(req, res) {
         return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 
-    const { id, status } = req.body;
+    const { id, status } = req.body || {};
 
-    if (!id || !status) {
+    if (typeof id !== 'string' || !id.trim() || id.length > 128 ||
+        typeof status !== 'string' || !['PENDING', 'CONFIRMED', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'].includes(status.toUpperCase())) {
         return res.status(400).json({ message: 'Booking ID and status are required.' });
     }
 
@@ -33,7 +34,7 @@ export default withAdminRoute(async function updateBookingRoute(req, res) {
         });
 
         res.status(200).json({ message: 'Booking updated successfully.', booking: updatedBooking });
-    } catch (error) {
+    } catch {
       res.status(500).json({ message: 'Internal Server Error' });
     }
 });

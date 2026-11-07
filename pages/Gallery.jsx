@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { X, ChevronLeft, ChevronRight, ZoomIn, Truck, Package, ArrowRight, ShieldCheck, Check } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, ZoomIn, Check } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { SiteMetadata } from '@/components/Layout/Metadata';
 import { PublicPageHero, FinalCta } from '@/components/Layout/PublicPage';
@@ -15,7 +13,7 @@ const galleryImages = [
     title: "Long-Haul Multi-Axle Carrier",
     category: "Long-Haul Trucks",
     location: "Western Expressway Corridor",
-    spec: "Heavy Freight Transit &bull; Interstate FTL",
+    spec: "Heavy Freight Transit • Interstate FTL",
   },
   {
     id: 3,
@@ -105,9 +103,23 @@ const Gallery = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
 
-  const filteredImages = activeCategory === "All Fleet Assets"
+  const filteredImages = useMemo(() => activeCategory === "All Fleet Assets"
     ? galleryImages
-    : galleryImages.filter((img) => img.category === activeCategory);
+    : galleryImages.filter((img) => img.category === activeCategory), [activeCategory]);
+
+  const closeLightbox = useCallback(() => {
+    setSelectedImage(null);
+    setSelectedIndex(null);
+  }, []);
+
+  const navigateImage = useCallback((direction) => {
+    if (selectedIndex === null || filteredImages.length === 0) return;
+    const newIndex = direction === 'prev'
+      ? (selectedIndex - 1 + filteredImages.length) % filteredImages.length
+      : (selectedIndex + 1) % filteredImages.length;
+    setSelectedImage(filteredImages[newIndex]);
+    setSelectedIndex(newIndex);
+  }, [selectedIndex, filteredImages]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -124,25 +136,11 @@ const Gallery = () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
     };
-  }, [selectedImage, selectedIndex, filteredImages]);
+  }, [selectedImage, closeLightbox, navigateImage]);
 
   const openLightbox = (image, index) => {
     setSelectedImage(image);
     setSelectedIndex(index);
-  };
-
-  const closeLightbox = () => {
-    setSelectedImage(null);
-    setSelectedIndex(null);
-  };
-
-  const navigateImage = (direction) => {
-    if (selectedIndex === null) return;
-    const newIndex = direction === 'prev'
-      ? (selectedIndex - 1 + filteredImages.length) % filteredImages.length
-      : (selectedIndex + 1) % filteredImages.length;
-    setSelectedImage(filteredImages[newIndex]);
-    setSelectedIndex(newIndex);
   };
 
   return (
@@ -211,9 +209,11 @@ const Gallery = () => {
                 transition={{ duration: shouldReduceMotion ? 0 : 0.35, delay: shouldReduceMotion ? 0 : index * 0.05 }}
                 className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:border-slate-300 flex flex-col justify-between"
               >
-                <div
+                <button
+                  type="button"
                   onClick={() => openLightbox(image, index)}
-                  className="relative aspect-[16/11] cursor-pointer overflow-hidden bg-slate-100"
+                  aria-label={`Open image preview: ${image.title}`}
+                  className="relative block w-full aspect-[16/11] cursor-pointer overflow-hidden bg-slate-100 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sky-600"
                 >
                   <Image
                     src={image.url}
@@ -230,7 +230,7 @@ const Gallery = () => {
                   <div className="absolute top-3 left-3 rounded-md bg-slate-900/80 px-2.5 py-1 text-[11px] font-bold text-sky-300 backdrop-blur">
                     {image.category}
                   </div>
-                </div>
+                </button>
 
                 <div className="p-6">
                   <h3 className="text-lg font-bold text-slate-950 leading-snug">
@@ -240,7 +240,7 @@ const Gallery = () => {
                     {image.location}
                   </p>
                   <div className="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-600 font-medium">
-                    <span dangerouslySetInnerHTML={{ __html: image.spec }} />
+                    <span>{image.spec}</span>
                   </div>
                 </div>
               </motion.article>
