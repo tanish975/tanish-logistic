@@ -1,4 +1,3 @@
-import React from 'react';
 import Link from 'next/link';
 import { Building2, Mail, MapPin, Phone, ArrowRight } from 'lucide-react';
 import { useSettings } from '../../lib/SettingsContext';

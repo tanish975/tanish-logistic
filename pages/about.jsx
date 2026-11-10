@@ -1,4 +1,3 @@
-import React from 'react';
 import Image from 'next/image';
 import { Users, Award, Target, ShieldCheck, Check } from 'lucide-react';
 import { SiteMetadata } from '@/components/Layout/Metadata';

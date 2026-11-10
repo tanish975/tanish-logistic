@@ -1,7 +1,6 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import React from 'react';
 
 export function BentoGrid({
   items,

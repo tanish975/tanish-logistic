@@ -14,10 +14,9 @@ jest.mock('@/lib/SettingsContext', () => ({
   SettingsProvider: ({ children }) => children,
 }));
 
-// eslint-disable-next-line import/first
 import PrivacyPolicy from '../pages/privacy';
-// eslint-disable-next-line import/first
 import ThankYou from '../pages/thank-you';
+import Services from '../pages/services';
 
 describe('Privacy Policy page (SSR render)', () => {
   it('renders all policy sections and contact info', () => {
@@ -40,5 +39,13 @@ describe('Thank-you page (SSR render)', () => {
     expect(html).toContain('Confirmation Call');
     expect(html).toContain('Vehicle Assignment');
     expect(html).toContain('Dispatch &amp; Updates');
+  });
+});
+
+describe('Services page (SSR render)', () => {
+  it('renders the services hero and service information', () => {
+    const html = renderToString(React.createElement(Services));
+    expect(html).toContain('Road Freight Services Built Around Real Industrial Movement.');
+    expect(html).toContain('Full Truckload (FTL) &amp; Interstate Freight');
   });
 });

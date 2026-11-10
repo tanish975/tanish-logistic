@@ -1,12 +1,9 @@
-import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, CheckCircle2, Handshake, Package, Route, ShieldCheck, Truck, Warehouse, Check, Clock, Phone } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { Check, CheckCircle2, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SiteMetadata } from '@/components/Layout/Metadata';
-import { PublicPageHero, SectionIntro, FinalCta } from '@/components/Layout/PublicPage';
-import { WordRotator } from '@/components/Animations/WordRotator';
+import { PublicPageHero, FinalCta } from '@/components/Layout/PublicPage';
 
 const serviceDetails = [
   {
@@ -129,8 +126,6 @@ const processSteps = [
 ];
 
 const Services = () => {
-  const shouldReduceMotion = useReducedMotion();
-
   return (
     <div className="min-h-screen bg-white text-slate-950 font-sans">
       <SiteMetadata
