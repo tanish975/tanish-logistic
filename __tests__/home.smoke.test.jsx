@@ -10,7 +10,6 @@ jest.mock('@/lib/SettingsContext', () => ({
   SettingsProvider: ({ children }) => children,
 }));
 
-// eslint-disable-next-line import/first
 import Home from '../pages/index';
 
 describe('Home page smoke test (SSR render)', () => {
@@ -21,8 +20,13 @@ describe('Home page smoke test (SSR render)', () => {
     expect(html).toContain('Road Freight Built for Serious Business');
     expect(html).toContain('Years Moving Freight');
 
-    // Hero video stack — all 4 videos rendered (cross-fade, no unmount gap)
+    // Hero video stack — the first video loads immediately, with a poster
+    // fallback; remaining videos are not all downloaded at page startup.
     expect(html.match(/hero-videos\//g)).toHaveLength(4);
+    expect(html).toContain('poster="/hero-posters/mixkit-52428-video-52428-full-hd.jpg"');
+    expect(html).toContain('preload="auto"');
+    expect(html).toContain('preload="metadata"');
+    expect(html).toContain('preload="none"');
 
     // Coverage marquee (magicui)
     expect(html).toContain('Cities and industrial hubs served');

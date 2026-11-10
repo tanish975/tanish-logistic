@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/router';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -18,16 +18,10 @@ const pageTransition = {
 
 export function PageTransition({ children }) {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) return null;
-
+  // Keep page content in the server-rendered HTML so the shell cannot show the footer alone.
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={router.pathname}
         initial="initial"
