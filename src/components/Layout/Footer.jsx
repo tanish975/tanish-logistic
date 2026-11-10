@@ -1,7 +1,7 @@
-import React from 'react';
 import Link from 'next/link';
 import { Building2, Mail, MapPin, Phone, ArrowRight } from 'lucide-react';
 import { useSettings } from '../../lib/SettingsContext';
+import { serviceCapabilities } from '../../lib/serviceCapabilities';
 import BrandLogo from './BrandLogo';
 
 const navigationLinks = [
@@ -14,13 +14,15 @@ const navigationLinks = [
   { href: '/book', label: 'Book Transport' },
 ];
 
-const serviceLinks = [
-  { href: '/services', label: 'Full Truckload (FTL)' },
-  { href: '/services', label: 'B2B Cargo Movement' },
-  { href: '/services', label: 'Interstate Road Freight' },
-  { href: '/services', label: 'Dedicated Contract Fleet' },
-  { href: '/services', label: 'Industrial & Heavy Cargo' },
-  { href: '/services', label: 'Express Highway Transit' },
+const serviceLinks = serviceCapabilities.map(({ slug, label }) => ({
+  href: `/services/${slug}/`,
+  label,
+}));
+
+const customerGuideLinks = [
+  { href: '/guides/vehicle-selection/', label: 'Vehicle & Load Planning' },
+  { href: '/guides/online-booking/', label: 'Online Booking Steps' },
+  { href: '/guides/shipment-updates/', label: 'Shipment Updates & POD' },
 ];
 
 export const Footer = () => {
@@ -81,17 +83,31 @@ export const Footer = () => {
           </nav>
 
           {/* Freight Services */}
-          <nav aria-label="Services navigation">
+          <nav aria-label="Freight capabilities and customer guides">
             <p className="text-xs font-bold uppercase tracking-wider text-sky-400">Capabilities</p>
             <ul className="mt-4 space-y-2.5 text-sm">
-              {serviceLinks.map((service, idx) => (
-                <li key={idx}>
+              {serviceLinks.map((service) => (
+                <li key={service.href}>
                   <Link
                     href={service.href}
                     className="text-slate-300 hover:text-white transition flex items-center gap-1.5"
                   >
                     <ArrowRight className="h-3 w-3 text-slate-500" />
                     <span>{service.label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 text-xs font-bold uppercase tracking-wider text-sky-400">Customer Guides</p>
+            <ul className="mt-3 space-y-2.5 text-sm">
+              {customerGuideLinks.map((guide) => (
+                <li key={guide.href}>
+                  <Link
+                    href={guide.href}
+                    className="flex min-h-11 items-center gap-1.5 text-slate-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                  >
+                    <ArrowRight className="h-3 w-3 text-slate-500" aria-hidden="true" />
+                    <span>{guide.label}</span>
                   </Link>
                 </li>
               ))}

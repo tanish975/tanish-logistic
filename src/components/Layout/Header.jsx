@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/router';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useSettings } from '../../lib/SettingsContext';
@@ -48,7 +48,7 @@ export const Header = () => {
         if (data.user?.role === 'ADMIN') {
           setIsAdmin(true);
         }
-      } catch (error) {
+      } catch {
         // Silently ignore session check failure
       }
     };
@@ -57,7 +57,6 @@ export const Header = () => {
 
   const siteName = settings.siteName ?? 'Tanish Logistic';
   const logoUrl = settings.logoUrl ?? '/logo-animated.svg';
-  const primaryColor = settings.primaryColor || '#0369A1';
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 pointer-events-none transition-all duration-300 pt-3 sm:pt-4 px-3 sm:px-6 lg:px-8">

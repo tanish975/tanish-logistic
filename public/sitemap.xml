@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://tanishlogistic.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://tanishlogistic.com/services</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tanishlogistic.com/services/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://tanishlogistic.com/services/full-truckload-ftl/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tanishlogistic.com/services/b2b-cargo-movement/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tanishlogistic.com/services/interstate-road-freight/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tanishlogistic.com/services/dedicated-contract-fleet/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tanishlogistic.com/services/industrial-heavy-cargo/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tanishlogistic.com/services/express-highway-transit/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tanishlogistic.com/guides/vehicle-selection/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tanishlogistic.com/guides/online-booking/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://tanishlogistic.com/guides/shipment-updates/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://tanishlogistic.com/book</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://tanishlogistic.com/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://tanishlogistic.com/about</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>

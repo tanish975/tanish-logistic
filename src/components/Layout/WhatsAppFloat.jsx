@@ -1,4 +1,3 @@
-import React from 'react';
 
 const WHATSAPP_NUMBER = '919924204744';
 const PREFILLED_MESSAGE = encodeURIComponent(

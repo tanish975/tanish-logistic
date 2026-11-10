@@ -1,4 +1,3 @@
-import React from 'react';
 
 const ANIMATED_LOGO_URL = '/logo-animated.svg';
 const STATIC_LOGO_URL = '/logo.svg';

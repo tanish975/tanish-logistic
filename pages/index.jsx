@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import Head from 'next/head';
 import { Button } from '@/components/ui/button';
 import { SiteMetadata } from '@/components/Layout/Metadata';
 import {
@@ -199,6 +200,7 @@ const Home = () => {
   const slogan = settings.slogan || 'Driven by Trust, Powered by Roads';
   const primaryColor = settings.primaryColor || '#0369A1';
   const [currentHeroIndex, setCurrentHeroIndex] = React.useState(0);
+  const [hasInitialHeroFrame, setHasInitialHeroFrame] = React.useState(false);
   const [isManuallyPaused, setIsManuallyPaused] = React.useState(false);
   const [isHeroHovered, setIsHeroHovered] = React.useState(false);
   const [isHeroFocused, setIsHeroFocused] = React.useState(false);
@@ -237,7 +239,7 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [isPaused]);
 
-  // Play only the active hero video; keep others paused (but buffered).
+  // Play only the active hero video; preload one upcoming video after the first frame is ready.
   const heroVideoRefs = React.useRef([]);
 
   React.useEffect(() => {
@@ -257,6 +259,14 @@ const Home = () => {
         title="Tanish Logistic — Reliable Pan-India B2B Road Freight & Transport"
         description="Tanish Logistic delivers dependable B2B road freight across India. Full truckload (FTL), dedicated corporate fleet, and scheduled industrial movement connecting major corridors."
       />
+      <Head>
+        <link
+          rel="preload"
+          as="image"
+          href={heroContent[0].poster}
+          fetchPriority="high"
+        />
+      </Head>
 
       {/* Hero Section with Video Background */}
       <section
@@ -283,6 +293,8 @@ const Home = () => {
             ) : (
               heroContent.map((content, idx) => {
                 const isActive = idx === currentHeroIndex;
+                const isNext = idx === (currentHeroIndex + 1) % heroContent.length;
+                const shouldPreloadVideo = isActive || (hasInitialHeroFrame && isNext);
                 return (
                   <motion.video
                     key={content.video}
@@ -290,10 +302,13 @@ const Home = () => {
                       heroVideoRefs.current[idx] = el;
                     }}
                     src={content.video}
+                    poster={content.poster}
                     muted
                     loop
                     playsInline
-                    preload="auto"
+                    autoPlay={isActive}
+                    preload={shouldPreloadVideo ? 'auto' : isNext ? 'metadata' : 'none'}
+                    onLoadedData={idx === 0 ? () => setHasInitialHeroFrame(true) : undefined}
                     className="absolute inset-0 h-full w-full object-cover"
                     initial={false}
                     animate={{ opacity: isActive ? 1 : 0 }}

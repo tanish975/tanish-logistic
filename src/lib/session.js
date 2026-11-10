@@ -73,20 +73,6 @@ export async function getValidatedSession(req, res) {
   };
 }
 
-export function withSessionRoute(handler) {
-  return async function sessionWrappedHandler(req, res) {
-    res.setHeader('Cache-Control', 'private, no-store');
-    try {
-      const { session, user } = await getValidatedSession(req, res);
-      req.session = session;
-      req.currentUser = user;
-      return await handler(req, res);
-    } catch {
-      return res.status(500).json({ message: 'Internal server error processing session.' });
-    }
-  };
-}
-
 export function withAdminRoute(handler) {
   return async function adminProtectedHandler(req, res) {
     res.setHeader('Cache-Control', 'private, no-store');

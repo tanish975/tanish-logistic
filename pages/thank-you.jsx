@@ -78,8 +78,8 @@ const ThankYou = () => {
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
               Our commercial operations desk has received your dispatch
-              request. Please save your booking reference for tracking and
-              invoice reconciliation.
+              request. Please save your booking reference for shipment updates
+              and invoice reconciliation.
             </p>
           </BlurFade>
 
@@ -108,6 +108,13 @@ const ThankYou = () => {
                 <p className="mt-3 text-xs text-slate-400">
                   Quote this reference on call or email for any updates.
                 </p>
+                <Link
+                  href="/guides/shipment-updates/"
+                  className="mt-2 inline-flex min-h-11 items-center gap-2 text-xs font-semibold text-emerald-300 hover:text-emerald-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
+                >
+                  How updates and POD work
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </Link>
               </div>
             </BlurFade>
           )}

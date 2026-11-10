@@ -1,12 +1,11 @@
-import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, CheckCircle2, Handshake, Package, Route, ShieldCheck, Truck, Warehouse, Check, Clock, Phone } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, Check, CheckCircle2, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { serviceCapabilities } from '@/lib/serviceCapabilities';
+import { vehicleSpecs } from '@/lib/vehicleSpecs';
 import { SiteMetadata } from '@/components/Layout/Metadata';
-import { PublicPageHero, SectionIntro, FinalCta } from '@/components/Layout/PublicPage';
-import { WordRotator } from '@/components/Animations/WordRotator';
+import { PublicPageHero, FinalCta } from '@/components/Layout/PublicPage';
 
 const serviceDetails = [
   {
@@ -67,44 +66,6 @@ const serviceDetails = [
   },
 ];
 
-const vehicleSpecs = [
-  {
-    type: '14ft / 17ft Closed Container',
-    payload: '3.5 - 6.0 Metric Tons',
-    volume: '800 - 1,100 Cu. Ft.',
-    body: 'Closed Weatherproof Container',
-    bestFor: 'FMCG, Pharmaceuticals, Cartons, Consumer Goods, Electronics',
-  },
-  {
-    type: '19ft / 22ft Open Body Truck',
-    payload: '7.5 - 10.0 Metric Tons',
-    volume: '1,200 - 1,500 Cu. Ft.',
-    body: 'High-Deck Open Body with Tarpaulin',
-    bestFor: 'Machinery Components, Agricultural Produce, Plastics, Drums',
-  },
-  {
-    type: '32ft Single Axle (SXL) Container',
-    payload: '7.0 - 9.0 Metric Tons',
-    volume: '1,800 - 2,000 Cu. Ft. (High Cube)',
-    body: 'Closed High-Volume Container',
-    bestFor: 'Lightweight Bulk Cargo, Textiles, Automotive Parts, Packaging',
-  },
-  {
-    type: '32ft Multi-Axle (MXL) Container',
-    payload: '14.0 - 18.0 Metric Tons',
-    volume: '1,850 - 2,100 Cu. Ft.',
-    body: 'Heavy Multi-Axle Container',
-    bestFor: 'Industrial Steel, Heavy Machinery, Chemical Drums, Industrial Goods',
-  },
-  {
-    type: '40ft Semi-Bed / Flatbed Trailer',
-    payload: '25.0 - 32.0 Metric Tons',
-    volume: 'Open Bed / High Capacity',
-    body: 'Multi-Axle Heavy Trailer',
-    bestFor: 'Steel Coils, Structural Beams, Over-Dimensional Cargo, Transformers',
-  },
-];
-
 const processSteps = [
   {
     step: '01',
@@ -129,8 +90,6 @@ const processSteps = [
 ];
 
 const Services = () => {
-  const shouldReduceMotion = useReducedMotion();
-
   return (
     <div className="min-h-screen bg-white text-slate-950 font-sans">
       <SiteMetadata
@@ -263,6 +222,44 @@ const Services = () => {
         </div>
       </section>
 
+      {/* Plain-English guides for the six footer capabilities */}
+      <section className="border-y border-slate-200 bg-slate-50 py-16 sm:py-20" aria-labelledby="service-guide-heading">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
+            <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+              Choose with confidence
+            </span>
+            <h2 id="service-guide-heading" className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+              What do these freight services mean?
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">
+              Read a plain-language guide to when each option may fit and what shipment details to prepare before requesting a quote.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {serviceCapabilities.map((capability) => (
+              <article key={capability.slug} className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-colors hover:border-sky-400">
+                <h3 className="text-lg font-bold leading-snug text-slate-950">
+                  {capability.label}
+                </h3>
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-600">
+                  {capability.cardSummary}
+                </p>
+                <Link
+                  href={`/services/${capability.slug}/`}
+                  aria-label={`Read the ${capability.label} service guide`}
+                  className="mt-4 inline-flex min-h-11 items-center gap-2 font-semibold text-sky-800 hover:text-sky-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 focus-visible:ring-offset-2"
+                >
+                  Read the service guide
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Fleet & Commercial Vehicle Specification Matrix (Minimalist Corporate Table) */}
       <section className="py-20 sm:py-28 bg-slate-50 border-y border-slate-200">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -274,8 +271,15 @@ const Services = () => {
               Commercial vehicle specifications & capacities.
             </h2>
             <p className="mt-4 text-base text-slate-600">
-              Select the appropriate vehicle configuration based on your cargo tonnage, volumetric cubic capacity, and weatherproofing requirements.
+              Compare vehicle configurations by cargo weight, space, body type, and weather protection.
             </p>
+            <Link
+              href="/guides/vehicle-selection/"
+              className="mt-3 inline-flex min-h-11 items-center gap-2 font-semibold text-sky-800 hover:text-sky-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 focus-visible:ring-offset-2"
+            >
+              Read the vehicle and load planning guide
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
           </div>
 
           <div className="mt-12 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -319,6 +323,9 @@ const Services = () => {
               </table>
             </div>
           </div>
+          <p className="mt-4 text-sm leading-relaxed text-slate-600">
+            Listed capacities are indicative. Confirm the exact vehicle, permitted payload, route, and availability against your shipment before booking.
+          </p>
         </div>
       </section>
 
