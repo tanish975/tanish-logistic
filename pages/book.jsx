@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -173,8 +174,8 @@ const Book = () => {
         description="Provide your cargo specifications, pickup and delivery addresses, and preferred dispatch date. Our operations directors verify vehicle fit and confirm schedule."
         primaryHref="tel:+919924204744"
         primaryLabel="Speak With Dispatch"
-        secondaryHref="/services"
-        secondaryLabel="View Vehicle Specs"
+        secondaryHref="/guides/vehicle-selection/"
+        secondaryLabel="Vehicle & Load Guide"
       >
         <div className="rounded-2xl border border-white/15 bg-slate-900/80 p-6 backdrop-blur-md">
           <p className="text-xs font-bold uppercase tracking-wider text-sky-400">Booking Commitments</p>
@@ -198,6 +199,19 @@ const Book = () => {
       {/* Main 2-Column Booking Section */}
       <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-6 flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:p-5">
+            <p className="text-sm text-slate-700">
+              Want to prepare first? See the form steps and details to have ready.
+            </p>
+            <Link
+              href="/guides/online-booking/"
+              className="inline-flex min-h-11 shrink-0 items-center gap-2 font-semibold text-sky-800 hover:text-sky-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 focus-visible:ring-offset-2"
+            >
+              Read the booking guide
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+
           {/* Progress Stepper Bar */}
           {step < 5 && (
             <div className="mb-10 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">

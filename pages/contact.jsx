@@ -84,7 +84,7 @@ const Contact = () => {
     <div className="min-h-screen bg-white text-slate-950 font-sans">
       <SiteMetadata
         title="Contact & Operating Hubs — Tanish Logistic | Freight Support"
-        description="Contact Tanish Logistic. Direct dispatch lines in Vadodara (Gujarat) and Mandi Gobindgarh (Punjab). Request a freight quote or track your shipment."
+        description="Contact Tanish Logistic in Vadodara or Mandi Gobindgarh to request a freight quote or shipment update using your booking reference."
       />
       <Toaster position="top-right" reverseOrder={false} />
       {isSubmitting && (
