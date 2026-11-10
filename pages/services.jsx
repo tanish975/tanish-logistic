@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Check, CheckCircle2, Truck } from 'lucide-react';
+import { ArrowRight, Check, CheckCircle2, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { serviceCapabilities } from '@/lib/serviceCapabilities';
 import { SiteMetadata } from '@/components/Layout/Metadata';
 import { PublicPageHero, FinalCta } from '@/components/Layout/PublicPage';
 
@@ -254,6 +255,44 @@ const Services = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Plain-English guides for the six footer capabilities */}
+      <section className="border-y border-slate-200 bg-slate-50 py-16 sm:py-20" aria-labelledby="service-guide-heading">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
+            <span className="text-xs font-bold uppercase tracking-widest text-sky-700">
+              Choose with confidence
+            </span>
+            <h2 id="service-guide-heading" className="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+              What do these freight services mean?
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">
+              Read a plain-language guide to when each option may fit and what shipment details to prepare before requesting a quote.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {serviceCapabilities.map((capability) => (
+              <article key={capability.slug} className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-colors hover:border-sky-400">
+                <h3 className="text-lg font-bold leading-snug text-slate-950">
+                  {capability.label}
+                </h3>
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-600">
+                  {capability.cardSummary}
+                </p>
+                <Link
+                  href={`/services/${capability.slug}/`}
+                  aria-label={`Read the ${capability.label} service guide`}
+                  className="mt-4 inline-flex min-h-11 items-center gap-2 font-semibold text-sky-800 hover:text-sky-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-600 focus-visible:ring-offset-2"
+                >
+                  Read the service guide
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </article>
+            ))}
           </div>
         </div>
       </section>

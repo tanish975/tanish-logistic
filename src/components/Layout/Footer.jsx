@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Building2, Mail, MapPin, Phone, ArrowRight } from 'lucide-react';
 import { useSettings } from '../../lib/SettingsContext';
+import { serviceCapabilities } from '../../lib/serviceCapabilities';
 import BrandLogo from './BrandLogo';
 
 const navigationLinks = [
@@ -13,14 +14,10 @@ const navigationLinks = [
   { href: '/book', label: 'Book Transport' },
 ];
 
-const serviceLinks = [
-  { href: '/services', label: 'Full Truckload (FTL)' },
-  { href: '/services', label: 'B2B Cargo Movement' },
-  { href: '/services', label: 'Interstate Road Freight' },
-  { href: '/services', label: 'Dedicated Contract Fleet' },
-  { href: '/services', label: 'Industrial & Heavy Cargo' },
-  { href: '/services', label: 'Express Highway Transit' },
-];
+const serviceLinks = serviceCapabilities.map(({ slug, label }) => ({
+  href: `/services/${slug}/`,
+  label,
+}));
 
 export const Footer = () => {
   const settings = useSettings();
@@ -83,8 +80,8 @@ export const Footer = () => {
           <nav aria-label="Services navigation">
             <p className="text-xs font-bold uppercase tracking-wider text-sky-400">Capabilities</p>
             <ul className="mt-4 space-y-2.5 text-sm">
-              {serviceLinks.map((service, idx) => (
-                <li key={idx}>
+              {serviceLinks.map((service) => (
+                <li key={service.href}>
                   <Link
                     href={service.href}
                     className="text-slate-300 hover:text-white transition flex items-center gap-1.5"
