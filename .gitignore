@@ -95,3 +95,12 @@ Tanish billing app
 /data/users.json
 /data/vehicles.json
 /src/data/payments.json
+
+# Brand film build artefacts (keep the final MP4s, ignore working files)
+promo-video/node_modules/
+promo-video/bin/
+promo-video/out/stills/
+promo-video/out/review/
+promo-video/out/*.wav
+promo-video/out/vo.mp3
+promo-video/out/*-silent.mp4
