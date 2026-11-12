@@ -1,0 +1,25 @@
+{
+  "name": "tanish-logistic-promo",
+  "version": "1.0.0",
+  "description": "Code-authored 45s brand film for Tanish Logistic (canvas frames + FFmpeg).",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "node prepare.mjs",
+    "stills": "node render.mjs --stills 2.5,7.2,11.5,17.5,25,31.5,37.5,42.5",
+    "render": "node render.mjs --out out/tanish-logistic-promo-silent.mp4",
+    "audio": "node audio.mjs",
+    "mix": "bash mix.sh",
+    "build": "node render.mjs --out out/tanish-logistic-promo-silent.mp4 && node audio.mjs && bash mix.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.2",
+    "@napi-rs/canvas": "^1.1.1",
+    "@sparticuz/chromium": "^153.0.0",
+    "hyperframes": "^0.9.38"
+  },
+  "type": "module"
+}
